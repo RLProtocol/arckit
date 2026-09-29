@@ -55,7 +55,7 @@ export function Cash() {
               <ul className="cash-caveats">
                 <li><strong>Small crowd, weak privacy.</strong> Anonymity comes from other people's deposits. With a handful of notes, timing alone can link you. Wait, and withdraw when the pool has grown.</li>
                 <li><strong>The note is the money.</strong> Nobody, including us, can recover a lost note or reverse a deposit.</li>
-                <li><strong>Gas is paid by the withdrawing wallet.</strong> Never withdraw from the wallet that deposited; that undoes everything.</li>
+                <li><strong>Gas is paid by Arc Kit.</strong> Our relayer submits the withdrawal, so the recipient needs no funds. Never withdraw to the wallet that deposited; that undoes everything.</li>
                 <li><strong>Your jurisdiction, your call.</strong> Privacy tools are restricted in some places.</li>
               </ul>
             </div>

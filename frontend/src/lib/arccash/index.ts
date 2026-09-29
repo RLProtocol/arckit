@@ -46,6 +46,26 @@ export const arcCashAbi = parseAbi([
  * truncated scan cannot produce a wrong root.
  */
 export async function fetchLeaves(client: PublicClient, pool: Pool, onProgress?: (done: number, total: number) => void): Promise<bigint[]> {
+  // Arc RPCs prune event logs after a few days, so a pool older than that cannot be rebuilt from eth_getLogs.
+  // The relayer serves the deposit list from an indexer; it is checked against nextIndex() here and the contract
+  // rejects any root it does not know, so a wrong list can only fail, never pay out wrongly.
+  const expected = Number(await client.readContract({ address: pool.address, abi: arcCashAbi, functionName: "nextIndex" }));
+  try {
+    onProgress?.(0, 1);
+    const res = await fetch(`/api/cash?op=leaves&pool=${pool.address}`);
+    const j = (await res.json()) as { leaves?: string[] };
+    if (res.ok && Array.isArray(j.leaves) && j.leaves.length === expected && j.leaves.every((h) => /^0x[0-9a-fA-F]{64}$/.test(h))) {
+      onProgress?.(1, 1);
+      return j.leaves.map((h) => BigInt(h));
+    }
+  } catch {
+    // fall through to the chain scan
+  }
+  return fetchLeavesFromChain(client, pool, onProgress);
+}
+
+/** Scans Deposit events from the pool's deployment block in 50k-block chunks (works while the RPC still has them). */
+async function fetchLeavesFromChain(client: PublicClient, pool: Pool, onProgress?: (done: number, total: number) => void): Promise<bigint[]> {
   const head = await client.getBlockNumber({ cacheTime: 0 });
   const chunk = 50_000n;
   const total = Number((head - pool.deployBlock) / chunk) + 1;

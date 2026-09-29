@@ -2,6 +2,10 @@
 //   GET  ?op=config            relayer address, fee (0), pools
 //   POST ?op=withdraw          { pool, pA, pB, pC, root, nullifierHash, recipient, fee } -> { hash }
 //   GET  ?op=status&hash=0x…   { status: "pending" | "success" | "reverted" }
+//   GET  ?op=leaves&pool=0x…   { leaves: [bytes32…], count }  every deposit commitment in leaf order
+// Arc RPCs prune event logs after a few days, so the browser cannot rebuild the Merkle tree from eth_getLogs once
+// a pool is older than that. `leaves` serves the deposit list from Etherscan's indexer, cached in KV and checked
+// against the pool's nextIndex(). A wrong list is harmless: the contract rejects any root it has not seen.
 // The proof binds relayer + fee, so a request can only pay out the way the prover intended. Every request is
 // simulated before it is broadcast, so an invalid proof costs the relayer nothing but CPU. The relayer learns the
 // recipient address and the caller's IP, and nothing about which deposit was spent.
@@ -10,14 +14,17 @@ const { privateKeyToAccount } = require("viem/accounts");
 const kv = require("./_lib/pay/kv");
 
 const POOLS = {
-  "0xdbf688e09c296df6ef4a02995427ee637d1e3ebe": { label: "1 USDC", denomination: 10n ** 18n },
-  "0x0303ae09b4f9f599823634aa9c88b6a517b24e1b": { label: "10 USDC", denomination: 10n * 10n ** 18n },
+  "0xdbf688e09c296df6ef4a02995427ee637d1e3ebe": { label: "1 USDC", denomination: 10n ** 18n, deployBlock: 22512783 },
+  "0x0303ae09b4f9f599823634aa9c88b6a517b24e1b": { label: "10 USDC", denomination: 10n * 10n ** 18n, deployBlock: 22512911 },
 };
+const ETHERSCAN = "https://api.etherscan.io/v2/api?chainid=5042";
+const DEPOSIT_TOPIC = "0xa945e51eec50ab98c161376f0db4cf2aeba3ec92755fe2fcd388bdbbb80ff196"; // Deposit(bytes32,uint32,uint256)
 const FEE = 0n; // we cover gas; nothing is taken from the withdrawal
 const MAX_GAS = 900_000n;
 const PER_IP_PER_HOUR = 6;
 
 const abi = parseAbi([
+  "function nextIndex() view returns (uint32)",
   "function withdraw(uint256[2] _pA, uint256[2][2] _pB, uint256[2] _pC, bytes32 _root, bytes32 _nullifierHash, address _recipient, address _relayer, uint256 _fee, uint256 _refund) payable",
   "error UnknownRoot()",
   "error NoteAlreadySpent()",
@@ -73,6 +80,48 @@ function revertReason(e) {
   return e instanceof Error ? e.message : String(e);
 }
 
+/** Deposit events from Etherscan's indexer, ascending, from `fromBlock` (inclusive). */
+async function etherscanDeposits(pool, fromBlock) {
+  const key = (process.env.ETHERSCAN_KEY || "").trim();
+  if (!key) throw new Error("ETHERSCAN_KEY not configured");
+  const out = [];
+  for (let page = 1; page <= 100; page++) {
+    const u = `${ETHERSCAN}&module=logs&action=getLogs&address=${pool}&topic0=${DEPOSIT_TOPIC}&fromBlock=${fromBlock}&toBlock=latest&page=${page}&offset=1000&apikey=${key}`;
+    const j = await (await fetch(u, { signal: AbortSignal.timeout(20_000) })).json();
+    if (j.status !== "1") {
+      if (/no records/i.test(String(j.message))) break;
+      throw new Error("etherscan: " + (j.result || j.message));
+    }
+    for (const l of j.result) out.push({ commitment: String(l.topics[1]).toLowerCase(), leafIndex: parseInt(l.data.slice(0, 66), 16), block: parseInt(l.blockNumber, 16) });
+    if (j.result.length < 1000) break;
+    await new Promise((r) => setTimeout(r, 250)); // free-tier rate limit
+  }
+  return out.sort((a, b) => a.leafIndex - b.leafIndex);
+}
+
+/** All leaves of `poolKey` in order, extended incrementally from the KV cache and checked against nextIndex(). */
+async function leavesOf(poolKey) {
+  const p = POOLS[poolKey];
+  const cacheKey = `cash:leaves:${poolKey}`;
+  let cached = null;
+  if (kv.configured()) cached = await kv.getJson(cacheKey).catch(() => null);
+  const leaves = Array.isArray(cached?.leaves) ? cached.leaves.slice() : [];
+  let toBlock = Number.isInteger(cached?.toBlock) ? cached.toBlock : p.deployBlock;
+  const expected = Number(await pub().readContract({ address: getAddress(poolKey), abi, functionName: "nextIndex" }));
+  if (leaves.length < expected) {
+    // re-read from the last cached block (inclusive) so a block with several deposits is never split; dedupe by index
+    for (const l of await etherscanDeposits(poolKey, toBlock)) {
+      if (l.leafIndex < leaves.length) continue;
+      if (l.leafIndex !== leaves.length) throw new Error(`leaf gap at ${leaves.length} (got ${l.leafIndex})`);
+      leaves.push(l.commitment);
+      toBlock = l.block;
+    }
+    if (leaves.length === expected && kv.configured()) await kv.setJson(cacheKey, { leaves, toBlock, at: Date.now() }).catch(() => {});
+  }
+  if (leaves.length !== expected) throw new UserError(`The deposit index has ${leaves.length} of ${expected} deposits. Try again in a minute.`, 503);
+  return leaves;
+}
+
 module.exports = async (req, res) => {
   const url = new URL(req.url, "http://x");
   const op = url.searchParams.get("op") || "";
@@ -86,6 +135,12 @@ module.exports = async (req, res) => {
       if (!HEX32.test(hash)) throw new UserError("Bad hash.");
       const rc = await pub().getTransactionReceipt({ hash }).catch(() => null);
       return send(res, 200, { status: rc ? rc.status : "pending" });
+    }
+    if (req.method === "GET" && op === "leaves") {
+      const poolKey = String(url.searchParams.get("pool") || "").toLowerCase();
+      if (!POOLS[poolKey]) throw new UserError("Unknown pool.");
+      const leaves = await leavesOf(poolKey);
+      return send(res, 200, { pool: poolKey, count: leaves.length, leaves }, "public, max-age=10");
     }
     if (req.method === "POST" && op === "withdraw") {
       if (!relayer) throw new UserError("The relayer is not available right now. You can pay gas yourself instead.", 503);

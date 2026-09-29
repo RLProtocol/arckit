@@ -104,7 +104,19 @@ export const arcCashAbi = [
  * All deposit leaves in insertion order, from the Deposit events. Public Arc RPCs prune old logs and cap
  * eth_getLogs at 100k blocks, so scan forward from the pool's deployment block in chunks and retry each one.
  */
-export async function fetchLeaves(client, address, fromBlock = 0n, { chunk = 50_000n, retries = 4 } = {}) {
+export async function fetchLeaves(client, address, fromBlock = 0n, { chunk = 50_000n, retries = 4, indexUrl = process.env.ARCCASH_LEAVES_URL ?? "https://www.usearckit.locker/api/cash" } = {}) {
+  const expected = Number(await client.readContract({ address, abi: arcCashAbi, functionName: "nextIndex" }));
+  // Arc RPCs prune logs after a few days; the Arc Kit relayer serves the deposit list from an indexer. The count is
+  // checked here and the contract rejects unknown roots, so a wrong list cannot produce a valid withdrawal.
+  if (indexUrl) {
+    try {
+      const j = await (await fetch(`${indexUrl}?op=leaves&pool=${address}`, { signal: AbortSignal.timeout(30_000) })).json();
+      if (Array.isArray(j.leaves) && j.leaves.length === expected) return j.leaves.map((h) => BigInt(h));
+      console.error(`leaf index returned ${j.leaves?.length ?? j.error} (pool has ${expected}); scanning the chain instead`);
+    } catch (e) {
+      console.error("leaf index unavailable, scanning the chain instead:", e.message);
+    }
+  }
   const head = await client.getBlockNumber({ cacheTime: 0 }); // viem caches this by default; a stale head drops the newest deposits
   const logs = [];
   for (let from = BigInt(fromBlock); from <= head; from += chunk) {
@@ -119,7 +131,6 @@ export async function fetchLeaves(client, address, fromBlock = 0n, { chunk = 50_
       }
     }
   }
-  const expected = Number(await client.readContract({ address, abi: arcCashAbi, functionName: "nextIndex" }));
   if (logs.length !== expected) throw new Error(`found ${logs.length} Deposit events but the pool has ${expected} leaves; is --from-block earlier than the pool's deployment?`);
   return logs.sort((a, b) => Number(a.args.leafIndex) - Number(b.args.leafIndex)).map((l) => BigInt(l.args.commitment));
 }

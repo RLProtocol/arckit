@@ -1,0 +1,51 @@
+# Foundry build artifacts
+out/
+cache/
+broadcast/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+.vercel/
+
+# throwaway e2e test wallet
+.wallet2.key
+.test-airdrop.addr
+
+.vercel
+.env*
+
+# root deps for Vercel functions
+node_modules/
+.test-staking.addr
+.arcpay-hot.key
+.arcpay-dev-kv.json
+.arcpay-last-order.json
+mcp/node_modules
+mcp/test-*.mjs
+.arccash-relayer.key
+
+# ---- not for the public repo ----
+# ArcPay backend: supplier integration is private (see api/PAY_BACKEND.md)
+api/pay.js
+api/_lib/pay/
+code.py
+.countries.cjs
+# scratch, drafts, logs
+drafts/
+later.md
+e2e-run.log
+*.log
+.claude/
+skills-lock.json
+frontend/test/cash-browser.ts
+# large binaries and media (videos are built from marketing/*/video-source)
+arccash/tools/
+marketing/**/*.mp4
+marketing/**/*.wav
+marketing/**/*.mp3
+marketing/**/*.png
+marketing/**/*.jpg
+frontend/.env.local

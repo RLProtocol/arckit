@@ -1,0 +1,13 @@
+{
+  "5042": {
+    "hasher": "0x24e6e03c346727423d2ba02aa0a481280378c325",
+    "verifier": "0x6d25c8ebe5549adf216a48a12660664b8b23e4fd",
+    "pool_1": "0xdbf688e09c296df6ef4a02995427ee637d1e3ebe",
+    "deployedAt": "2026-09-24T11:49:15.572Z",
+    "pool_10": "0x0303ae09b4f9f599823634aa9c88b6a517b24e1b",
+    "blocks": {
+      "0xdbf688e09c296df6ef4a02995427ee637d1e3ebe": 22512783,
+      "0x0303ae09b4f9f599823634aa9c88b6a517b24e1b": 22512911
+    }
+  }
+}

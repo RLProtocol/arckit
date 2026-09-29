@@ -1,0 +1,84 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm ci && cd frontend && npm ci",
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/dist",
+  "functions": {
+    "api/rpc.js": {
+      "maxDuration": 20
+    },
+    "api/pay.js": {
+      "maxDuration": 60
+    },
+    "api/cash.js": {
+      "maxDuration": 30
+    },
+    "api/lend-poke.js": {
+      "maxDuration": 60
+    },
+    "api/lend-guard.js": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/lock/:id(\\d+)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*([Tt]witterbot|[Tt]elegram[Bb]ot|facebookexternalhit|[Ff]acebot|[Dd]iscordbot|[Ss]lackbot|[Ll]inked[Ii]n[Bb]ot|WhatsApp|[Ee]mbedly|redditbot|[Pp]interest|[Gg]ooglebot|bingbot|[Aa]pplebot|[Ss]kype[Uu]ri[Pp]review|vkShare|[Ii]framely|[Mm]astodon|[Bb]luesky|[Ss]ummaly).*"
+        }
+      ],
+      "destination": "/api/share?type=lock&id=:id"
+    },
+    {
+      "source": "/vest/:id(\\d+)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*([Tt]witterbot|[Tt]elegram[Bb]ot|facebookexternalhit|[Ff]acebot|[Dd]iscordbot|[Ss]lackbot|[Ll]inked[Ii]n[Bb]ot|WhatsApp|[Ee]mbedly|redditbot|[Pp]interest|[Gg]ooglebot|bingbot|[Aa]pplebot|[Ss]kype[Uu]ri[Pp]review|vkShare|[Ii]framely|[Mm]astodon|[Bb]luesky|[Ss]ummaly).*"
+        }
+      ],
+      "destination": "/api/share?type=vest&id=:id"
+    },
+    {
+      "source": "/stake/:id(\\d+)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*([Tt]witterbot|[Tt]elegram[Bb]ot|facebookexternalhit|[Ff]acebot|[Dd]iscordbot|[Ss]lackbot|[Ll]inked[Ii]n[Bb]ot|WhatsApp|[Ee]mbedly|redditbot|[Pp]interest|[Gg]ooglebot|bingbot|[Aa]pplebot|[Ss]kype[Uu]ri[Pp]review|vkShare|[Ii]framely|[Mm]astodon|[Bb]luesky|[Ss]ummaly).*"
+        }
+      ],
+      "destination": "/api/share?type=stake&id=:id"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/lend-poke",
+      "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/lend-guard",
+      "schedule": "* * * * *"
+    }
+  ]
+}

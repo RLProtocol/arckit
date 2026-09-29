@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ArcLend explainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy-900: #050d1a; --navy-800: #071426; --navy-700: #0b1d36; --navy-600: #10284a; --teal: #0f5c6b;
+    --text: #eef4ff; --dim: #a9b9d6; --faint: #6f83a6;
+    --accent: #8fb3ff; --accent-soft: rgba(143,179,255,.16); --accent-line: rgba(143,179,255,.45);
+    --aqua: #5fe3c9; --aqua-soft: rgba(95,227,201,.16); --coral: #ff7a6e; --coral-soft: rgba(255,122,110,.16); --gold: #f2c464;
+    --line: rgba(214,230,255,.12); --line-strong: rgba(214,230,255,.22);
+    --display: "Outfit", sans-serif; --body: "DM Sans", sans-serif; --mono: "IBM Plex Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: var(--navy-900); color: var(--text); font-family: var(--body); }
+  #stage { position: relative; width: 1280px; height: 720px; background: linear-gradient(160deg, var(--navy-800) 0%, var(--navy-700) 55%, var(--teal) 130%); overflow: hidden; }
+  .glow { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .5; pointer-events: none; }
+  .arc { position: absolute; border: 1.5px solid var(--line); border-radius: 50%; }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+  .brand { position: absolute; left: 56px; top: 40px; display: flex; align-items: center; gap: 12px; font-family: var(--display); font-size: 24px; font-weight: 500; }
+  .brand img { width: 40px; height: 40px; border-radius: 10px; }
+  .brand .thin { font-weight: 300; color: var(--dim); }
+  .tag { position: absolute; right: 56px; top: 50px; font-family: var(--mono); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--aqua); }
+  .progress { position: absolute; left: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, var(--aqua), var(--accent)); }
+
+  .copy { position: absolute; left: 56px; top: 150px; width: 450px; }
+  .step { font-family: var(--mono); font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--aqua); }
+  .copy h2 { font-family: var(--display); font-weight: 500; font-size: 46px; line-height: 1.06; letter-spacing: -.02em; margin-top: 14px; }
+  .copy h2 em { font-style: normal; background: linear-gradient(100deg, var(--aqua), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .copy p { color: var(--dim); font-size: 19px; line-height: 1.5; margin-top: 18px; }
+  .bullets { margin-top: 22px; display: grid; gap: 10px; }
+  .bullets div { display: flex; gap: 10px; align-items: baseline; font-size: 16px; color: var(--text); opacity: 0; }
+  .bullets div::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--aqua); flex: none; transform: translateY(-2px); }
+
+  .card { position: absolute; left: 560px; top: 118px; width: 664px; min-height: 470px; background: rgba(9,24,46,.92); border: 1px solid var(--line-strong); border-radius: 22px; padding: 24px 26px; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .between { justify-content: space-between; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+  .h3 { font-family: var(--display); font-size: 22px; font-weight: 500; margin-top: 2px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 600; font-size: 12px; color: var(--text); border: 1px solid var(--line-strong); background: linear-gradient(135deg, #2b4f8a, #123); }
+  .seg { display: flex; padding: 4px; border-radius: 11px; background: rgba(5,13,26,.6); border: 1px solid var(--line); gap: 4px; margin-top: 14px; }
+  .seg div { flex: 1; text-align: center; padding: 9px 0; border-radius: 8px; color: var(--dim); font-weight: 500; font-size: 14px; }
+  .seg div.on { background: var(--navy-600); color: var(--text); }
+  .pills { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .pill { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line-strong); font-size: 13px; color: var(--dim); }
+  .pill.on { background: var(--accent-soft); border-color: var(--accent-line); color: var(--accent); }
+  .table { margin-top: 12px; display: grid; gap: 4px; }
+  .trow { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr .6fr; gap: 10px; align-items: center; padding: 11px 14px; border-radius: 12px; border: 1px solid transparent; font-size: 14px; }
+  .trow.head { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); padding-bottom: 4px; }
+  .trow.on { border-color: var(--accent-line); background: var(--accent-soft); }
+  .trow .apy { color: var(--aqua); font-weight: 600; }
+  .trow .sym { display: flex; align-items: center; gap: 9px; }
+  .trow .sym i { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #2b4f8a, #123); border: 1px solid var(--line-strong); display: inline-block; }
+  .ledger { display: grid; gap: 7px; padding: 12px 14px; border-radius: 10px; background: rgba(5,13,26,.45); border: 1px solid var(--line); font-size: 13.5px; margin-top: 12px; }
+  .ledger div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; } .ledger span:first-child { color: var(--faint); }
+  .ledger b { font-weight: 600; }
+  .label { font-size: 13px; font-weight: 500; color: var(--dim); margin: 14px 0 8px; }
+  .input { display: flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 11px; background: rgba(5,13,26,.55); }
+  .input .v { flex: 1; padding: 12px 14px; font-family: var(--mono); font-size: 17px; min-height: 46px; }
+  .input .a { padding: 0 14px; color: var(--dim); font-weight: 500; border-left: 1px solid var(--line); align-self: stretch; display: grid; place-items: center; font-size: 13px; }
+  .caret { display: inline-block; width: 2px; height: 18px; background: var(--accent); vertical-align: -3px; margin-left: 1px; }
+  .btn { margin-top: 14px; padding: 14px; border-radius: 12px; background: var(--accent); color: #071426; font-weight: 700; font-size: 15px; text-align: center; }
+  .toast { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: 13.5px; border: 1px solid rgba(95,227,201,.35); background: var(--aqua-soft); color: var(--aqua); opacity: 0; }
+  .note { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: 13.5px; border: 1px solid var(--line-strong); background: rgba(16,40,74,.6); color: var(--dim); opacity: 0; }
+  .note b { color: var(--text); }
+  .hp { display: inline-flex; padding: 4px 10px; border-radius: 999px; font-family: var(--mono); font-size: 12px; font-weight: 600; background: var(--aqua-soft); color: var(--aqua); }
+  .hp.warn { background: rgba(242,196,100,.16); color: var(--gold); } .hp.bad { background: var(--coral-soft); color: var(--coral); }
+  .stat3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  .panel { background: rgba(16,40,74,.6); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .kicker { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+  .big { font-family: var(--display); font-size: 24px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .small { font-size: 12.5px; color: var(--dim); margin-top: 3px; }
+  .cursor { position: absolute; width: 22px; height: 22px; z-index: 9; pointer-events: none; opacity: 0; }
+  .sub { position: absolute; left: 26px; right: 26px; top: 86px; opacity: 0; }
+  svg.chart { width: 100%; height: 170px; display: block; margin-top: 10px; }
+  .stamp { position: absolute; right: 44px; top: 96px; padding: 10px 18px; border: 3px solid var(--aqua); color: var(--aqua); border-radius: 10px; font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: .1em; transform: rotate(-8deg) scale(3); opacity: 0; text-align: center; line-height: 1.2; }
+
+  .center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+  .title h1 { font-family: var(--display); font-weight: 400; font-size: 96px; letter-spacing: -.03em; line-height: 1; }
+  .title h1 span { background: linear-gradient(100deg, var(--aqua), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .title p { font-size: 24px; color: var(--dim); margin-top: 22px; }
+  .chips { display: flex; gap: 12px; justify-content: center; margin-top: 34px; }
+  .chip { padding: 10px 20px; border-radius: 999px; border: 1px solid var(--accent-line); background: var(--accent-soft); color: var(--accent); font-family: var(--mono); font-size: 15px; opacity: 0; }
+  .cta { display: inline-block; margin-top: 34px; padding: 16px 30px; border-radius: 14px; background: var(--accent); color: #071426; font-weight: 700; font-size: 22px; font-family: var(--mono); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="glow" style="width:700px;height:700px;left:560px;top:-280px;background:radial-gradient(circle, rgba(95,227,201,.4), transparent 62%)"></div>
+  <div class="glow" style="width:600px;height:600px;left:860px;top:160px;background:radial-gradient(circle, rgba(143,179,255,.38), transparent 62%)"></div>
+  <div class="arc" style="width:1100px;height:1100px;right:-430px;top:-640px"></div>
+  <div class="arc" style="width:1500px;height:1500px;right:-700px;top:-860px;border-width:1px"></div>
+  <div class="brand"><img src="logo.png" alt="" /><span>Arc<span class="thin">Lend</span></span></div>
+  <div class="tag" id="tag">Lend · Borrow · Repay</div>
+
+  <!-- 0 title -->
+  <div class="scene title" id="s0"><div class="center"><div>
+    <h1 id="t0">Arc<span>Lend</span></h1>
+    <p id="t0p">Lend USDC. Borrow against your tokens.</p>
+    <div class="chips"><div class="chip" id="c1">Lend</div><div class="chip" id="c2">Borrow</div><div class="chip" id="c3">Repay</div></div>
+  </div></div></div>
+
+  <!-- 1 lend -->
+  <div class="scene" id="s1">
+    <div class="copy">
+      <div class="step">01 · Lend</div>
+      <h2>Supply USDC. <em>Earn every second.</em></h2>
+      <p>Pick a market, send USDC, done. Borrowers pay you interest, second by second.</p>
+      <div class="bullets" id="b1"><div>No approval, no lock-up</div><div>APY rises as more is borrowed</div><div>Withdraw whenever USDC is idle</div></div>
+    </div>
+    <div class="card">
+      <div class="row between"><div><div class="eyebrow">Markets</div><div class="h3">Isolated USDC markets</div></div><span class="kicker">5 markets</span></div>
+      <div class="table" id="tbl">
+        <div class="trow head"><span>Market</span><span>Supply APY</span><span>Borrow APR</span><span>Available</span><span>LTV</span></div>
+        <div class="trow" id="r0"><span class="sym"><i></i>AKIT</span><span class="apy">4.10%</span><span>7.60%</span><span>2,140 USDC</span><span>50%</span></div>
+        <div class="trow" id="r1"><span class="sym"><i></i>ARCMAN</span><span class="apy">6.32%</span><span>9.85%</span><span>3,880 USDC</span><span>50%</span></div>
+        <div class="trow" id="r2"><span class="sym"><i></i>ARCOON</span><span class="apy">2.75%</span><span>5.20%</span><span>1,205 USDC</span><span>50%</span></div>
+      </div>
+      <div class="seg"><div class="on">Lend USDC</div><div>Borrow USDC</div></div>
+      <div class="label">USDC to supply</div>
+      <div class="input"><div class="v" id="amt1"></div><div class="a">Wallet: 1,250 USDC</div></div>
+      <div class="note" id="n1">About <b id="proj1">31.60 USDC</b> a year at today&#8217;s rate. The rate moves with utilisation.</div>
+      <div class="btn" id="btn1">Supply USDC</div>
+      <div class="toast" id="t1">Supplied. You are earning from this second. · earned <span id="earn1">0.000000</span> USDC</div>
+    </div>
+  </div>
+
+  <!-- 2 borrow -->
+  <div class="scene" id="s2">
+    <div class="copy">
+      <div class="step">02 · Borrow</div>
+      <h2>Post tokens. <em>Borrow USDC.</em></h2>
+      <p>Deposit a listed token as collateral and borrow up to half its value, without selling it.</p>
+      <div class="bullets" id="b2"><div>Health factor and liquidation price shown up front</div><div>Priced by a 30-minute on-chain average</div><div>Repay any time, keep your tokens</div></div>
+    </div>
+    <div class="card">
+      <div class="row between"><div class="row"><div class="avatar">ARC</div><div><div class="eyebrow">Market #1</div><div class="h3">ARCMAN <span style="color:var(--dim);font-weight:400;font-size:15px">/ USDC</span></div></div></div><span class="hp" id="hp2">no debt</span></div>
+      <div class="ledger">
+        <div><span>Collateral</span><span><b id="col2">0</b> ARCMAN <span style="color:var(--faint)" id="colv2"></span></span></div>
+        <div><span>Debt</span><span><b id="debt2">0.00</b> USDC</span></div>
+        <div><span>Can borrow</span><span><b id="cap2">0.00</b> USDC</span></div>
+      </div>
+      <div class="pills" id="pl2"><div class="pill on">Deposit collateral</div><div class="pill">Borrow</div><div class="pill">Repay</div><div class="pill">Withdraw collateral</div></div>
+      <div class="label" id="lab2">ARCMAN to deposit</div>
+      <div class="input"><div class="v" id="amt2"></div><div class="a" id="wal2">Wallet: 1,000,000 ARCMAN</div></div>
+      <div class="note" id="n2">After this: health <b id="nh2">1.63</b>, liquidation if ARCMAN falls to <b>$0.0000615</b>.</div>
+      <div class="btn" id="btn2">Approve ARCMAN</div>
+      <div class="toast" id="t2">Collateral deposited.</div>
+    </div>
+  </div>
+
+  <!-- 3 repay -->
+  <div class="scene" id="s3">
+    <div class="copy">
+      <div class="step">03 · Repay</div>
+      <h2>Pay it back. <em>Take your tokens.</em></h2>
+      <p>Repay in part or in full whenever you like. Send a little extra and the excess comes straight back.</p>
+      <div class="bullets" id="b3"><div>Interest accrues to the second</div><div>Excess USDC returned in the same transaction</div><div>Collateral is free again immediately</div></div>
+    </div>
+    <div class="card">
+      <div class="row between"><div class="row"><div class="avatar">ARC</div><div><div class="eyebrow">Market #1</div><div class="h3">ARCMAN <span style="color:var(--dim);font-weight:400;font-size:15px">/ USDC</span></div></div></div><span class="hp" id="hp3">1.63</span></div>
+      <div class="ledger">
+        <div><span>Collateral</span><span><b id="col3">1,000,000</b> ARCMAN <span style="color:var(--faint)">≈ 100.00 USDC</span></span></div>
+        <div><span>Debt</span><span><b id="debt3">40.0021</b> USDC <span style="color:var(--faint)">at 9.85% APR</span></span></div>
+      </div>
+      <div class="pills"><div class="pill">Deposit collateral</div><div class="pill">Borrow</div><div class="pill on" id="p3r">Repay</div><div class="pill" id="p3w">Withdraw collateral</div></div>
+      <div class="label" id="lab3">USDC to repay</div>
+      <div class="input"><div class="v" id="amt3"></div><div class="a" id="wal3">Wallet: 1,290 USDC</div></div>
+      <div class="btn" id="btn3">Repay USDC</div>
+      <div class="toast" id="t3">Repaid. 0.0079 USDC excess returned.</div>
+      <div class="toast" id="t3b">Collateral withdrawn. 1,000,000 ARCMAN back in your wallet.</div>
+    </div>
+  </div>
+
+  <!-- 4 safety -->
+  <div class="scene" id="s4">
+    <div class="copy">
+      <div class="step">04 · Safety</div>
+      <h2>Isolated markets. <em>Ten-second watch.</em></h2>
+      <p>A token can only ever hurt its own market. Prices are a 30-minute on-chain average, and a guardian watches live prices every 10 seconds.</p>
+      <div class="bullets" id="b4"><div>One token, one pool of USDC</div><div>Borrows pause if spot drifts 5% from the average</div><div>Underwater positions closed at spot, before bad debt</div></div>
+    </div>
+    <div class="card">
+      <div class="row between"><div><div class="eyebrow">Guardian</div><div class="h3">Watching 5 markets · every 10 s</div></div><span class="hp" id="hp4">1.63</span></div>
+      <svg class="chart" viewBox="0 0 612 170" preserveAspectRatio="none">
+        <line x1="0" y1="118" x2="612" y2="118" stroke="#ff7a6e" stroke-width="1" stroke-dasharray="5 5" opacity=".7"/>
+        <text x="6" y="113" fill="#ff7a6e" font-family="IBM Plex Mono" font-size="10">liquidation price $0.0000615</text>
+        <path id="px4" d="" fill="none" stroke="#8fb3ff" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle id="dot4" cx="0" cy="0" r="5" fill="#5fe3c9"/>
+      </svg>
+      <div class="stat3">
+        <div class="panel"><div class="kicker">ARCMAN spot</div><div class="big" id="sp4">$0.000100</div><div class="small">read on-chain each tick</div></div>
+        <div class="panel"><div class="kicker">Position debt</div><div class="big">40.00 USDC</div><div class="small">collateral 1,000,000</div></div>
+        <div class="panel"><div class="kicker">Lenders</div><div class="big" id="ln4">whole</div><div class="small">this market only</div></div>
+      </div>
+      <div class="note" id="n4"><b>Guardian liquidated at spot.</b> Debt repaid in full · lenders whole · collateral seized at an 8% discount.</div>
+      <div class="stamp" id="stamp4">CLOSED<br><span style="font-size:13px;letter-spacing:.06em">in 10 seconds</span></div>
+    </div>
+  </div>
+
+  <!-- 5 outro -->
+  <div class="scene title" id="s5"><div class="center"><div>
+    <h1 style="font-size:78px">Lend. <span>Borrow.</span> Stay solvent.</h1>
+    <p>Isolated USDC markets on Arc. Live now.</p>
+    <div class="cta" id="cta">usearckit.locker/lend</div>
+  </div></div></div>
+
+  <svg class="cursor" id="cursor" viewBox="0 0 24 24"><path d="M5 3l14 8-6.5 1.5L9 19z" fill="#fff" stroke="#071426" stroke-width="1.6" stroke-linejoin="round"/></svg>
+  <div class="progress" id="progress"></div>
+</div>
+
+<script>
+const SCENES = [ [0, 4500], [4500, 15500], [15500, 30000], [30000, 40500], [40500, 53000], [53000, 58500] ];
+const TOTAL = 58500;
+const $ = (id) => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = (x) => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, x) => a + (b - a) * x;
+const typed = (str, x) => str.slice(0, Math.round(str.length * clamp(x)));
+const caret = (t) => (Math.floor(t / 400) % 2 === 0 ? '<span class="caret"></span>' : "");
+const fmt = (n, d = 2) => n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+
+function sceneFade(el, t, a, b) { const x = Math.min(prog(t, a, a + 600), 1 - prog(t, b - 500, b)); el.style.opacity = ease(x); el.style.transform = `translateY(${lerp(18, 0, ease(prog(t, a, a + 700)))}px)`; return x > 0; }
+function bullets(id, local, start) { [...$(id).children].forEach((d, i) => { const x = ease(prog(local, start + i * 900, start + i * 900 + 500)); d.style.opacity = x; d.style.transform = `translateX(${lerp(-14, 0, x)}px)`; }); }
+function press(el, local, at) { const x = prog(local, at, at + 260); const s = x > 0 && x < 1 ? 1 - 0.035 * Math.sin(x * Math.PI) : 1; el.style.transform = `scale(${s})`; el.style.filter = x > 0 && x < 1 ? "brightness(1.12)" : "none"; }
+function cursorTo(local, pts) { const c = $("cursor"); let p = pts[0]; for (let i = 0; i < pts.length - 1; i++) if (local >= pts[i][0]) { const x = ease(prog(local, pts[i][0], pts[i + 1][0])); p = [0, lerp(pts[i][1], pts[i + 1][1], x), lerp(pts[i][2], pts[i + 1][2], x)]; } if (local >= pts[pts.length - 1][0]) p = pts[pts.length - 1]; c.style.left = p[1] + "px"; c.style.top = p[2] + "px"; c.style.opacity = Math.min(prog(local, pts[0][0] - 300, pts[0][0]), 1 - prog(local, pts[pts.length - 1][0] + 700, pts[pts.length - 1][0] + 1100)); }
+function show(el, x, dy = 8) { el.style.opacity = ease(x); el.style.transform = `translateY(${lerp(dy, 0, ease(x))}px)`; }
+
+function render(t) {
+  $("progress").style.width = (t / TOTAL) * 100 + "%";
+  $("cursor").style.opacity = 0;
+  $("tag").style.opacity = t > 4200 && t < 53200 ? 1 : 0;
+
+  // 0 title
+  { const [a, b] = SCENES[0]; if (sceneFade($("s0"), t, a, b)) { const l = t - a;
+    $("t0").style.letterSpacing = lerp(-0.01, -0.03, ease(prog(l, 0, 1600))) + "em"; $("t0").style.transform = `scale(${lerp(.94, 1, ease(prog(l, 0, 1400)))})`;
+    $("t0p").style.opacity = ease(prog(l, 700, 1400));
+    ["c1", "c2", "c3"].forEach((c, i) => { const x = ease(prog(l, 1500 + i * 450, 2000 + i * 450)); $(c).style.opacity = x; $(c).style.transform = `translateY(${lerp(12, 0, x)}px)`; });
+  } }
+
+  // 1 lend: rows appear, pick ARCMAN, type 500, supply, toast with earnings ticking
+  { const [a, b] = SCENES[1]; if (sceneFade($("s1"), t, a, b)) { const l = t - a;
+    bullets("b1", l, 1200);
+    ["r0", "r1", "r2"].forEach((r, i) => { const x = ease(prog(l, 400 + i * 250, 800 + i * 250)); $(r).style.opacity = x; $(r).style.transform = `translateX(${lerp(16, 0, x)}px)`; });
+    $("r1").className = "trow" + (l > 2400 ? " on" : ""); press($("r1"), l, 2400);
+    const tx = prog(l, 3400, 4300); $("amt1").innerHTML = typed("500", tx) + (l > 3100 && l < 5200 ? caret(l) : "");
+    show($("n1"), prog(l, 4400, 4900));
+    $("btn1").textContent = l < 5600 ? "Supply USDC" : l < 7000 ? "Confirming…" : "Supplied";
+    press($("btn1"), l, 5600);
+    show($("t1"), prog(l, 7000, 7500));
+    $("earn1").textContent = (Math.max(0, l - 7000) * 0.000001002).toFixed(6);
+    cursorTo(l, [[1900, 1000, 560], [2400, 700, 262], [3000, 760, 460], [5100, 760, 460], [5600, 890, 590], [6100, 890, 590]]);
+  } }
+
+  // 2 borrow: type collateral, approve, deposit, switch to Borrow, type 40, borrow
+  { const [a, b] = SCENES[2]; if (sceneFade($("s2"), t, a, b)) { const l = t - a;
+    bullets("b2", l, 1200);
+    const dep = prog(l, 1600, 2700); $("amt2").innerHTML = l < 8200 ? typed("1000000", dep) + (l > 1300 && l < 3600 ? caret(l) : "") : typed("40", prog(l, 8600, 9200)) + (l > 8300 && l < 10000 ? caret(l) : "");
+    const approved = l > 4700, deposited = l > 6600;
+    $("btn2").textContent = l < 3700 ? "Approve ARCMAN" : l < 4700 ? "Approving…" : l < 5300 ? "Deposit collateral" : l < 6600 ? "Confirming…" : l < 8200 ? "Deposited" : l < 10400 ? "Borrow USDC" : l < 11800 ? "Confirming…" : "Borrowed";
+    press($("btn2"), l, 3700); press($("btn2"), l, 5300); press($("btn2"), l, 10400);
+    $("t2").textContent = l < 8200 ? "Collateral deposited." : "Borrowed. 40 USDC is in your wallet.";
+    show($("t2"), l < 8200 ? prog(l, 6600, 7100) * (1 - prog(l, 7900, 8200)) : prog(l, 11800, 12300));
+    $("col2").textContent = deposited ? "1,000,000" : "0"; $("colv2").textContent = deposited ? "≈ 100.00 USDC" : "";
+    $("cap2").textContent = deposited ? (l > 11800 ? "10.00" : "50.00") : "0.00";
+    $("debt2").textContent = l > 11800 ? "40.00" : "0.00";
+    $("hp2").textContent = l > 11800 ? "1.63" : "no debt";
+    // switch to borrow at 8200
+    const bor = l > 8200; const pills = [...$("pl2").children]; pills[0].className = "pill" + (bor ? "" : " on"); pills[1].className = "pill" + (bor ? " on" : ""); press(pills[1], l, 8200);
+    $("lab2").textContent = bor ? "USDC to borrow" : "ARCMAN to deposit"; $("wal2").textContent = bor ? "Available: 3,880 USDC" : "Wallet: 1,000,000 ARCMAN";
+    show($("n2"), bor ? prog(l, 9300, 9800) : 0);
+    cursorTo(l, [[1000, 1000, 600], [1500, 760, 468], [3200, 760, 468], [3700, 890, 596], [5300, 890, 596], [7700, 890, 596], [8200, 680, 388], [8600, 760, 468], [9900, 760, 468], [10400, 890, 596], [10900, 890, 596]]);
+  } }
+
+  // 3 repay: debt ticks, type 40.01, repay, then withdraw collateral
+  { const [a, b] = SCENES[3]; if (sceneFade($("s3"), t, a, b)) { const l = t - a;
+    bullets("b3", l, 1200);
+    const repaidAt = 5200;
+    $("debt3").textContent = l < repaidAt ? (40.0021 + l * 0.00000125).toFixed(4) : "0.0000";
+    $("hp3").textContent = l < repaidAt ? "1.63" : "no debt";
+    const wd = l > 7200;
+    $("amt3").innerHTML = !wd ? typed("40.01", prog(l, 1500, 2400)) + (l > 1200 && l < 3800 ? caret(l) : "") : typed("1000000", prog(l, 7600, 8300)) + (l > 7400 && l < 8800 ? caret(l) : "");
+    $("btn3").textContent = l < 4000 ? "Repay USDC" : l < repaidAt ? "Confirming…" : l < 7200 ? "Repaid" : l < 9100 ? "Withdraw collateral" : l < 10000 ? "Confirming…" : "Withdrawn";
+    press($("btn3"), l, 4000); press($("btn3"), l, 9100);
+    show($("t3"), prog(l, repaidAt, repaidAt + 500) * (1 - prog(l, 6900, 7200)));
+    show($("t3b"), prog(l, 10000, 10400));
+    $("p3r").className = "pill" + (wd ? "" : " on"); $("p3w").className = "pill" + (wd ? " on" : ""); press($("p3w"), l, 7200);
+    $("lab3").textContent = wd ? "ARCMAN to withdraw" : "USDC to repay"; $("wal3").textContent = wd ? "Free to withdraw: 1,000,000" : "Wallet: 1,290 USDC";
+    if (l > 10000) $("col3").textContent = "0";
+    cursorTo(l, [[900, 1000, 600], [1400, 760, 440], [3500, 760, 440], [4000, 890, 560], [6700, 890, 560], [7200, 940, 372], [7600, 760, 440], [8700, 760, 440], [9100, 890, 560], [9600, 890, 560]]);
+  } }
+
+  // 4 safety: price falls through the liquidation line, guardian closes within 10s
+  { const [a, b] = SCENES[4]; if (sceneFade($("s4"), t, a, b)) { const l = t - a;
+    bullets("b4", l, 1200);
+    const N = 140, shown = Math.round(N * prog(l, 400, 6400)); let d = "", lastX = 0, lastY = 0;
+    // price path: calm, then a sharp dump from ~45% of the way, crossing the line (y=118) around 60%
+    const yOf = (i) => { const u = i / N; const calm = 40 + Math.sin(i * .9) * 3; const dump = 1 / (1 + Math.exp(-(u - .55) * 30)); return calm + dump * 100 + Math.sin(i * 1.7) * (1 + dump * 4); };
+    for (let i = 0; i <= shown; i++) { const x = (i / N) * 612, y = yOf(i); d += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); lastX = x; lastY = y; }
+    $("px4").setAttribute("d", d); $("dot4").setAttribute("cx", lastX); $("dot4").setAttribute("cy", lastY);
+    const u = shown / N; const price = 0.0001 * (1 - .78 * (1 / (1 + Math.exp(-(u - .55) * 30))));
+    $("sp4").textContent = "$" + price.toFixed(7);
+    const crossed = lastY > 118;
+    const hf = Math.max(0.55, 1.63 * price / 0.0001); $("hp4").textContent = l < 5200 ? hf.toFixed(2) : "closed"; $("hp4").className = "hp" + (hf < 1 ? " bad" : hf < 1.2 ? " warn" : "");
+    $("dot4").setAttribute("fill", crossed ? "#ff7a6e" : "#5fe3c9");
+    const s = ease(prog(l, 5200, 5600)); $("stamp4").style.opacity = s; $("stamp4").style.transform = `rotate(-8deg) scale(${lerp(3, 1, s)})`;
+    show($("n4"), prog(l, 5700, 6200));
+    $("ln4").textContent = "whole";
+  } }
+
+  // 5 outro
+  { const [a, b] = SCENES[5]; if (sceneFade($("s5"), t, a, b + 2000)) { const l = t - a; const x = ease(prog(l, 900, 1500)); $("cta").style.opacity = x; $("cta").style.transform = `scale(${lerp(.9, 1, x)})`; } }
+}
+window.render = render; window.TOTAL = TOTAL;
+render(Number(new URLSearchParams(location.search).get("t") || 0));
+</script>
+</body>
+</html>

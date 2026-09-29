@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ArcFlow v2 explainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy-900: #050d1a; --navy-800: #071426; --navy-700: #0b1d36; --navy-600: #10284a; --teal: #0f5c6b;
+    --text: #eef4ff; --dim: #a9b9d6; --faint: #6f83a6;
+    --accent: #8fb3ff; --accent-soft: rgba(143,179,255,.16); --accent-line: rgba(143,179,255,.45);
+    --aqua: #5fe3c9; --aqua-soft: rgba(95,227,201,.16); --coral: #ff7a6e;
+    --line: rgba(214,230,255,.12); --line-strong: rgba(214,230,255,.22);
+    --display: "Outfit", sans-serif; --body: "DM Sans", sans-serif; --mono: "IBM Plex Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: var(--navy-900); color: var(--text); font-family: var(--body); }
+  #stage { position: relative; width: 1280px; height: 720px; background: linear-gradient(160deg, var(--navy-800) 0%, var(--navy-700) 55%, var(--teal) 130%); overflow: hidden; }
+  .arc { position: absolute; border: 1.5px solid var(--line); border-radius: 50%; }
+  .streak { position: absolute; height: 5px; border-radius: 3px; background: rgba(214,230,255,.06); }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+  .brand { position: absolute; left: 56px; top: 40px; display: flex; align-items: center; gap: 12px; font-family: var(--display); font-size: 24px; font-weight: 500; }
+  .brand img { width: 40px; height: 40px; border-radius: 10px; }
+  .brand .thin { font-weight: 300; color: var(--dim); }
+  .tag { position: absolute; right: 56px; top: 50px; font-family: var(--mono); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+  .note { position: absolute; left: 56px; bottom: 30px; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--faint); }
+  .progress { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--accent); }
+
+  /* text column */
+  .copy { position: absolute; left: 56px; top: 150px; width: 440px; }
+  .step { font-family: var(--mono); font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--aqua); }
+  .copy h2 { font-family: var(--display); font-weight: 500; font-size: 46px; line-height: 1.06; letter-spacing: -.02em; margin-top: 14px; }
+  .copy p { color: var(--dim); font-size: 19px; line-height: 1.5; margin-top: 18px; }
+  .bullets { margin-top: 22px; display: grid; gap: 10px; }
+  .bullets div { display: flex; gap: 10px; align-items: baseline; font-size: 16px; color: var(--text); opacity: 0; }
+  .bullets div::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--aqua); flex: none; transform: translateY(-2px); }
+
+  /* mock app card */
+  .card { position: absolute; left: 560px; top: 118px; width: 664px; background: rgba(9,24,46,.92); border: 1px solid var(--line-strong); border-radius: 22px; padding: 26px; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .between { justify-content: space-between; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+  .h3 { font-family: var(--display); font-size: 24px; font-weight: 500; margin-top: 2px; }
+  .avatar { width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #2b4f8a, #123); display: grid; place-items: center; font-family: var(--display); font-weight: 600; font-size: 14px; color: var(--text); border: 1px solid var(--line-strong); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; font-family: var(--mono); font-size: 12px; font-weight: 500; }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .pill.live { background: var(--aqua-soft); color: var(--aqua); }
+  .pill.lock { background: var(--accent-soft); color: var(--accent); }
+  .seg { display: flex; padding: 4px; border-radius: 11px; background: rgba(5,13,26,.6); border: 1px solid var(--line); gap: 4px; margin-top: 18px; }
+  .seg div { flex: 1; text-align: center; padding: 9px 0; border-radius: 8px; color: var(--dim); font-weight: 500; font-size: 14px; }
+  .seg div.on { background: var(--navy-600); color: var(--text); }
+  .label { font-size: 13px; font-weight: 500; color: var(--dim); margin: 18px 0 8px; }
+  .choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .choice { padding: 12px 14px; border-radius: 11px; border: 1px solid var(--line-strong); }
+  .choice b { font-family: var(--display); font-weight: 500; font-size: 15px; display: block; }
+  .choice span { font-size: 12px; color: var(--dim); }
+  .choice.on { border-color: var(--accent-line); background: var(--accent-soft); }
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  .panel { background: rgba(16,40,74,.6); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .kicker { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+  .big { font-family: var(--display); font-size: 27px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .small { font-size: 13px; color: var(--dim); margin-top: 4px; }
+  .input { margin-top: 0; display: flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 11px; background: rgba(5,13,26,.55); }
+  .input .v { flex: 1; padding: 13px 14px; font-family: var(--mono); font-size: 18px; min-height: 48px; }
+  .input .a { padding: 0 14px; color: var(--dim); font-weight: 500; border-left: 1px solid var(--line); align-self: stretch; display: grid; place-items: center; }
+  .caret { display: inline-block; width: 2px; height: 20px; background: var(--accent); vertical-align: -3px; margin-left: 1px; }
+  .btn { margin-top: 16px; padding: 15px; border-radius: 12px; background: var(--accent); color: #071426; font-weight: 700; font-size: 16px; text-align: center; }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line-strong); }
+  .toast { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: 13.5px; border: 1px solid rgba(95,227,201,.35); background: var(--aqua-soft); color: var(--aqua); opacity: 0; }
+  .cursor { position: absolute; width: 22px; height: 22px; z-index: 9; pointer-events: none; opacity: 0; }
+  .chart { height: 120px; margin-top: 10px; border-bottom: 1px solid var(--line); position: relative; }
+  .bar { position: absolute; bottom: 0; background: var(--accent); border-radius: 4px 4px 0 0; }
+  .now { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed var(--aqua); }
+  .ledger { display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; font-size: 14px; margin-top: 12px; }
+  .ledger dt { color: var(--faint); } .ledger dd { font-family: var(--mono); font-size: 13px; }
+  .stamp { position: absolute; right: 38px; top: 96px; padding: 10px 18px; border: 3px solid var(--accent); color: var(--accent); border-radius: 10px; font-family: var(--display); font-weight: 600; font-size: 26px; letter-spacing: .12em; transform: rotate(-9deg) scale(3); opacity: 0; }
+  .url { margin-top: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(5,13,26,.6); border: 1px dashed var(--line-strong); font-family: var(--mono); font-size: 13.5px; color: var(--accent); opacity: 0; }
+  svg.line { width: 100%; height: 150px; display: block; margin-top: 8px; }
+  .gauge { height: 14px; border-radius: 999px; background: rgba(214,230,255,.1); overflow: hidden; margin-top: 10px; }
+  .gauge div { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--aqua), var(--accent), var(--coral)); }
+
+  /* title + outro */
+  .center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+  .title h1 { font-family: var(--display); font-weight: 500; font-size: 92px; letter-spacing: -.03em; line-height: 1; }
+  .title h1 span { color: var(--accent); }
+  .title p { font-size: 24px; color: var(--dim); margin-top: 22px; }
+  .chips { display: flex; gap: 12px; justify-content: center; margin-top: 34px; }
+  .chip { padding: 10px 20px; border-radius: 999px; border: 1px solid var(--accent-line); background: var(--accent-soft); color: var(--accent); font-family: var(--mono); font-size: 15px; opacity: 0; }
+  .cta { display: inline-block; margin-top: 34px; padding: 16px 30px; border-radius: 14px; background: var(--accent); color: #071426; font-weight: 700; font-size: 22px; font-family: var(--mono); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="arc" style="width:1100px;height:1100px;right:-430px;top:-640px"></div>
+  <div class="arc" style="width:1500px;height:1500px;right:-700px;top:-860px;border-width:1px"></div>
+  <div class="streak" id="st1" style="width:300px;top:96px"></div>
+  <div class="streak" id="st2" style="width:240px;top:612px"></div>
+
+  <div class="brand"><img src="logo.png" alt="" /><span>Arc<span class="thin"> Kit</span></span></div>
+  <div class="tag" id="tag">ArcFlow v2</div>
+
+  <!-- 0 title -->
+  <div class="scene title" id="s0"><div class="center"><div>
+    <h1 id="t0">ArcFlow <span>v2</span> is live</h1>
+    <p id="t0p">Liquidity on Arc's Uniswap v4, made simple.</p>
+    <div class="chips"><div class="chip" id="c1">Stakes in a band</div><div class="chip" id="c2">Shaped positions</div><div class="chip" id="c3">v4 liquidity lock</div></div>
+  </div></div></div>
+
+  <!-- 1 stakes -->
+  <div class="scene" id="s1">
+    <div class="copy">
+      <div class="step">01 · Stakes</div>
+      <h2>Deposit USDC. Earn swap fees, every second.</h2>
+      <p>Your liquidity sits in a band around the price, where the trades happen.</p>
+      <div class="bullets" id="b1"><div>Tight, Medium or Wide band</div><div>Fees streamed to you over 7 days</div><div>Anyone can recentre a band. No manager.</div></div>
+    </div>
+    <div class="card">
+      <div class="row between"><div class="row"><div class="avatar">AKT</div><div><div class="eyebrow">Pool</div><div class="h3">AKIT / USDC</div></div></div><span class="pill live">In range</span></div>
+      <div class="seg"><div class="on">Stake · band</div><div>Stake · full range</div><div>Open a position</div></div>
+      <div class="label">Band width</div>
+      <div class="choices"><div class="choice" id="w0"><b>Tight ±10%</b><span>Most fees per dollar</span></div><div class="choice on" id="w1"><b>Medium ±25%</b><span>A balance</span></div><div class="choice" id="w2"><b>Wide ±49%</b><span>Rarely rebalances</span></div></div>
+      <div class="label">USDC to stake</div>
+      <div class="input"><div class="v" id="amt1"></div><div class="a">USDC</div></div>
+      <div class="btn" id="btn1">Stake</div>
+      <div class="panels" id="pos1" style="opacity:0">
+        <div class="panel"><div class="kicker">APR from the running stream</div><div class="big" style="color:var(--aqua)" id="apr1">0%</div><div class="small">real fees, not a projection</div></div>
+        <div class="panel"><div class="kicker">Claimable now</div><div class="big" style="color:var(--aqua)" id="claim1">0.000000 USDC</div><div class="small">ticking every second</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 pools -->
+  <div class="scene" id="s2">
+    <div class="copy">
+      <div class="step">02 · Pools</div>
+      <h2>Shape your own liquidity.</h2>
+      <p>Spot, Curve or Bid-ask. One deposit in USDC, one transaction, one position you hold yourself.</p>
+      <div class="bullets" id="b2"><div>See where liquidity sits before you sign</div><div>Collect fees any time</div><div>Close back to USDC in one click</div></div>
+    </div>
+    <div class="card">
+      <div class="row between"><div class="row"><div class="avatar">AKT</div><div><div class="eyebrow">Open a position</div><div class="h3">AKIT / USDC</div></div></div><span class="pill live" id="p2pill" style="opacity:0">Position #12 opened</span></div>
+      <div class="label">Shape</div>
+      <div class="choices"><div class="choice" id="sh0"><b>Spot</b><span>One even range</span></div><div class="choice" id="sh1"><b>Curve</b><span>Densest at the price</span></div><div class="choice" id="sh2"><b>Bid-ask</b><span>Heaviest at the edges</span></div></div>
+      <div class="panel" style="margin-top:16px">
+        <div class="row between"><span class="small" style="margin:0">Where your liquidity will sit</span><span style="font-family:var(--mono);font-size:13px">$0.0121 – $0.0203</span></div>
+        <div class="chart" id="chart2"><div class="now" style="left:50%"></div></div>
+        <div class="row between" style="font-size:11px;color:var(--faint);margin-top:6px"><span>lower price</span><span style="color:var(--aqua)">price now</span><span>higher price</span></div>
+      </div>
+      <div class="label">USDC to deposit</div>
+      <div class="input"><div class="v" id="amt2"></div><div class="a">USDC</div></div>
+      <div class="btn" id="btn2">Open position</div>
+    </div>
+  </div>
+
+  <!-- 3 lock -->
+  <div class="scene" id="s3">
+    <div class="copy">
+      <div class="step">03 · Liquidity lock</div>
+      <h2>Lock Uniswap v4 liquidity. Prove it.</h2>
+      <p>Until the date you pick, nobody can pull the liquidity. Not even you.</p>
+      <div class="bullets" id="b3"><div>Fees stay collectable while locked</div><div>Extend any time, never shorten</div><div>A public page anyone can verify</div></div>
+    </div>
+    <div class="card">
+      <div class="row between"><div class="row"><div class="avatar">AKT</div><div><div class="eyebrow">Position #12 · Curve</div><div class="h3">AKIT / USDC</div></div></div><span class="pill lock" id="lockpill" style="opacity:0">Locked until Mar 19, 2027</span></div>
+      <div class="stamp" id="stamp">LOCKED</div>
+      <dl class="ledger"><dt>Holds</dt><dd>12,480.00 USDC + 742,900 AKIT</dd><dt>Range</dt><dd>$0.0121 – $0.0203</dd><dt>Uncollected fees</dt><dd style="color:var(--aqua)" id="fees3">38.4210 USDC</dd></dl>
+      <div class="label">Lock until</div>
+      <div class="input"><div class="v" id="date3"></div><div class="a">UTC</div></div>
+      <div class="btn" id="btn3">Lock this position</div>
+      <div class="url" id="url3">arc-tools.vercel.app/flow/position/12</div>
+    </div>
+  </div>
+
+  <!-- 4 hook -->
+  <div class="scene" id="s4">
+    <div class="copy">
+      <div class="step">Bonus · for new pools</div>
+      <h2>A swap fee that follows volatility.</h2>
+      <p>Calm market, cheap swaps. Fast market, liquidity providers get paid for the risk.</p>
+      <div class="bullets" id="b4"><div>0.30% when calm, capped at 3%</div><div>No owner, holds no funds</div><div>Cannot block trades or liquidity</div></div>
+    </div>
+    <div class="card">
+      <div class="row between"><div><div class="eyebrow">ArcFlow fee hook</div><div class="h3">Live swap fee</div></div><div class="big" id="fee4" style="margin:0;color:var(--aqua)">0.30%</div></div>
+      <svg class="line" viewBox="0 0 600 150" preserveAspectRatio="none"><path id="path4" d="" fill="none" stroke="#8fb3ff" stroke-width="2.5" stroke-linejoin="round"/><line x1="0" y1="92" x2="600" y2="92" stroke="rgba(214,230,255,.18)" stroke-dasharray="4 5"/></svg>
+      <div class="row between" style="font-size:11px;color:var(--faint)"><span>price</span><span>reference re-anchors every 10 minutes</span></div>
+      <div class="label">Fee</div>
+      <div class="gauge"><div id="gauge4" style="width:10%"></div></div>
+      <div class="row between" style="font-size:11px;color:var(--faint);margin-top:6px"><span>0.30% calm</span><span>3% cap</span></div>
+    </div>
+  </div>
+
+  <!-- 5 outro -->
+  <div class="scene title" id="s5"><div class="center"><div>
+    <h1 style="font-size:76px">Put USDC to work on <span>Arc</span>.</h1>
+    <p>Beta. Unaudited. Start small.</p>
+    <div class="cta" id="cta">arc-tools.vercel.app/flow</div>
+    <p style="font-size:18px;margin-top:26px">@usearckit · t.me/usearckit</p>
+  </div></div></div>
+
+  <svg class="cursor" id="cursor" viewBox="0 0 24 24"><path d="M4 2l16 9-7 2-3 7z" fill="#fff" stroke="#071426" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  <div class="note">Example figures for illustration</div>
+  <div class="progress" id="progress"></div>
+</div>
+
+<script>
+// ---------- deterministic timeline: render(t) sets every style from t (ms) ----------
+const SCENES = [ [0, 4500], [4500, 16500], [16500, 28500], [28500, 38500], [38500, 46000], [46000, 51000] ];
+const TOTAL = 51000;
+const $ = (id) => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = (x) => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, x) => a + (b - a) * x;
+const typed = (str, x) => str.slice(0, Math.round(str.length * clamp(x)));
+const caret = (t) => (Math.floor(t / 400) % 2 === 0 ? '<span class="caret"></span>' : "");
+
+function sceneFade(el, t, a, b) {
+  const x = Math.min(prog(t, a, a + 600), 1 - prog(t, b - 500, b));
+  el.style.opacity = ease(x);
+  el.style.transform = `translateY(${lerp(18, 0, ease(prog(t, a, a + 700)))}px)`;
+  return x > 0;
+}
+function bullets(id, local, start) {
+  [...$(id).children].forEach((d, i) => { const x = ease(prog(local, start + i * 900, start + i * 900 + 500)); d.style.opacity = x; d.style.transform = `translateX(${lerp(-14, 0, x)}px)`; });
+}
+function press(el, local, at) { const x = prog(local, at, at + 260); const s = x > 0 && x < 1 ? 1 - 0.035 * Math.sin(x * Math.PI) : 1; el.style.transform = `scale(${s})`; el.style.filter = x > 0 && x < 1 ? "brightness(1.12)" : "none"; }
+function cursorTo(local, pts) { // pts: [time, x, y]
+  const c = $("cursor"); let p = pts[0];
+  for (let i = 0; i < pts.length - 1; i++) if (local >= pts[i][0]) { const x = ease(prog(local, pts[i][0], pts[i + 1][0])); p = [0, lerp(pts[i][1], pts[i + 1][1], x), lerp(pts[i][2], pts[i + 1][2], x)]; }
+  if (local >= pts[pts.length - 1][0]) p = pts[pts.length - 1];
+  c.style.left = p[1] + "px"; c.style.top = p[2] + "px";
+  c.style.opacity = Math.min(prog(local, pts[0][0] - 300, pts[0][0]), 1 - prog(local, pts[pts.length - 1][0] + 700, pts[pts.length - 1][0] + 1100));
+}
+
+// liquidity shapes as 9 bar heights (0..1)
+const SHAPE = { 0: [.62,.62,.62,.62,.62,.62,.62,.62,.62], 1: [.22,.4,.62,.84,1,.84,.62,.4,.22], 2: [1,.78,.52,.3,.14,.3,.52,.78,1] };
+const bars = []; for (let i = 0; i < 9; i++) { const b = document.createElement("div"); b.className = "bar"; b.style.left = `calc(${i * 11.11}% + 3px)`; b.style.width = "calc(11.11% - 6px)"; $("chart2").appendChild(b); bars.push(b); }
+
+function render(t) {
+  $("progress").style.width = (t / TOTAL) * 100 + "%";
+  $("st1").style.right = lerp(60, 220, (t / TOTAL)) + "px"; $("st2").style.right = lerp(260, 90, (t / TOTAL)) + "px";
+  $("cursor").style.opacity = 0;
+  $("tag").style.opacity = t > 4200 && t < 46200 ? 1 : 0;
+
+  // 0 title
+  { const [a, b] = SCENES[0]; const el = $("s0"); if (sceneFade(el, t, a, b)) { const l = t - a;
+    $("t0").style.letterSpacing = lerp(-0.01, -0.03, ease(prog(l, 0, 1600))) + "em";
+    $("t0").style.transform = `scale(${lerp(.94, 1, ease(prog(l, 0, 1400)))})`;
+    $("t0p").style.opacity = ease(prog(l, 700, 1400));
+    ["c1", "c2", "c3"].forEach((c, i) => { const x = ease(prog(l, 1500 + i * 450, 2000 + i * 450)); $(c).style.opacity = x; $(c).style.transform = `translateY(${lerp(12, 0, x)}px)`; });
+  } }
+
+  // 1 stakes
+  { const [a, b] = SCENES[1]; const el = $("s1"); if (sceneFade(el, t, a, b)) { const l = t - a;
+    bullets("b1", l, 1200);
+    const tight = l > 2300; $("w0").className = "choice" + (tight ? " on" : ""); $("w1").className = "choice" + (tight ? "" : " on"); press($("w0"), l, 2300);
+    const x = prog(l, 3300, 4700); $("amt1").innerHTML = typed("500", x) + (l > 3000 && l < 5600 ? caret(l) : "");
+    $("btn1").textContent = l < 3300 ? "Stake" : l < 5700 ? "Stake 500 USDC · Tight" : l < 6900 ? "Staking…" : "Staked";
+    press($("btn1"), l, 5700);
+    $("pos1").style.opacity = ease(prog(l, 6900, 7500)); $("pos1").style.transform = `translateY(${lerp(14, 0, ease(prog(l, 6900, 7600)))}px)`;
+    $("apr1").textContent = Math.round(lerp(0, 84, ease(prog(l, 7200, 9200)))) + "%";
+    $("claim1").textContent = (Math.max(0, l - 7400) * 0.0000132).toFixed(6) + " USDC";
+    cursorTo(l, [[1800, 900, 560], [2300, 680, 318], [3000, 760, 420], [5200, 760, 420], [5700, 890, 488]]);
+  } }
+
+  // 2 pools
+  { const [a, b] = SCENES[2]; const el = $("s2"); if (sceneFade(el, t, a, b)) { const l = t - a;
+    bullets("b2", l, 1200);
+    // shape cycles: spot (0-2.4s) -> curve (2.4-5s) -> bid-ask (5-7.2s) -> curve (7.2+)
+    const seq = [[0, 0], [2400, 1], [5000, 2], [7200, 1]]; let cur = 0, prev = 0, since = 0;
+    for (let i = 0; i < seq.length; i++) if (l >= seq[i][0]) { cur = seq[i][1]; prev = i ? seq[i - 1][1] : seq[i][1]; since = l - seq[i][0]; }
+    [0, 1, 2].forEach((s) => { $("sh" + s).className = "choice" + (s === cur ? " on" : ""); });
+    seq.slice(1).forEach(([at, s]) => press($("sh" + s), l, at));
+    const x = ease(clamp(since / 650));
+    bars.forEach((bEl, i) => { const h = lerp(SHAPE[prev][i], SHAPE[cur][i], x) * ease(prog(l, 300 + i * 40, 900 + i * 40)); bEl.style.height = h * 100 + "%"; bEl.style.opacity = .35 + .6 * h; });
+    const tx = prog(l, 8000, 9300); $("amt2").innerHTML = typed("2,000", tx) + (l > 7700 && l < 9900 ? caret(l) : "");
+    $("btn2").textContent = l < 8000 ? "Open position" : l < 10000 ? "Open a Curve position with 2,000 USDC" : l < 10900 ? "Opening…" : "Position opened";
+    press($("btn2"), l, 10000);
+    $("p2pill").style.opacity = ease(prog(l, 10900, 11300));
+    cursorTo(l, [[1900, 900, 300], [2400, 890, 262], [4500, 890, 262], [5000, 1110, 262], [6700, 1110, 262], [7200, 890, 262], [7800, 780, 556], [9500, 780, 556], [10000, 890, 622]]);
+  } }
+
+  // 3 lock
+  { const [a, b] = SCENES[3]; const el = $("s3"); if (sceneFade(el, t, a, b)) { const l = t - a;
+    bullets("b3", l, 1200);
+    $("fees3").textContent = (38.421 + l * 0.00021).toFixed(4) + " USDC";
+    const x = prog(l, 2200, 3800); $("date3").innerHTML = typed("2027-03-19 12:00", x) + (l > 1900 && l < 4300 ? caret(l) : "");
+    $("btn3").textContent = l < 4500 ? "Lock this position" : l < 5500 ? "Locking…" : "Locked";
+    press($("btn3"), l, 4500);
+    const s = ease(prog(l, 5500, 5900)); $("stamp").style.opacity = s; $("stamp").style.transform = `rotate(-9deg) scale(${lerp(3, 1, s)})`;
+    $("lockpill").style.opacity = ease(prog(l, 5800, 6300));
+    const u = ease(prog(l, 6600, 7200)); $("url3").style.opacity = u; $("url3").style.transform = `translateY(${lerp(10, 0, u)}px)`;
+    cursorTo(l, [[1500, 900, 330], [2000, 780, 392], [4000, 780, 392], [4500, 890, 458]]);
+  } }
+
+  // 4 hook
+  { const [a, b] = SCENES[4]; const el = $("s4"); if (sceneFade(el, t, a, b)) { const l = t - a;
+    bullets("b4", l, 1200);
+    // price path: calm, then a sharp move at ~2.6s, then calm at the new level; drawn progressively
+    const N = 120, shown = Math.round(N * prog(l, 300, 6200)); let d = "";
+    const vol = (i) => { const u = i / N; const jump = 1 / (1 + Math.exp(-(u - .45) * 38)); return { y: 92 - jump * 64 + Math.sin(i * 1.7) * 3 + Math.sin(i * .6) * 4 * (1 + jump), u }; };
+    for (let i = 0; i <= shown; i++) { const p = vol(i); d += (i ? "L" : "M") + (i / N) * 600 + " " + p.y.toFixed(1); }
+    $("path4").setAttribute("d", d);
+    const u = shown / N; const heat = Math.exp(-Math.pow((u - .5) / .09, 2)) + Math.max(0, .55 - Math.abs(u - .62) * 3) * (u > .5 ? 1 : 0);
+    const cooled = ease(prog(l, 5600, 6800)); const fee = lerp(0.30 + clamp(heat, 0, 1) * 1.0, 0.30, cooled);
+    $("fee4").textContent = fee.toFixed(2) + "%"; $("fee4").style.color = fee > .8 ? "var(--coral)" : fee > .45 ? "var(--accent)" : "var(--aqua)";
+    $("gauge4").style.width = clamp((fee - 0.3) / 2.7 * 100 + 10, 10, 100) + "%";
+  } }
+
+  // 5 outro
+  { const [a, b] = SCENES[5]; const el = $("s5"); if (sceneFade(el, t, a, b + 2000)) { const l = t - a; const x = ease(prog(l, 900, 1500)); $("cta").style.opacity = x; $("cta").style.transform = `scale(${lerp(.9, 1, x)})`; } }
+}
+window.render = render; window.TOTAL = TOTAL;
+render(Number(new URLSearchParams(location.search).get("t") || 0));
+</script>
+</body>
+</html>

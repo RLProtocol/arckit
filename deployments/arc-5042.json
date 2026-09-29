@@ -1,0 +1,217 @@
+{
+  "chainId": 5042,
+  "chainName": "Arc",
+  "rpcUrl": "https://rpc.arc-scan.org",
+  "explorer": "https://arc.etherscan.io",
+  "contracts": {
+    "TokenLocker": {
+      "address": "0xdF2640625231b662A949e0B3C868F9d9109CFEaf",
+      "deployTx": "0x75e54a055c879226dced5f512303c49d456a3f0378356681ad1e3af0bdcf947a",
+      "deployBlock": 20578200,
+      "deployer": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "owner": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "feeReceiver": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "lockFeeWei": "10000000000000000000",
+      "compiler": "solc 0.8.24, evm cancun, optimizer 200 runs",
+      "deployedAt": "2026-09-13"
+    },
+    "TokenVesting": {
+      "address": "0x5d2828b7bDDe377B51713dFa31afbA83C6011788",
+      "deployTx": "0x39a88bd05e00be45c23bd821fb0dfbfe46f5a8fbef2be15dd34885755d951107",
+      "deployBlock": 21092615,
+      "deployer": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "owner": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "feeReceiver": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "feeWei": "10000000000000000000",
+      "compiler": "solc 0.8.24, evm cancun, optimizer 200 runs",
+      "deployedAt": "2026-09-16"
+    },
+    "BulkAirdrop": {
+      "address": "0x89aD5678D3EDB28EE067d430aB384ed4A3136EC3",
+      "deployTx": "0xbf70b835e1dba11f64df0a8d9d1b20bb585561a5c7d7cd64b98aad652e855b06",
+      "deployBlock": 21105890,
+      "deployer": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "owner": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "feeReceiver": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "feeWei": "10000000000000000000",
+      "maxRecipientsPerTx": 500,
+      "compiler": "solc 0.8.24, evm cancun, optimizer 200 runs",
+      "deployedAt": "2026-09-16"
+    },
+    "ArcFlowVault": {
+      "address": "0x439608bFAC5D2B9EcD803649a1b15A9d56900990",
+      "deployTx": "0x5c8ecf4561e8a00e8355433e9a356098d6ba28a4000c1d62518e6958eb41daa6",
+      "deployBlock": 21164285,
+      "deployer": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "owner": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "treasury": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "protocolFeeBps": 100,
+      "streamDuration": 604800,
+      "poolManager": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+      "usdc": "0x3600000000000000000000000000000000000000",
+      "status": "beta, unaudited",
+      "compiler": "solc 0.8.26, evm cancun, optimizer 200 runs",
+      "deployedAt": "2026-09-16"
+    },
+    "ArcStaking": {
+      "address": "0x9b226f3e6fdF0798da926c9B3686Ef6fE826eA46",
+      "deployTx": "0xdc66b439e3bf85b8b35f10205d13f91ab726e7e1b4a5a62720797b3e2e799a06",
+      "deployBlock": 21278823,
+      "deployer": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "owner": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "feeReceiver": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "createFeeWei": "10000000000000000000",
+      "model": "time-boxed reward pools: creator picks duration + deposits rewards; pro-rata streaming; optional early-unstake penalty (max 50%)",
+      "maxPenaltyBps": 5000,
+      "compiler": "solc 0.8.26, evm cancun, optimizer 200 runs",
+      "deployedAt": "2026-09-17",
+      "superseded": {
+        "0x38eFC2c32799dFeE4Dd0493b7eC931BFD7D13E40": "earlier fixed-rate design, never used by the frontend"
+      }
+    },
+    "ArcFlowPositions": {
+      "address": "0x16c40157fF4b49b3328Db3AE352E9eA699b8f759",
+      "deployTx": "0x1dc53554cb25814bc9005d9151d3ba53e9b264da614d82082bd551b2563c360c",
+      "deployBlock": 21710957,
+      "treasury": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "protocolFeeBps": 100,
+      "lockFeeWei": "10000000000000000000",
+      "deployer": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "owner": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "compiler": "solc 0.8.26, evm cancun, optimizer 200 runs",
+      "deployedAt": "2026-09-19",
+      "status": "beta, unaudited"
+    },
+    "ArcFlowVaultV2": {
+      "address": "0xC30D55758d12ac9FD80459b002085E8528f38748",
+      "deployTx": "0x9bea7d5ec3d0983037dd26571edcaf6cb6a14621fff4110ef9a08af778841685",
+      "deployBlock": 21710962,
+      "treasury": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "protocolFeeBps": 100,
+      "bountyBps": 50,
+      "capUsdc": "25000000000",
+      "widthsTicks": [
+        1000,
+        2200,
+        4000
+      ],
+      "deployer": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "owner": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "compiler": "solc 0.8.26, evm cancun, optimizer 200 runs",
+      "deployedAt": "2026-09-19",
+      "status": "beta, unaudited"
+    },
+    "ArcFlowFeeHook": {
+      "address": "0x4FC207E35226df90c57DBc3CAcD60E6974c05080",
+      "deployTx": "0x1abf24efcf0597b6281f65480434d7883eb8c948fbc08f9189522a5455326d3f",
+      "deployBlock": 21710966,
+      "create2Salt": 7218,
+      "permissions": "afterInitialize | beforeSwap (0x1080)",
+      "baseFee": 3000,
+      "feePerTick": 10,
+      "maxFee": 30000,
+      "windowSeconds": 600,
+      "deployer": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "compiler": "solc 0.8.26, evm cancun, optimizer 200 runs",
+      "deployedAt": "2026-09-19",
+      "status": "beta, unaudited, no owner"
+    },
+    "ArcPayRouter": {
+      "address": "0x958Db3732Bfb021c2F2879b9124dECBa0b30cd2c",
+      "deployTx": "0xf039de17cb73dc90ec2842ca2e022c26b8e6e21cb510afebad666bc2a2d7527f",
+      "deployBlock": 21883465,
+      "treasury": "0xfA0dEA543883A263b862Eb41e630AF685a2AD847",
+      "owner": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "deployer": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "compiler": "solc 0.8.26, evm cancun, optimizer 200 runs",
+      "deployedAt": "2026-09-21",
+      "note": "forwards every payment to the treasury (ArcPay hot wallet) in the same call; holds nothing"
+    },
+    "ArcTwapOracle": {
+      "address": "0xedf33dA5bED98b5BAbDa4D71F55962CF74462491",
+      "deployTx": "0x58d3557003f5af34922fbf13539080ef03f36b0666fe7b9f79d4f8efaa09739a",
+      "deployBlock": 23155560,
+      "stateView": "0xF3334192D15450CdD385c8B70e03f9A6bD9E673b",
+      "ring": 256,
+      "note": "TWAP observations for Uniswap v4 pools; anyone can poke; no owner",
+      "compiler": "solc 0.8.26, evm cancun, optimizer 200 runs",
+      "deployedAt": "2026-09-28"
+    },
+    "ArcLend": {
+      "address": "0xBF0aD5CAE94A9e4aBeAeFC7cA5816B7f28983793",
+      "deployTx": "0xd64a03da6ca25eafc766133797d426faf1222eef5d19b930f319316704d2f674",
+      "deployBlock": 23369734,
+      "oracle": "0xedf33dA5bED98b5BAbDa4D71F55962CF74462491",
+      "deployer": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "owner": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "feeReceiver": "0x23d128F066820DCa6E8809f947766b45d3C6aE35",
+      "risk": {
+        "ltvBps": 5000,
+        "liqThresholdBps": 6500,
+        "liqBonusBps": 800,
+        "reserveFactorBps": 1000,
+        "baseRateBps": 200,
+        "slope1Bps": 1000,
+        "slope2Bps": 5000,
+        "kinkBps": 8000,
+        "supplyCapUsdc": 100,
+        "borrowCapUsdc": 10,
+        "closeFactorBps": 5000,
+        "maxDeviationBps": 500,
+        "twapWindowSec": 1800,
+        "minTwapCoverageSec": 1200,
+        "note": "week-one caps: 100 USDC supply / 10 USDC borrow per market (2026-09-29)"
+      },
+      "markets": [
+        {
+          "id": 0,
+          "symbol": "AKIT",
+          "token": "0xBc3764348131Fe1962f267f442a8Fe30459ededD",
+          "poolId": "0x67b53af67c3f1886d0618b16f86684dfd75d486064782a3eddca83541400fdce",
+          "poolUsdcDecimals": 6
+        },
+        {
+          "id": 1,
+          "symbol": "ARCMAN",
+          "token": "0x5849Fd68a097B3eE7d87ce88a0fcBb76857648FF",
+          "poolId": "0xa3abdb2721cd343da530ff6fd0ad73f3caa77163ea2fb8206847249f9bba57d5",
+          "poolUsdcDecimals": 6
+        },
+        {
+          "id": 2,
+          "symbol": "ARCOON",
+          "token": "0x4621A0baA0b5D97AAe77704Cf2a84DabE78a4FED",
+          "poolId": "0xa2ed014384e061ec2aaccea186d41798dcf4da29264c44a676d3006fdc252ae0",
+          "poolUsdcDecimals": 6
+        },
+        {
+          "id": 3,
+          "symbol": "AF",
+          "token": "0x75d658f8101fBE6DC217FBba7E20a0312af5Fa2E",
+          "poolId": "0x1c0523377296238f6a2fd25cb3b15f75e280eb330ad29f843b974eec264dfe31",
+          "poolUsdcDecimals": 18
+        },
+        {
+          "id": 4,
+          "symbol": "ASTOCK",
+          "token": "0x4C9b47Dbd5933aa4574B2c27F82419E4DBBD0222",
+          "poolId": "0x1bb5c22ae4560dc887164d96ebeaa756130948314ce132fee3c8d14e5b95758b",
+          "poolUsdcDecimals": 6
+        }
+      ],
+      "status": "deployed + verified, opening soon; guardian fast-liquidation at spot; first-week caps 10/10 USDC",
+      "compiler": "solc 0.8.26, evm cancun, optimizer 200 runs",
+      "deployedAt": "2026-09-29",
+      "guardian": "0x60Aacfc6998f9eDEFEB5103aE97FdE6da3E2b2e3",
+      "superseded": {
+        "0xc1BF4011e6fbe8c7858880d0F8FA1f92F386dE6D": "v1 without guardian role, never opened to users"
+      }
+    }
+  },
+  "uniswapV4": {
+    "poolManager": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+    "positionManager": "0x6049c9a0e26405c0985f9e3685c87d0ae917f82b",
+    "stateView": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+    "quoter": "0x8dc178efb8111bb0973dd9d722ebeff267c98f94"
+  }
+}

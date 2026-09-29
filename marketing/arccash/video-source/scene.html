@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ArcCash explainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy-900: #050d1a; --navy-800: #071426; --navy-700: #0b1d36; --navy-600: #10284a; --teal: #0f5c6b;
+    --text: #eef4ff; --dim: #a9b9d6; --faint: #6f83a6;
+    --accent: #8fb3ff; --accent-soft: rgba(143,179,255,.16); --accent-line: rgba(143,179,255,.45);
+    --aqua: #5fe3c9; --aqua-soft: rgba(95,227,201,.16); --coral: #ff7a6e; --coral-soft: rgba(255,122,110,.16); --violet: #d6a8ff;
+    --line: rgba(214,230,255,.12); --line-strong: rgba(214,230,255,.22);
+    --display: "Outfit", sans-serif; --body: "DM Sans", sans-serif; --mono: "IBM Plex Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: var(--navy-900); color: var(--text); font-family: var(--body); }
+  #stage { position: relative; width: 1280px; height: 720px; background: linear-gradient(160deg, var(--navy-800) 0%, var(--navy-700) 55%, #0b2a3a 130%); overflow: hidden; }
+  .glow { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; pointer-events: none; }
+  .arc { position: absolute; border: 1.5px solid var(--line); border-radius: 50%; }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+  .brand { position: absolute; left: 56px; top: 40px; display: flex; align-items: center; gap: 12px; font-family: var(--display); font-size: 24px; font-weight: 500; }
+  .brand img { width: 40px; height: 40px; border-radius: 10px; }
+  .brand .thin { font-weight: 300; color: var(--dim); }
+  .tag { position: absolute; right: 56px; top: 50px; font-family: var(--mono); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--violet); }
+  .progress { position: absolute; left: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, var(--violet), var(--accent), var(--aqua)); }
+
+  .copy { position: absolute; left: 56px; top: 150px; width: 450px; }
+  .step { font-family: var(--mono); font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--aqua); }
+  .copy h2 { font-family: var(--display); font-weight: 500; font-size: 46px; line-height: 1.06; letter-spacing: -.02em; margin-top: 14px; }
+  .copy h2 em { font-style: normal; background: linear-gradient(100deg, var(--violet), var(--accent) 55%, var(--aqua)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .copy p { color: var(--dim); font-size: 19px; line-height: 1.5; margin-top: 18px; }
+  .bullets { margin-top: 22px; display: grid; gap: 10px; }
+  .bullets div { display: flex; gap: 10px; align-items: baseline; font-size: 16px; color: var(--text); opacity: 0; }
+  .bullets div::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--aqua); flex: none; transform: translateY(-2px); }
+
+  .card { position: absolute; left: 560px; top: 118px; width: 664px; min-height: 470px; background: rgba(9,24,46,.92); border: 1px solid var(--line-strong); border-radius: 22px; padding: 26px; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .between { justify-content: space-between; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+  .h3 { font-family: var(--display); font-size: 22px; font-weight: 500; margin-top: 2px; }
+  .seg { display: flex; padding: 4px; border-radius: 11px; background: rgba(5,13,26,.6); border: 1px solid var(--line); gap: 4px; }
+  .seg div { flex: 1; text-align: center; padding: 9px 0; border-radius: 8px; color: var(--dim); font-weight: 500; font-size: 14px; }
+  .seg div.on { background: var(--navy-600); color: var(--text); }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 16px; }
+  .steps div { display: flex; align-items: center; gap: 8px; padding-bottom: 9px; border-bottom: 2px solid var(--line); color: var(--faint); font-size: 12.5px; }
+  .steps div i { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: 10.5px; border: 1px solid currentColor; font-style: normal; }
+  .steps div.now { color: var(--text); border-bottom-color: var(--accent); } .steps div.now i { background: var(--accent); color: var(--navy-800); border-color: var(--accent); }
+  .steps div.done { color: var(--aqua); border-bottom-color: var(--aqua); } .steps div.done i { background: var(--aqua-soft); border-color: transparent; }
+  .sub { position: absolute; left: 26px; right: 26px; top: 128px; opacity: 0; }
+  .label { font-size: 13px; font-weight: 500; color: var(--dim); margin: 14px 0 8px; }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .choice { padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line-strong); }
+  .choice b { font-family: var(--display); font-weight: 400; font-size: 24px; display: block; }
+  .choice span { font-size: 12.5px; color: var(--dim); }
+  .choice.on { border-color: var(--accent-line); background: var(--accent-soft); }
+  .meter { position: relative; height: 4px; border-radius: 2px; background: rgba(214,230,255,.08); margin-top: 10px; overflow: hidden; }
+  .meter i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; background: var(--coral); }
+  .btn { margin-top: 14px; padding: 14px; border-radius: 12px; background: var(--accent); color: #071426; font-weight: 700; font-size: 15px; text-align: center; }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line-strong); }
+  .btn.soft { background: var(--navy-600); color: var(--text); font-weight: 600; }
+  .toast { margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-size: 13.5px; border: 1px solid rgba(95,227,201,.35); background: var(--aqua-soft); color: var(--aqua); opacity: 0; }
+  .notebox { padding: 14px 16px; border-radius: 12px; background: rgba(5,13,26,.7); border: 1px solid var(--accent-line); box-shadow: 0 0 40px rgba(143,179,255,.14); font-family: var(--mono); font-size: 13px; line-height: 1.7; word-break: break-all; color: #b7cdff; min-height: 88px; }
+  .check { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding: 11px 13px; border-radius: 10px; border: 1px solid var(--line); background: rgba(5,13,26,.35); font-size: 13px; color: var(--dim); }
+  .check i { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--line-strong); flex: none; margin-top: 1px; display: grid; place-items: center; font-size: 11px; font-style: normal; color: var(--navy-800); }
+  .check.on i { background: var(--accent); border-color: var(--accent); }
+  .ledger { display: grid; gap: 8px; padding: 12px 14px; border-radius: 10px; background: rgba(5,13,26,.45); border: 1px solid var(--line); font-size: 13.5px; }
+  .ledger div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; } .ledger div span:first-child { color: var(--faint); }
+  .mono { font-family: var(--mono); }
+  .input { display: flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 11px; background: rgba(5,13,26,.55); }
+  .input .v { flex: 1; padding: 12px 14px; font-family: var(--mono); font-size: 14px; min-height: 46px; word-break: break-all; line-height: 1.55; color: var(--text); }
+  .caret { display: inline-block; width: 2px; height: 16px; background: var(--accent); vertical-align: -3px; margin-left: 1px; }
+  .prow { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; padding: 9px 12px; border-radius: 10px; font-size: 13.5px; color: var(--faint); border: 1px solid transparent; position: relative; overflow: hidden; }
+  .prow i { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--line-strong); display: grid; place-items: center; font-size: 11px; font-style: normal; }
+  .prow.now { color: var(--text); background: rgba(16,40,74,.6); border-color: var(--line); } .prow.now i { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .prow.done { color: var(--dim); } .prow.done i { border-color: var(--aqua); color: var(--aqua); background: var(--aqua-soft); }
+  .prow .bar { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--accent); }
+  .prow small { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .cursor { position: absolute; width: 22px; height: 22px; z-index: 9; pointer-events: none; opacity: 0; }
+  .stamp { position: absolute; right: 30px; top: 14px; padding: 10px 18px; border: 3px solid var(--coral); color: var(--coral); border-radius: 10px; font-family: var(--display); font-weight: 600; font-size: 26px; letter-spacing: .12em; transform: rotate(-9deg) scale(3); opacity: 0; }
+
+  /* explorer mock (scene 1) */
+  .txrow { display: grid; grid-template-columns: 1fr 34px 1fr auto; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: rgba(5,13,26,.4); font-family: var(--mono); font-size: 13px; opacity: 0; margin-top: 10px; }
+  .txrow .who { display: flex; align-items: center; gap: 9px; }
+  .av { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line-strong); display: grid; place-items: center; font-family: var(--display); font-size: 11px; font-weight: 600; }
+  .av.a { background: linear-gradient(135deg, #2b4f8a, #123); } .av.b { background: linear-gradient(135deg, #1f6b62, #123); }
+  .txrow .arrow { color: var(--faint); text-align: center; } .txrow .amt { color: var(--text); font-weight: 500; }
+  #link1 { position: absolute; left: 26px; right: 26px; top: 84px; height: 300px; pointer-events: none; }
+
+  /* pool grid (scene 3) */
+  .pool { display: grid; grid-template-columns: repeat(8, 1fr); gap: 14px; margin-top: 18px; }
+  .coin { aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #a9c4ff, #4f7bd8 60%, #2b4f8a); box-shadow: inset 0 -4px 10px rgba(0,0,0,.35), 0 6px 16px rgba(0,0,0,.35); display: grid; place-items: center; font-family: var(--display); font-weight: 600; font-size: 15px; color: #071426; opacity: 0; transform: scale(.4); position: relative; }
+  .coin.you::after { content: "yours"; position: absolute; top: -26px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 10.5px; color: var(--aqua); letter-spacing: .08em; }
+  .coin.you { box-shadow: inset 0 -4px 10px rgba(0,0,0,.35), 0 0 0 3px var(--aqua), 0 0 24px rgba(95,227,201,.6); }
+  .stat { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+  .panel { background: rgba(16,40,74,.6); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .kicker { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+  .big { font-family: var(--display); font-size: 30px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .small { font-size: 13px; color: var(--dim); margin-top: 4px; }
+
+  /* title + outro */
+  .center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+  .title h1 { font-family: var(--display); font-weight: 400; font-size: 96px; letter-spacing: -.03em; line-height: 1; }
+  .title h1 span { background: linear-gradient(100deg, var(--violet), var(--accent) 55%, var(--aqua)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .title p { font-size: 24px; color: var(--dim); margin-top: 22px; }
+  .chips { display: flex; gap: 12px; justify-content: center; margin-top: 34px; }
+  .chip { padding: 10px 20px; border-radius: 999px; border: 1px solid var(--accent-line); background: var(--accent-soft); color: var(--accent); font-family: var(--mono); font-size: 15px; opacity: 0; }
+  .cta { display: inline-block; margin-top: 34px; padding: 16px 30px; border-radius: 14px; background: var(--accent); color: #071426; font-weight: 700; font-size: 22px; font-family: var(--mono); }
+  .rings { position: absolute; right: 90px; top: 130px; width: 460px; height: 460px; opacity: .9; }
+  .rings circle.r { fill: none; stroke: var(--accent-line); stroke-width: 1; stroke-dasharray: 4 6; }
+  .rings .c { fill: var(--aqua); filter: drop-shadow(0 0 8px rgba(95,227,201,.9)); } .rings .c2 { fill: var(--accent); filter: drop-shadow(0 0 8px rgba(143,179,255,.9)); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="glow" style="width:700px;height:700px;left:520px;top:-260px;background:radial-gradient(circle, rgba(178,120,255,.45), transparent 62%)"></div>
+  <div class="glow" style="width:600px;height:600px;left:880px;top:140px;background:radial-gradient(circle, rgba(95,227,201,.32), transparent 62%)"></div>
+  <div class="arc" style="width:1100px;height:1100px;right:-430px;top:-640px"></div>
+  <div class="arc" style="width:1500px;height:1500px;right:-700px;top:-860px;border-width:1px"></div>
+
+  <div class="brand"><img src="logo.png" alt="" /><span>Arc<span class="thin">Cash</span></span></div>
+  <div class="tag" id="tag">Private transfers on Arc</div>
+
+  <!-- 0 title -->
+  <div class="scene title" id="s0"><div class="center"><div>
+    <h1 id="t0">Arc<span>Cash</span></h1>
+    <p id="t0p">Break the link between sender and receiver.</p>
+    <div class="chips"><div class="chip" id="c1">Deposit</div><div class="chip" id="c2">Wait</div><div class="chip" id="c3">Withdraw</div></div>
+  </div></div></div>
+
+  <!-- 1 problem -->
+  <div class="scene" id="s1">
+    <div class="copy">
+      <div class="step">The problem</div>
+      <h2>Every transfer on a blockchain is <em>public.</em></h2>
+      <p>Send USDC and the chain records exactly who paid whom, forever. Anyone can follow the trail.</p>
+      <div class="bullets" id="b1"><div>Your salary, your rent, your donations</div><div>Linked to your name the moment one address is</div><div>Visible to anyone, for good</div></div>
+    </div>
+    <div class="card">
+      <div class="row between"><div><div class="eyebrow">Block explorer</div><div class="h3">Recent transfers</div></div><span class="mono" style="font-size:12px;color:var(--faint)">live</span></div>
+      <div id="rows1" style="margin-top:8px">
+        <div class="txrow"><div class="who"><div class="av a">A</div>0x7f53…bF48</div><div class="arrow">→</div><div class="who"><div class="av b">B</div>0xeaAE…557E</div><div class="amt">1,200 USDC</div></div>
+        <div class="txrow"><div class="who"><div class="av a">A</div>0x7f53…bF48</div><div class="arrow">→</div><div class="who"><div class="av" style="background:#334">C</div>0x23d1…aE35</div><div class="amt">80 USDC</div></div>
+        <div class="txrow"><div class="who"><div class="av b">B</div>0xeaAE…557E</div><div class="arrow">→</div><div class="who"><div class="av" style="background:#433">D</div>0x0303…24e1</div><div class="amt">1,200 USDC</div></div>
+        <div class="txrow"><div class="who"><div class="av a">A</div>0x7f53…bF48</div><div class="arrow">→</div><div class="who"><div class="av b">B</div>0xeaAE…557E</div><div class="amt">1,200 USDC</div></div>
+      </div>
+      <svg id="link1" viewBox="0 0 612 300" preserveAspectRatio="none"><path id="lp" d="" fill="none" stroke="#ff7a6e" stroke-width="2.5" stroke-dasharray="6 5" /></svg>
+      <div class="stamp" id="stamp1">LINKED</div>
+    </div>
+  </div>
+
+  <!-- 2 deposit -->
+  <div class="scene" id="s2">
+    <div class="copy">
+      <div class="step">01 · Deposit</div>
+      <h2>Put USDC in. Get a <em>secret note.</em></h2>
+      <p>Your browser draws two random secrets and hashes them into a commitment. The note stays with you.</p>
+      <div class="bullets" id="b2"><div>Fixed sizes: every deposit looks the same</div><div>The note is generated locally, never uploaded</div><div>Lose the note, lose the deposit. Back it up.</div></div>
+    </div>
+    <div class="card">
+      <div class="seg"><div class="on">Deposit</div><div>Withdraw</div></div>
+      <div class="steps" id="st2"><div><i>1</i>Amount</div><div><i>2</i>Back up note</div><div><i>3</i>Deposit</div></div>
+      <div class="sub" id="p2a">
+        <div class="h3" style="margin-top:6px">Choose a pool</div>
+        <div class="label">Every deposit in a pool is the same size, so withdrawals cannot be matched by amount.</div>
+        <div class="choices"><div class="choice" id="ch1"><b>1 USDC</b><span>24 deposits · 19 still inside</span><div class="meter"><i style="width:56%;background:var(--accent)"></i></div></div><div class="choice" id="ch10"><b>10 USDC</b><span>7 deposits · 6 still inside</span><div class="meter"><i style="width:32%;background:var(--accent)"></i></div></div></div>
+        <div class="btn" id="btn2a">Continue with 1 USDC</div>
+      </div>
+      <div class="sub" id="p2b">
+        <div class="h3" style="margin-top:6px">Back up your note</div>
+        <div class="label">Generated in your browser. It is the only way to withdraw the 1 USDC.</div>
+        <div class="notebox" id="note2"></div>
+        <div class="row" style="margin-top:12px;gap:8px"><div class="btn soft" id="copy2" style="margin:0;padding:10px 16px;font-size:13.5px">Copy note</div><div class="btn soft" style="margin:0;padding:10px 16px;font-size:13.5px">Download .txt</div></div>
+        <div class="check" id="chk2"><i>✓</i><span>I have saved this note somewhere safe. If I lose it, the deposit is gone and nobody can recover it.</span></div>
+        <div class="btn" id="btn2b">Continue</div>
+      </div>
+      <div class="sub" id="p2c">
+        <div class="h3" style="margin-top:6px">Send the deposit</div>
+        <div class="label">Exactly 1 USDC goes into the pool with your commitment.</div>
+        <div class="ledger"><div><span>Pool</span><span>1 USDC · <span class="mono">0xdbf688…e3ebe</span></span></div><div><span>Commitment</span><span class="mono">0x1c8f2a3d…9b41e07c</span></div><div><span>You send</span><span>1 USDC + gas</span></div></div>
+        <div class="btn" id="btn2c">Deposit 1 USDC</div>
+        <div class="toast" id="toast2">1 USDC deposited. Your note is now worth 1 USDC. · View transaction</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 wait -->
+  <div class="scene" id="s3">
+    <div class="copy">
+      <div class="step">02 · Wait</div>
+      <h2>Blend into <em>the crowd.</em></h2>
+      <p>Every deposit in the pool is identical. The more that pile up around yours, the less anyone can say about which one is yours.</p>
+      <div class="bullets" id="b3"><div>Privacy comes from other people's deposits</div><div>Small pool, weak cover. Take your time.</div><div>Nothing to keep open. Come back later.</div></div>
+    </div>
+    <div class="card">
+      <div class="row between"><div><div class="eyebrow">Pool · 1 USDC</div><div class="h3">Deposits</div></div><span class="mono" style="font-size:12px;color:var(--faint)">0xdbf688…e3ebe</span></div>
+      <div class="pool" id="pool3"></div>
+      <div class="stat">
+        <div class="panel"><div class="kicker">Anonymity set</div><div class="big" id="anon3">1</div><div class="small" id="anonw">no cover</div><div class="meter" style="height:6px"><i id="anonm" style="width:4%"></i></div></div>
+        <div class="panel"><div class="kicker">Which one is yours?</div><div class="big" id="odds3">1 in 1</div><div class="small">the chance of guessing right</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 withdraw -->
+  <div class="scene" id="s4">
+    <div class="copy">
+      <div class="step">03 · Withdraw</div>
+      <h2>Prove it's yours. <em>Never say which.</em></h2>
+      <p>Paste the note from any wallet. Your browser builds a zero-knowledge proof and the pool pays a fresh address.</p>
+      <div class="bullets" id="b4"><div>Groth16 proof, built locally in ~2 seconds</div><div>Proves one deposit is yours, reveals nothing else</div><div>Use a wallet the depositor never touched</div></div>
+    </div>
+    <div class="card">
+      <div class="seg"><div>Deposit</div><div class="on">Withdraw</div></div>
+      <div class="steps" id="st4"><div><i>1</i>Note</div><div><i>2</i>Recipient</div><div><i>3</i>Prove &amp; withdraw</div></div>
+      <div class="sub" id="p4a">
+        <div class="h3" style="margin-top:6px">Paste your note</div>
+        <div class="label">Checked locally and against the pool. Nothing is sent anywhere.</div>
+        <div class="input"><div class="v" id="note4"></div></div>
+        <div class="ledger" style="margin-top:12px"><div><span>Pool</span><span>1 USDC</span></div><div><span>Deposit</span><span id="found4">—</span></div><div><span>Status</span><span id="spent4">—</span></div></div>
+        <div class="btn" id="btn4a">Continue</div>
+      </div>
+      <div class="sub" id="p4b">
+        <div class="h3" style="margin-top:6px">Where should the 1 USDC go?</div>
+        <div class="label">Use an address that has never interacted with the depositing wallet.</div>
+        <div class="input"><div class="v" id="rcpt4"></div></div>
+        <div class="check" style="border-color:var(--accent-line);background:var(--accent-soft);color:#b7cdff"><span>The connected wallet sends the withdrawal and pays gas. It must not be the wallet that deposited.</span></div>
+        <div class="btn" id="btn4b">Continue</div>
+      </div>
+      <div class="sub" id="p4c">
+        <div class="h3" style="margin-top:6px">Prove and withdraw</div>
+        <div class="label">Rebuild the tree, download the proving key once, generate the proof.</div>
+        <div id="prove4" style="display:grid;gap:5px">
+          <div class="prow"><i></i><span>Reading the pool's deposits</span><small></small></div>
+          <div class="prow"><i></i><span>Rebuilding the Merkle tree</span><small></small></div>
+          <div class="prow"><i></i><span>Downloading the proving key</span><small></small><div class="bar" style="width:0"></div></div>
+          <div class="prow"><i></i><span>Generating the zero-knowledge proof</span><small></small></div>
+          <div class="prow"><i></i><span>Verifying it locally</span><small></small></div>
+        </div>
+        <div class="btn" id="btn4c">Generate proof</div>
+        <div class="toast" id="toast4">1 USDC sent to 0x3c9a…f21d. The note is now spent. · View transaction</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 outro -->
+  <div class="scene title" id="s5"><div class="center"><div>
+    <h1 style="font-size:78px">Break <span>the link.</span></h1>
+    <p>No account. No server. No admin keys. Built in your browser.</p>
+    <div class="cta" id="cta">usearckit.locker/cash</div>
+  </div></div>
+    <svg class="rings" id="rings" viewBox="0 0 320 320" style="opacity:.28"><circle cx="160" cy="160" r="120" class="r"/><circle cx="160" cy="160" r="80" class="r"/><circle cx="160" cy="160" r="40" class="r" style="stroke-dasharray:none"/><g id="rg1"><circle cx="280" cy="160" r="8" class="c"/></g><g id="rg2"><circle cx="240" cy="160" r="7" class="c2"/></g><g id="rg3"><circle cx="40" cy="160" r="8" class="c2"/></g></svg>
+  </div>
+
+  <svg class="cursor" id="cursor" viewBox="0 0 24 24"><path d="M5 3l14 8-6.5 1.5L9 19z" fill="#fff" stroke="#071426" stroke-width="1.6" stroke-linejoin="round"/></svg>
+  <div class="progress" id="progress"></div>
+</div>
+
+<script>
+const SCENES = [ [0, 4500], [4500, 12000], [12000, 25500], [25500, 34500], [34500, 49500], [49500, 57000] ];
+const TOTAL = 57000;
+const $ = (id) => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = (x) => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, x) => a + (b - a) * x;
+const typed = (str, x) => str.slice(0, Math.round(str.length * clamp(x)));
+const caret = (t) => (Math.floor(t / 400) % 2 === 0 ? '<span class="caret"></span>' : "");
+const NOTE = "arccash-1000000000000000000-5042-0x27c38dd8aa776849c1f56ff8da5c6117cbc9406df44b26c5439fc0bc3c26ee96b719d5490969ab8387b733465100f30b2f50d2eaf7819e6b894bd01af5d0";
+const RCPT = "0x3c9aE41b7D2f08c6B1a9e57F30dD4a86C2b1f21d";
+
+function sceneFade(el, t, a, b) {
+  const x = Math.min(prog(t, a, a + 600), 1 - prog(t, b - 500, b));
+  el.style.opacity = ease(x);
+  el.style.transform = `translateY(${lerp(18, 0, ease(prog(t, a, a + 700)))}px)`;
+  return x > 0;
+}
+function bullets(id, local, start) {
+  [...$(id).children].forEach((d, i) => { const x = ease(prog(local, start + i * 900, start + i * 900 + 500)); d.style.opacity = x; d.style.transform = `translateX(${lerp(-14, 0, x)}px)`; });
+}
+function press(el, local, at) { const x = prog(local, at, at + 260); const s = x > 0 && x < 1 ? 1 - 0.035 * Math.sin(x * Math.PI) : 1; el.style.transform = `scale(${s})`; el.style.filter = x > 0 && x < 1 ? "brightness(1.12)" : "none"; }
+function cursorTo(local, pts) {
+  const c = $("cursor"); let p = pts[0];
+  for (let i = 0; i < pts.length - 1; i++) if (local >= pts[i][0]) { const x = ease(prog(local, pts[i][0], pts[i + 1][0])); p = [0, lerp(pts[i][1], pts[i + 1][1], x), lerp(pts[i][2], pts[i + 1][2], x)]; }
+  if (local >= pts[pts.length - 1][0]) p = pts[pts.length - 1];
+  c.style.left = p[1] + "px"; c.style.top = p[2] + "px";
+  c.style.opacity = Math.min(prog(local, pts[0][0] - 300, pts[0][0]), 1 - prog(local, pts[pts.length - 1][0] + 700, pts[pts.length - 1][0] + 1100));
+}
+/** Sub-panel swap: panel i visible during [starts[i], starts[i+1]) with a quick cross-fade. */
+function subs(ids, local, starts) {
+  ids.forEach((id, i) => { const a = starts[i], b = starts[i + 1] ?? 1e9; const x = Math.min(prog(local, a, a + 350), 1 - prog(local, b - 250, b)); const el = $(id); el.style.opacity = ease(x); el.style.transform = `translateY(${lerp(10, 0, ease(prog(local, a, a + 400)))}px)`; });
+}
+function steps(id, k) { [...$(id).children].forEach((d, i) => { d.className = i < k ? "done" : i === k ? "now" : ""; d.firstChild.textContent = i < k ? "✓" : String(i + 1); }); }
+
+// scene 3: 24 coins
+const coins = []; for (let i = 0; i < 24; i++) { const c = document.createElement("div"); c.className = "coin"; c.textContent = "$"; $("pool3").appendChild(c); coins.push(c); }
+const FIRST_COL = 3; // your coin lands 4th from the left in row 1 so the "yours" label has room
+const ORDER = [FIRST_COL, 0, 9, 5, 14, 1, 18, 7, 11, 21, 2, 15, 6, 19, 10, 22, 4, 13, 8, 17, 12, 23, 16, 20];
+
+function render(t) {
+  $("progress").style.width = (t / TOTAL) * 100 + "%";
+  $("cursor").style.opacity = 0;
+  $("tag").style.opacity = t > 4200 && t < 49700 ? 1 : 0;
+
+  // 0 title
+  { const [a, b] = SCENES[0]; const el = $("s0"); if (sceneFade(el, t, a, b)) { const l = t - a;
+    $("t0").style.letterSpacing = lerp(-0.01, -0.03, ease(prog(l, 0, 1600))) + "em";
+    $("t0").style.transform = `scale(${lerp(.94, 1, ease(prog(l, 0, 1400)))})`;
+    $("t0p").style.opacity = ease(prog(l, 700, 1400));
+    ["c1", "c2", "c3"].forEach((c, i) => { const x = ease(prog(l, 1500 + i * 450, 2000 + i * 450)); $(c).style.opacity = x; $(c).style.transform = `translateY(${lerp(12, 0, x)}px)`; });
+  } }
+
+  // 1 problem
+  { const [a, b] = SCENES[1]; const el = $("s1"); if (sceneFade(el, t, a, b)) { const l = t - a;
+    bullets("b1", l, 1400);
+    [...$("rows1").children].forEach((r, i) => { const x = ease(prog(l, 600 + i * 550, 1100 + i * 550)); r.style.opacity = x; r.style.transform = `translateX(${lerp(24, 0, x)}px)`; });
+    // red thread: A (row 1) → B (row 1) → B (row 3) → D (row 3); drawn progressively
+    const pts = [[30, 25], [304, 25], [30, 157], [304, 157], [572, 157]];
+    const n = prog(l, 3200, 5200) * (pts.length - 1); let d = "";
+    for (let i = 0; i <= Math.floor(n) && i < pts.length; i++) d += (i ? "L" : "M") + pts[i][0] + " " + pts[i][1];
+    if (n < pts.length - 1) { const i = Math.floor(n), f = n - i; d += "L" + lerp(pts[i][0], pts[i + 1][0], f) + " " + lerp(pts[i][1], pts[i + 1][1], f); }
+    $("lp").setAttribute("d", d); $("lp").style.opacity = l > 3200 ? 1 : 0;
+    const s = ease(prog(l, 5400, 5800)); $("stamp1").style.opacity = s; $("stamp1").style.transform = `rotate(-9deg) scale(${lerp(3, 1, s)})`;
+  } }
+
+  // 2 deposit
+  { const [a, b] = SCENES[2]; const el = $("s2"); if (sceneFade(el, t, a, b)) { const l = t - a;
+    bullets("b2", l, 1200);
+    const S = [0, 4200, 9600]; subs(["p2a", "p2b", "p2c"], l, S);
+    steps("st2", l < S[1] ? 0 : l < S[2] ? 1 : l < 12300 ? 2 : 3);
+    // panel a: pick 1 USDC, continue
+    const picked = l > 1900; $("ch1").className = "choice" + (picked ? " on" : ""); press($("ch1"), l, 1900); press($("btn2a"), l, 3700);
+    // panel b: note types, copy, tick, continue
+    const lb = l - S[1]; $("note2").innerHTML = typed(NOTE, prog(lb, 300, 1900)) + (lb > 200 && lb < 2300 ? caret(lb) : "");
+    press($("copy2"), lb, 2500); $("copy2").textContent = lb > 2600 ? "Copied ✓" : "Copy note";
+    $("chk2").className = "check" + (lb > 3600 ? " on" : ""); press($("chk2"), lb, 3400);
+    press($("btn2b"), lb, 4900); $("btn2b").style.opacity = lb > 3600 ? 1 : .45;
+    // panel c: deposit
+    const lc = l - S[2]; press($("btn2c"), lc, 1200);
+    $("btn2c").textContent = lc < 1200 ? "Deposit 1 USDC" : lc < 2700 ? "Depositing…" : "Deposited";
+    const tx = ease(prog(lc, 2700, 3200)); $("toast2").style.opacity = tx; $("toast2").style.transform = `translateY(${lerp(8, 0, tx)}px)`;
+    cursorTo(l, [[1300, 1000, 560], [1900, 720, 330], [3200, 720, 330], [3700, 890, 470], [4200, 890, 470], [S[1] + 2500, 660, 520], [S[1] + 3400, 620, 570], [S[1] + 4900, 890, 640], [S[2] + 1200, 890, 470], [S[2] + 1700, 890, 470]]);
+  } }
+
+  // 3 wait
+  { const [a, b] = SCENES[3]; const el = $("s3"); if (sceneFade(el, t, a, b)) { const l = t - a;
+    bullets("b3", l, 1200);
+    let shown = 0;
+    ORDER.forEach((idx, k) => { const at = k === 0 ? 400 : 1600 + (k - 1) * 230; const x = ease(prog(l, at, at + 380)); const c = coins[idx]; c.style.opacity = x; c.style.transform = `scale(${lerp(.4, 1, x)})`; if (l >= at) shown++; });
+    const fadeYou = ease(prog(l, 6400, 7400));
+    coins[FIRST_COL].className = "coin" + (fadeYou < 1 ? " you" : "");
+    coins[FIRST_COL].style.boxShadow = fadeYou < 1 ? `inset 0 -4px 10px rgba(0,0,0,.35), 0 0 0 ${3 * (1 - fadeYou)}px var(--aqua), 0 0 ${24 * (1 - fadeYou)}px rgba(95,227,201,${.6 * (1 - fadeYou)})` : "";
+    $("anon3").textContent = shown; $("odds3").textContent = "1 in " + shown;
+    const pct = Math.min(100, Math.round(100 * Math.log10(1 + shown) / Math.log10(51)));
+    $("anonm").style.width = pct + "%"; $("anonm").style.background = shown <= 1 ? "var(--coral)" : shown < 10 ? "var(--accent)" : "var(--aqua)";
+    $("anonw").textContent = shown <= 1 ? "no cover" : shown < 10 ? "weak" : shown < 50 ? "growing" : "decent";
+  } }
+
+  // 4 withdraw
+  { const [a, b] = SCENES[4]; const el = $("s4"); if (sceneFade(el, t, a, b)) { const l = t - a;
+    bullets("b4", l, 1200);
+    const S = [0, 3400, 5900]; subs(["p4a", "p4b", "p4c"], l, S);
+    steps("st4", l < S[1] ? 0 : l < S[2] ? 1 : l < S[2] + 7500 ? 2 : 3);
+    // a: paste note (fast, as a paste), status
+    $("note4").innerHTML = typed(NOTE, prog(l, 700, 1500)) + (l > 500 && l < 2000 ? caret(l) : "");
+    $("found4").innerHTML = l < 2100 ? "—" : l < 2600 ? '<span style="color:var(--dim)">checking…</span>' : '<span style="color:var(--aqua)">found in the pool ✓</span>';
+    $("spent4").innerHTML = l < 2100 ? "—" : l < 2700 ? '<span style="color:var(--dim)">checking…</span>' : '<span style="color:var(--aqua)">unspent ✓</span>';
+    press($("btn4a"), l, 3000); $("btn4a").style.opacity = l > 2700 ? 1 : .45;
+    // b: recipient
+    const lb = l - S[1]; $("rcpt4").innerHTML = typed(RCPT, prog(lb, 300, 1500)) + (lb > 200 && lb < 1900 ? caret(lb) : "");
+    press($("btn4b"), lb, 2100);
+    // c: prove
+    const lc = l - S[2]; press($("btn4c"), lc, 500);
+    const stageAt = [900, 1700, 2200, 3800, 4800, 5300]; // start of each row; last = all done
+    let cur = -1; for (let i = 0; i < 5; i++) if (lc >= stageAt[i]) cur = i; const done = lc >= stageAt[5];
+    [...$("prove4").children].forEach((r, i) => { r.className = "prow" + (done || i < cur ? " done" : i === cur ? " now" : ""); r.children[0].textContent = done || i < cur ? "✓" : ""; });
+    const dl = prog(lc, stageAt[2], stageAt[3]);
+    $("prove4").children[0].children[2].textContent = cur === 0 ? "1/1" : ""; $("prove4").children[2].children[2].textContent = cur === 2 ? Math.round(dl * 100) + "%" : cur > 2 || done ? "20 MB" : ""; $("prove4").children[3].children[2].textContent = cur > 3 || done ? "1.9 s" : "";
+    $("prove4").children[2].children[3].style.width = cur === 2 ? dl * 100 + "%" : "0";
+    $("btn4c").textContent = lc < 500 ? "Generate proof" : lc < stageAt[5] ? "Proving…" : lc < 6400 ? "Withdraw 1 USDC to 0x3c9a…f21d" : lc < 7500 ? "Withdrawing…" : "Withdrawn";
+    $("btn4c").style.opacity = lc >= 500 && lc < stageAt[5] ? .6 : 1; press($("btn4c"), lc, 6400);
+    const tx = ease(prog(lc, 7500, 8000)); $("toast4").style.opacity = tx; $("toast4").style.transform = `translateY(${lerp(8, 0, tx)}px)`;
+    cursorTo(l, [[2500, 1000, 620], [3000, 890, 570], [S[1] + 2100, 890, 570], [S[1] + 2600, 890, 570], [S[2] + 500, 890, 610], [S[2] + 1000, 890, 610], [S[2] + 6400, 890, 610], [S[2] + 6900, 890, 610]]);
+  } }
+
+  // 5 outro
+  { const [a, b] = SCENES[5]; const el = $("s5"); if (sceneFade(el, t, a, b + 2000)) { const l = t - a; const x = ease(prog(l, 900, 1500)); $("cta").style.opacity = x; $("cta").style.transform = `scale(${lerp(.9, 1, x)})`;
+    $("rg1").style.transform = `rotate(${(t / 9000) * 360}deg)`; $("rg2").style.transform = `rotate(${-(t / 6500) * 360}deg)`; $("rg3").style.transform = `rotate(${(t / 11000) * 360}deg)`; ["rg1", "rg2", "rg3"].forEach((g) => $(g).style.transformOrigin = "160px 160px");
+  } }
+}
+window.render = render; window.TOTAL = TOTAL;
+render(Number(new URLSearchParams(location.search).get("t") || 0));
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "arckit-root",
+  "private": true,
+  "description": "Root dependencies for the Vercel edge functions in api/ (OG cards, share HTML, RPC proxy). The web app lives in frontend/.",
+  "dependencies": {
+    "@vercel/og": "^0.6.5",
+    "viem": "^2.21.0"
+  }
+}

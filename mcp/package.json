@@ -1,0 +1,39 @@
+{
+  "name": "arckit-pay-mcp",
+  "version": "0.1.0",
+  "description": "MCP server that gives your AI a wallet on Arc and lets it buy gift cards and mobile top-ups with USDC through ArcPay.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "arckit-pay-mcp": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "arc",
+    "usdc",
+    "gift-cards",
+    "arckit",
+    "arcpay"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "viem": "^2.21.0",
+    "zod": "^3.23.8"
+  },
+  "homepage": "https://arc-tools.vercel.app/pay",
+  "author": "Arc Kit (https://x.com/usearckit)",
+  "bugs": {
+    "url": "https://t.me/usearckit"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

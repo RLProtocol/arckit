@@ -1,0 +1,28 @@
+# Foundry project: not needed to build the frontend
+/lib
+/out
+/cache
+/broadcast
+/test
+/script
+/src
+/foundry.toml
+/foundry.lock
+/.gitmodules
+/.git
+
+# Secrets and local files
+.env
+.env.*
+!.env.example
+# Frontend local artifacts
+frontend/node_modules
+frontend/dist
+frontend/vite-dev.log
+.wallet2.key
+.test-airdrop.addr
+.test-staking.addr
+.arcpay-hot.key
+.arcpay-dev-kv.json
+.arcpay-last-order.json
+/mcp

@@ -1,0 +1,14 @@
+{
+  "name": "arccash",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Experimental Tornado-style privacy pool for the Arc network. Hobby project; unaudited; see README.",
+  "type": "module",
+  "dependencies": {
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "snarkjs": "^0.7.5",
+    "viem": "^2.21.0",
+    "fixed-merkle-tree": "^0.7.3"
+  }
+}

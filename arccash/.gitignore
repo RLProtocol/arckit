@@ -1,0 +1,12 @@
+# deposit notes = the money; never commit them
+notes/
+*.note
+# large build outputs (regenerate with the steps in README.md); the small ones the tests need stay tracked
+build/*
+!build/Hasher.bin
+!build/zeros.json
+keys/*.zkey
+keys/*.ptau
+out/
+cache/
+node_modules/

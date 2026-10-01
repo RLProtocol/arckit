@@ -44,6 +44,11 @@ export default defineConfig(({ mode }) => {
         req.url = "/api/cash" + (req.url === "/" ? "" : req.url);
         void cashHandler(req, res);
       });
+      const poolsHandler = createRequire(import.meta.url)(path.join(repo, "api/pools.js"));
+      server.middlewares.use("/api/pools", (req, res) => {
+        req.url = "/api/pools" + (req.url === "/" ? "" : req.url);
+        void poolsHandler(req, res);
+      });
       server.middlewares.use("/api/pay", (req, res) => {
         req.url = "/api/pay" + (req.url === "/" ? "" : req.url);
         if (!req.headers["x-vercel-ip-country"] && process.env.ARCPAY_DEV_COUNTRY) req.headers["x-vercel-ip-country"] = process.env.ARCPAY_DEV_COUNTRY;

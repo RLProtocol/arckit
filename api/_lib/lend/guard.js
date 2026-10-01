@@ -49,10 +49,10 @@ function createGuard({ lend, deployBlock, key, log = console.log }) {
   async function tick() {
     const actions = [];
     const now = Date.now();
-    if (now - lastPoke > MAX_POKE_AGE_MS) {
-      lastPoke = now;
-      for (let id = 0; id < marketCount; id++) wallet.writeContract({ address: lend, abi, functionName: "poke", args: [BigInt(id)] }).catch(() => {});
-    }
+    // No periodic pokes here: every cron invocation starts a fresh guard, so poking from tick() meant five
+    // transactions a minute and drained the wallet (2026-09-30). The ten-minute keeper (api/lend-poke.js) records
+    // observations; guardianLiquidate pokes on its own before pricing.
+    void now; void lastPoke;
     for (const [id, users] of borrowers) {
       for (const user of users) {
         let st;

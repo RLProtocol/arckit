@@ -17,6 +17,7 @@ import { Pay } from "@/pages/Pay";
 import { Cash } from "@/pages/Cash";
 import { Docs } from "@/pages/Docs";
 import { Lend } from "@/pages/Lend";
+import { P2P } from "@/pages/P2P";
 import { FlowPosition, FlowLocks } from "@/pages/FlowPosition";
 import { Footer } from "@/components/Footer";
 
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="/pay" element={<Pay />} />
           <Route path="/cash" element={<Cash />} />
           <Route path="/lend" element={<Lend />} />
+          <Route path="/p2p" element={<P2P />} />
           <Route path="/docs" element={<Docs />} />
           <Route path="/docs/:slug" element={<Docs />} />
           <Route path="/flow" element={<Flow />} />

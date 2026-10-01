@@ -24,6 +24,7 @@ export function Nav() {
           <NavLink to="/pay">Pay</NavLink>
           <NavLink to="/cash">Cash</NavLink>
           <NavLink to="/lend">Lend</NavLink>
+          <NavLink to="/p2p">P2P</NavLink>
           <NavLink to="/stake">Stake</NavLink>
           <NavLink to="/flow">Flow</NavLink>
           <NavLink to="/explore">Explore</NavLink>

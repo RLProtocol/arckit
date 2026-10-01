@@ -114,6 +114,9 @@ const CashIcon = () => (
     <path d="M12 9.5v5M10.5 11h2.2a.9.9 0 0 1 0 1.8h-1.4a.9.9 0 0 0 0 1.8H13.5" />
   </svg>
 );
+const P2PIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 8h12l-3-3" /><path d="M20 16H8l3 3" /><circle cx="19" cy="8" r="1.4" /><circle cx="5" cy="16" r="1.4" /></svg>
+);
 const LendIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
     <path d="M4 17h16M6 17V9l6-4 6 4v8" />
@@ -187,6 +190,16 @@ const TOOLS: { key: string; name: string; icon: ReactNode; text: string; tags: s
     icon: <LendIcon />,
     text: "Lend USDC and earn every second, or post your tokens as collateral and borrow USDC against them. One isolated market per token, priced by a 30-minute on-chain average, liquidations open to anyone.",
     tags: ["Isolated markets", "USDC in, USDC out", "On-chain TWAP pricing"],
+  },
+  {
+    key: "p2p",
+    name: "ArcP2P",
+    live: false,
+    to: "/p2p",
+    cta: "Trade peer to peer",
+    icon: <P2PIcon />,
+    text: "Sell any token for USDC at a fixed price or at the live market price with a discount or premium. Buyers take all or part of a listing and pay native USDC in one transaction. Tokens stay in escrow until sold or withdrawn.",
+    tags: ["Any token, no listing approval", "Market ± % or fixed price", "Partial fills, OTC mode"],
   },
   {
     key: "mcp",
@@ -291,7 +304,7 @@ export function Home() {
       <section className="wrap section">
         <div className="section-head">
           <div className="eyebrow">The suite</div>
-          <h2>Nine tools, one chain</h2>
+          <h2>Ten tools, one chain</h2>
         </div>
 
         <div className="feature-hero rise">

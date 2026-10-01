@@ -501,6 +501,19 @@ export type TokenMeta = {
 
 /** Plain-language messages for every custom error the contract can throw. */
 export const ERROR_TEXT: Record<string, string> = {
+  // ArcP2P
+  ListingNotFound: "That listing does not exist.",
+  NotSeller: "Only the seller can change this listing.",
+  NotActive: "This listing has nothing left to sell.",
+  Expired: "This listing has expired.",
+  NotAllowedBuyer: "This listing is reserved for another buyer.",
+  ExceedsRemaining: "That is more than the listing has left.",
+  BelowMinFill: "That is below the seller's minimum fill.",
+  InsufficientPayment: "The price moved; not enough USDC was sent. Try again.",
+  BadPrice: "The price could not be read. Check the pool or use a fixed price.",
+  BadSpread: "Spread must be between -90% and +100%.",
+  PoolRequired: "Market pricing needs a Uniswap v4 USDC pool for this token.",
+  BadExpiry: "Expiry must be in the future.",
   // ArcCash
   CommitmentAlreadySubmitted: "This note was already deposited. Generate a new note.",
   WrongDenomination: "The amount sent does not match this pool's denomination.",

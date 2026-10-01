@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { AIRDROP_ADDRESS, ARCFLOW_ADDRESS, LOCKER_ADDRESS, POSITIONS_ADDRESS, STAKING_ADDRESS, VAULT_V2_ADDRESS, VESTING_ADDRESS, explorerAddress } from "@/contracts";
 import { ArcMark } from "@/components/Nav";
 import { shortAddr } from "@/lib/format";
+import { ARCLEND_ADDRESS } from "@/hooks/useArcLend";
+import { ARCP2P_ADDRESS } from "@/hooks/useArcP2P";
 
 export const SOCIALS = {
   x: "https://x.com/usearckit",
@@ -53,6 +55,7 @@ export function Footer() {
           <Link to="/pay">ArcPay: spend USDC</Link>
           <Link to="/cash">ArcCash: private transfers</Link>
           <Link to="/lend">ArcLend: borrow USDC</Link>
+          <Link to="/p2p">ArcP2P: trade peer to peer</Link>
           <Link to="/docs">Documentation</Link>
           <Link to="/stake">Staking pools</Link>
           <Link to="/flow">ArcFlow stakes and pools</Link>
@@ -95,6 +98,16 @@ export function Footer() {
           {POSITIONS_ADDRESS && (
             <a href={explorerAddress(POSITIONS_ADDRESS)} target="_blank" rel="noreferrer" className="mono">
               Flow pools · {shortAddr(POSITIONS_ADDRESS, 6)}
+            </a>
+          )}
+          {ARCLEND_ADDRESS && (
+            <a href={explorerAddress(ARCLEND_ADDRESS)} target="_blank" rel="noreferrer" className="mono">
+              ArcLend · {shortAddr(ARCLEND_ADDRESS, 6)}
+            </a>
+          )}
+          {ARCP2P_ADDRESS && (
+            <a href={explorerAddress(ARCP2P_ADDRESS)} target="_blank" rel="noreferrer" className="mono">
+              ArcP2P · {shortAddr(ARCP2P_ADDRESS, 6)}
             </a>
           )}
           <span className="faint tiny">Chain 5042 · fees in USDC</span>

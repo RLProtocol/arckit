@@ -369,6 +369,51 @@ Arc 没有价格喂送，因此 ArcLend 通过 **ArcTwapOracle** 从每个代币
 
 > [!WARNING] Arc 上的抵押代币规模小、波动大。请远低于限额借款，关注健康系数，并记住清算会让你损失 8% 的奖励部分。
 
+=== slug: arcp2p
+title: ArcP2P
+group: products
+summary: 以固定价格或跟随实时市场价加减折扣，把任意代币卖成 USDC。买家可整笔或部分买入挂单，一笔交易内用原生 USDC 付款。
+===
+## 运作方式
+
+ArcP2P 是一个无需许可的订单簿，用于把代币卖成 USDC。**卖家**把 Arc 上任意 ERC-20 托管进 ArcP2P 合约并定价。**买家**发送原生 USDC，并在同一笔交易中收到代币。代币在售出或卖家取消前一直留在托管中；Arc Kit 从不经手任何资产。
+
+没有挂单审核，没有最低数量，也没有对手方风险：合约只在 USDC 到账后释放代币，只在代币转出后释放 USDC。
+
+## 定价模式
+
+**固定价格。** 每个代币对应一个固定的 USDC 价格，永不变动。简单、可预期，适合事先谈好的 OTC 交易。
+
+**市场价 ± 价差。** 挂单跟随该代币流动性最深的 Uniswap v4 USDC 池。选择一个价差：0% 按市场价卖出，−5% 低于市场价 5%，+10% 高于市场价 10%，范围从 −90% 到 +100%。每次成交都会重新读取池子价格，所以无论市场怎么走，你的折扣始终不变。还可以设置**底价**：无论池子怎么报价，挂单都不会低于它成交。
+
+市场参考价取池子 30 分钟时间加权平均价与现价中的**较高者**（平均价需有 10 分钟观测）。因此单个区块砸低现价无法掏空折扣挂单；真实上涨会立即反映；持续下跌会随平均价追上而被跟随。
+
+## 买入
+
+1. 打开**买入**，选择一个挂单。面板显示实时价格、与市场价的对比以及剩余数量。
+2. 输入想买的代币数量，或想花费的 USDC 金额。可以全部买下，也可以买任意高于卖家最小成交量的数量；最后的剩余部分始终允许买入。
+3. 确认。USDC 以原生币形式发送，无需授权。对市场价挂单，应用会多发最多 1% 以覆盖价格波动，合约会退还每一分不需要的钱。
+
+## 卖出
+
+1. 打开**卖出**，粘贴代币地址和数量。应用会查找该代币的 USDC 池，并选择费率正常、流动性最深的一个作为市场参考；你也可以另选。
+2. 选择固定或市场定价，按需设置价差和底价。
+3. 可选条款：**最小成交量**、**到期时间**，以及仅限某个钱包接受的**指定买家**地址（用于 OTC）。
+4. 授权代币一次，然后挂单。在**我的挂单**中可以随时改价、追加代币，或取消并取回剩余部分。
+
+## 费用
+
+卖家为每笔成交支付 **0.5%**，从所得中扣除；买家只支付报价。合约将费用上限定为 1%。费用在合约中累积并由收费地址主动领取，因此永远不会阻塞交易。它属于 AKIT 收入分成的一部分。
+
+## 安全
+
+- 合约不可升级且已验证。所有者只能在上限内调整费用，别无其他权限：无法转移托管代币、修改挂单或暂停交易。
+- 转账扣费代币按实际收到数量挂单。不支持 rebase 代币。
+- 若卖家地址拒收 USDC，所得会留在合约中等待其领取；买家的交易照常完成。
+- 挂单不代表背书。任何人都可以挂任何代币：买前请核对代币地址。
+
+合约：[0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C](https://arc.etherscan.io/address/0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C#code)
+
 === slug: contracts
 title: 合约
 group: protocol
@@ -388,8 +433,9 @@ summary: Arc Kit 的每个合约、它在 Arc（链 5042）上的地址，以及
 | ArcFlowPositions | [0x16c40157fF4b49b3328Db3AE352E9eA699b8f759](https://arc.etherscan.io/address/0x16c40157fF4b49b3328Db3AE352E9eA699b8f759#code) | 形状化头寸与流动性锁定 |
 | ArcFlowFeeHook | [0x4FC207E35226df90c57DBc3CAcD60E6974c05080](https://arc.etherscan.io/address/0x4FC207E35226df90c57DBc3CAcD60E6974c05080#code) | 动态费率钩子；无所有者 |
 | ArcFlowVault (v1) | [0x439608bFAC5D2B9EcD803649a1b15A9d56900990](https://arc.etherscan.io/address/0x439608bFAC5D2B9EcD803649a1b15A9d56900990#code) | 全区间金库，已被 v2 取代 |
-| ArcLend | [0xc1BF4011e6fbe8c7858880d0F8FA1f92F386dE6D](https://arc.etherscan.io/address/0xc1BF4011e6fbe8c7858880d0F8FA1f92F386dE6D#code) | 隔离的 USDC 借贷市场 |
+| ArcLend | [0xBF0aD5CAE94A9e4aBeAeFC7cA5816B7f28983793](https://arc.etherscan.io/address/0xBF0aD5CAE94A9e4aBeAeFC7cA5816B7f28983793#code) | 隔离的 USDC 借贷市场 |
 | ArcTwapOracle | [0xedf33dA5bED98b5BAbDa4D71F55962CF74462491](https://arc.etherscan.io/address/0xedf33dA5bED98b5BAbDa4D71F55962CF74462491#code) | v4 池 TWAP 观测；无所有者 |
+| ArcP2P | [0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C](https://arc.etherscan.io/address/0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C#code) | 以 USDC 结算的点对点代币交易 |
 | ArcPayRouter | [0x958Db3732Bfb021c2F2879b9124dECBa0b30cd2c](https://arc.etherscan.io/address/0x958Db3732Bfb021c2F2879b9124dECBa0b30cd2c#code) | 转发付款；不持有资金 |
 | ArcCash 池，1 USDC | [0xdbf688e09c296df6ef4a02995427ee637d1e3ebe](https://arc.etherscan.io/address/0xdbf688e09c296df6ef4a02995427ee637d1e3ebe#code) | 无所有者 |
 | ArcCash 池，10 USDC | [0x0303ae09b4f9f599823634aa9c88b6a517b24e1b](https://arc.etherscan.io/address/0x0303ae09b4f9f599823634aa9c88b6a517b24e1b#code) | 无所有者 |
@@ -421,6 +467,7 @@ summary: Arc Kit 收取什么费用、所有者密钥能做和不能做什么，
 | ArcFlow 质押与头寸 | 所收割/领取交易手续费的 1%；0.5% 收割赏金给收割者 |
 | ArcPay | 已包含在报价的 USDC 价格中 |
 | ArcCash | 无；Arc Kit 支付提取的燃气费 |
+| ArcP2P 成交 | 成交额的 0.5%，由卖家支付；上限 1% |
 | 追加、延长、拆分、转让、领取、提取 | 免费（仅燃气费） |
 
 费用随调用以 USDC 支付，累积在合约中，由费用接收者**主动领取**，因此故障的接收者永远不会阻塞用户操作。
@@ -475,10 +522,6 @@ summary: Arc Kit 接下来的计划。下面每个产品都会为 AKIT 收益分
 ## ArcDomains
 
 购买 `.arc` 域名，并通过 IPFS 把它关联到你的网站。为你的钱包、项目页和锁仓提供一个可读的名字，在链上解析。
-
-## ArcP2P
-
-构建在 Arc 上的点对点 DEX，用于 P2P 出售代币：发布报价、商定价格、通过托管合约结算，没有订单簿，没有滑点。适合 OTC 规模的交易、发行前配额以及池子较薄的代币。
 
 ## Arc 重新部署
 

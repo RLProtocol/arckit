@@ -369,6 +369,51 @@ Pemilik dapat menambah pasar, menyesuaikan parameter ini dalam batas keras (LTV 
 
 > [!WARNING] Token jaminan di Arc kecil dan volatil. Pinjam jauh di bawah batas, pantau faktor kesehatan Anda, dan ingat likuidasi membuat Anda kehilangan bonus 8%.
 
+=== slug: arcp2p
+title: ArcP2P
+group: products
+summary: Jual token apa pun untuk USDC dengan harga tetap atau mengikuti harga pasar langsung dengan diskon atau premi. Pembeli mengambil seluruh atau sebagian listing dan membayar USDC native dalam satu transaksi.
+===
+## Cara kerjanya
+
+ArcP2P adalah order book tanpa izin untuk menjual token terhadap USDC. **Penjual** menitipkan ERC-20 apa pun di Arc ke kontrak ArcP2P dan menetapkan harga. **Pembeli** mengirim USDC native dan menerima token dalam transaksi yang sama. Token tetap dalam escrow sampai terjual atau penjual membatalkan; Arc Kit tidak pernah memegang apa pun.
+
+Tidak ada persetujuan listing, tidak ada ukuran minimum, dan tidak ada risiko pihak lawan: kontrak hanya melepas token setelah USDC tiba, dan hanya melepas USDC setelah token keluar.
+
+## Mode harga
+
+**Harga tetap.** Jumlah USDC per token yang tidak pernah berubah. Sederhana, bisa diprediksi, cocok untuk kesepakatan OTC yang sudah disetujui.
+
+**Harga pasar ± spread.** Listing mengikuti pool USDC Uniswap v4 terdalam milik token itu. Pilih spread: 0% menjual di harga pasar, −5% menjual 5% di bawahnya, +10% menjual 10% di atasnya, dari −90% sampai +100%. Harga dibaca ulang dari pool pada setiap pembelian, jadi diskon Anda tetap sama saat pasar bergerak. Tambahkan **harga dasar** opsional: listing tidak pernah terjual di bawahnya, apa pun kata pool.
+
+Acuan pasar adalah yang **lebih tinggi** antara rata-rata tertimbang waktu 30 menit dan harga spot pool, setelah rata-rata punya 10 menit observasi. Satu blok yang menjatuhkan harga spot karena itu tidak bisa menguras listing berdiskon; kenaikan nyata langsung tercermin; penurunan berkelanjutan diikuti saat rata-rata menyusul.
+
+## Membeli
+
+1. Buka **Beli**, pilih listing. Panel menampilkan harga langsung, perbandingannya dengan pasar, dan sisa yang tersedia.
+2. Masukkan berapa token yang Anda inginkan, atau berapa USDC yang ingin dibelanjakan. Anda bisa membeli semuanya atau jumlah berapa pun di atas minimum penjual; sisa terakhir selalu boleh dibeli.
+3. Konfirmasi. USDC dikirim sebagai koin native, jadi tidak perlu approval. Untuk listing harga pasar, aplikasi mengirim sampai 1% ekstra untuk menutup pergerakan harga dan kontrak mengembalikan setiap wei yang tidak dibutuhkan.
+
+## Menjual
+
+1. Buka **Jual**, tempel alamat token dan jumlahnya. Aplikasi mencari pool USDC token itu dan memilih yang terdalam dengan biaya normal sebagai acuan pasar; Anda bisa memilih yang lain.
+2. Pilih harga tetap atau harga pasar, atur spread dan harga dasar jika mau.
+3. Syarat opsional: **pembelian minimum**, **kedaluwarsa**, dan alamat **pembeli privat** untuk kesepakatan OTC yang hanya bisa diterima dompet itu.
+4. Approve token sekali, lalu listing. Dari **Listing saya** Anda bisa mengubah harga, menambah token, atau membatalkan dan menarik sisanya kapan saja.
+
+## Biaya
+
+Penjual membayar **0,5%** dari setiap pembelian, diambil dari hasil penjualan; pembeli membayar persis harga yang dikutip. Kontrak membatasi biaya maksimal 1%. Biaya terkumpul di kontrak dan ditarik oleh penerima biaya, jadi tidak pernah bisa menghalangi perdagangan. Biaya ini bagian dari bagi hasil AKIT.
+
+## Keamanan
+
+- Kontrak tidak bisa diubah dan sudah terverifikasi. Pemilik hanya bisa mengatur biaya dalam batas dan tidak ada yang lain: tidak bisa memindahkan token escrow, mengubah listing, atau menghentikan perdagangan.
+- Token dengan biaya transfer dilisting sesuai jumlah yang benar-benar diterima. Token rebasing tidak didukung.
+- Jika alamat penjual menolak USDC, hasil penjualan menunggu di kontrak untuk diklaim; transaksi pembeli tetap berhasil.
+- Listing bukan rekomendasi. Siapa pun bisa melisting apa pun: periksa alamat token sebelum membeli.
+
+Kontrak: [0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C](https://arc.etherscan.io/address/0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C#code)
+
 === slug: contracts
 title: Kontrak
 group: protocol
@@ -388,8 +433,9 @@ Semua kontrak di bawah terverifikasi sumbernya di Etherscan. Pengaturan compiler
 | ArcFlowPositions | [0x16c40157fF4b49b3328Db3AE352E9eA699b8f759](https://arc.etherscan.io/address/0x16c40157fF4b49b3328Db3AE352E9eA699b8f759#code) | Posisi berbentuk dan kunci likuiditas |
 | ArcFlowFeeHook | [0x4FC207E35226df90c57DBc3CAcD60E6974c05080](https://arc.etherscan.io/address/0x4FC207E35226df90c57DBc3CAcD60E6974c05080#code) | Hook biaya dinamis; tanpa pemilik |
 | ArcFlowVault (v1) | [0x439608bFAC5D2B9EcD803649a1b15A9d56900990](https://arc.etherscan.io/address/0x439608bFAC5D2B9EcD803649a1b15A9d56900990#code) | Vault rentang penuh, digantikan v2 |
-| ArcLend | [0xc1BF4011e6fbe8c7858880d0F8FA1f92F386dE6D](https://arc.etherscan.io/address/0xc1BF4011e6fbe8c7858880d0F8FA1f92F386dE6D#code) | Pasar uang USDC terisolasi |
+| ArcLend | [0xBF0aD5CAE94A9e4aBeAeFC7cA5816B7f28983793](https://arc.etherscan.io/address/0xBF0aD5CAE94A9e4aBeAeFC7cA5816B7f28983793#code) | Pasar uang USDC terisolasi |
 | ArcTwapOracle | [0xedf33dA5bED98b5BAbDa4D71F55962CF74462491](https://arc.etherscan.io/address/0xedf33dA5bED98b5BAbDa4D71F55962CF74462491#code) | Observasi TWAP pool v4; tanpa pemilik |
+| ArcP2P | [0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C](https://arc.etherscan.io/address/0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C#code) | Penjualan token peer-to-peer dalam USDC |
 | ArcPayRouter | [0x958Db3732Bfb021c2F2879b9124dECBa0b30cd2c](https://arc.etherscan.io/address/0x958Db3732Bfb021c2F2879b9124dECBa0b30cd2c#code) | Meneruskan pembayaran; tidak memegang apa pun |
 | Pool ArcCash, 1 USDC | [0xdbf688e09c296df6ef4a02995427ee637d1e3ebe](https://arc.etherscan.io/address/0xdbf688e09c296df6ef4a02995427ee637d1e3ebe#code) | Tanpa pemilik |
 | Pool ArcCash, 10 USDC | [0x0303ae09b4f9f599823634aa9c88b6a517b24e1b](https://arc.etherscan.io/address/0x0303ae09b4f9f599823634aa9c88b6a517b24e1b#code) | Tanpa pemilik |
@@ -421,6 +467,7 @@ summary: Apa yang ditagih Arc Kit, apa yang bisa dan tidak bisa dilakukan kunci 
 | Stake dan posisi ArcFlow | 1% dari biaya swap yang dipanen / dikumpulkan; bounty panen 0,5% untuk siapa pun yang memanen |
 | ArcPay | Sudah termasuk dalam harga USDC yang ditawarkan |
 | ArcCash | Tidak ada; Arc Kit membayar gas penarikan |
+| Pembelian ArcP2P | 0,5% dari pembelian, dibayar penjual; maksimal 1% |
 | Top up, perpanjang, pisah, transfer, klaim, tarik | Gratis (hanya gas) |
 
 Biaya dibayar dalam USDC bersama panggilan, terakumulasi di kontrak, dan **ditarik** oleh penerima biaya, sehingga penerima yang bermasalah tidak pernah bisa memblokir tindakan pengguna.
@@ -475,10 +522,6 @@ Launchpad yang dibangun di atas Argus, dengan sentuhan berbeda: pembuat memutusk
 ## ArcDomains
 
 Beli domain `.arc` dan gunakan untuk menautkan situs web Anda via IPFS. Nama yang mudah dibaca untuk dompet, halaman proyek, dan kunci Anda, diselesaikan on-chain.
-
-## ArcP2P
-
-DEX peer-to-peer yang dibangun di Arc untuk menjual token secara P2P: pasang penawaran, sepakati harga, selesaikan melalui kontrak escrow tanpa order book dan tanpa slippage. Ideal untuk perdagangan berukuran OTC, alokasi pra-peluncuran, dan token dengan pool tipis.
 
 ## Arc Redeployment
 

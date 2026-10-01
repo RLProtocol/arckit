@@ -11,7 +11,7 @@ const dc = deployments.contracts as Record<string, { address: string } | undefin
 export const ARCP2P_ADDRESS = dc.ArcP2P?.address as Address | undefined;
 
 export const arcP2PAbi = parseAbi([
-  "struct Pricing { uint8 mode; uint256 fixedPrice; int32 spreadBps; uint256 floorPrice; }",
+  "struct Pricing { uint8 mode; uint256 fixedPrice; int32 spreadBps; uint256 floorPrice; bool dumpProtection; }",
   "struct Pool { bytes32 poolId; bool usdcIs0; uint8 poolUsdcDecimals; }",
   "struct Terms { uint128 minFill; uint40 expiry; address buyer; }",
   "struct Listing { address seller; address token; uint8 tokenDecimals; uint40 createdAt; uint128 remaining; uint128 sold; uint256 proceeds; Pricing pricing; Pool pool; Terms terms; }",
@@ -76,6 +76,7 @@ export type Listing = {
   fixedPrice: bigint;
   spreadBps: number;
   floorPrice: bigint;
+  dumpProtection: boolean;
   poolId: Hex;
   usdcIs0: boolean;
   poolUsdcDecimals: number;
@@ -89,7 +90,7 @@ export type Listing = {
 
 type RawListing = {
   seller: Address; token: Address; tokenDecimals: number; createdAt: number; remaining: bigint; sold: bigint; proceeds: bigint;
-  pricing: { mode: number; fixedPrice: bigint; spreadBps: number; floorPrice: bigint };
+  pricing: { mode: number; fixedPrice: bigint; spreadBps: number; floorPrice: bigint; dumpProtection: boolean };
   pool: { poolId: Hex; usdcIs0: boolean; poolUsdcDecimals: number };
   terms: { minFill: bigint; expiry: number; buyer: Address };
 };
@@ -123,7 +124,7 @@ export function useListings() {
       id: i, seller: r.seller, token: r.token, decimals: r.tokenDecimals,
       symbol: (meta.data?.[ti * 2]?.result as string) ?? "…", name: (meta.data?.[ti * 2 + 1]?.result as string) ?? "",
       createdAt: Number(r.createdAt), remaining: r.remaining, sold: r.sold, proceeds: r.proceeds,
-      mode: r.pricing.mode as Mode, fixedPrice: r.pricing.fixedPrice, spreadBps: Number(r.pricing.spreadBps), floorPrice: r.pricing.floorPrice,
+      mode: r.pricing.mode as Mode, fixedPrice: r.pricing.fixedPrice, spreadBps: Number(r.pricing.spreadBps), floorPrice: r.pricing.floorPrice, dumpProtection: r.pricing.dumpProtection,
       poolId: r.pool.poolId, usdcIs0: r.pool.usdcIs0, poolUsdcDecimals: r.pool.poolUsdcDecimals,
       minFill: r.terms.minFill, expiry: Number(r.terms.expiry), buyer: r.terms.buyer,
       price, marketRef: p?.[1] ?? 0n,

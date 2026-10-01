@@ -386,7 +386,7 @@ There is no listing approval, no minimum size and no counterparty risk: the cont
 
 **Market price ± spread.** The listing follows the token's deepest Uniswap v4 USDC pool. Pick a spread: 0% sells at market, −5% sells 5% below it, +10% sells 10% above it, anything from −90% to +100%. The price is re-read from the pool on every fill, so your discount stays the same as the market moves. Add an optional **floor**: the listing never sells below it, whatever the pool says.
 
-The market reference is the **higher** of the pool's 30-minute time-weighted average and its spot price once the average has 10 minutes of observations. A single block that dumps the pool's spot price therefore cannot drain a discounted listing; a genuine move up is reflected immediately; a sustained move down is followed as the average catches up.
+By default the market reference is the pool's **spot price at the moment of the fill**, the same number a chart shows. On a thin pool that means someone could dump the price for one block, buy your discounted listing at the fake low and buy the pool back, so set a **floor** on any discounted listing. Sellers who want more can switch on **dump protection**: the reference becomes the higher of spot and the pool's 30-minute average, so a one-block dump cannot lower your price, at the cost of lagging a genuine fall for up to 30 minutes.
 
 ## Buying
 
@@ -412,7 +412,7 @@ The seller pays **0.5%** of each fill, taken from the proceeds; the buyer pays e
 - If a seller's address rejects USDC, the proceeds wait in the contract for them to claim; the buyer's trade still goes through.
 - A listing is not an endorsement. Anyone can list anything: check the token address before you buy.
 
-Contract: [0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C](https://arc.etherscan.io/address/0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C#code)
+Contract: [0xf2E95760534C92268eF7C8f9Bc28B84b75129631](https://arc.etherscan.io/address/0xf2E95760534C92268eF7C8f9Bc28B84b75129631#code)
 
 === slug: contracts
 title: Contracts
@@ -435,7 +435,7 @@ All contracts below are source-verified on Etherscan. Compiler settings: Solidit
 | ArcFlowVault (v1) | [0x439608bFAC5D2B9EcD803649a1b15A9d56900990](https://arc.etherscan.io/address/0x439608bFAC5D2B9EcD803649a1b15A9d56900990#code) | Full-range vault, superseded by v2 |
 | ArcLend | [0xBF0aD5CAE94A9e4aBeAeFC7cA5816B7f28983793](https://arc.etherscan.io/address/0xBF0aD5CAE94A9e4aBeAeFC7cA5816B7f28983793#code) | Isolated USDC money markets |
 | ArcTwapOracle | [0xedf33dA5bED98b5BAbDa4D71F55962CF74462491](https://arc.etherscan.io/address/0xedf33dA5bED98b5BAbDa4D71F55962CF74462491#code) | v4 pool TWAP observations; no owner |
-| ArcP2P | [0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C](https://arc.etherscan.io/address/0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C#code) | Peer-to-peer token sales in USDC |
+| ArcP2P | [0xf2E95760534C92268eF7C8f9Bc28B84b75129631](https://arc.etherscan.io/address/0xf2E95760534C92268eF7C8f9Bc28B84b75129631#code) | Peer-to-peer token sales in USDC |
 | ArcPayRouter | [0x958Db3732Bfb021c2F2879b9124dECBa0b30cd2c](https://arc.etherscan.io/address/0x958Db3732Bfb021c2F2879b9124dECBa0b30cd2c#code) | Forwards payments; holds nothing |
 | ArcCash pool, 1 USDC | [0xdbf688e09c296df6ef4a02995427ee637d1e3ebe](https://arc.etherscan.io/address/0xdbf688e09c296df6ef4a02995427ee637d1e3ebe#code) | No owner |
 | ArcCash pool, 10 USDC | [0x0303ae09b4f9f599823634aa9c88b6a517b24e1b](https://arc.etherscan.io/address/0x0303ae09b4f9f599823634aa9c88b6a517b24e1b#code) | No owner |

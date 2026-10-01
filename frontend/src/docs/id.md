@@ -386,7 +386,7 @@ Tidak ada persetujuan listing, tidak ada ukuran minimum, dan tidak ada risiko pi
 
 **Harga pasar ± spread.** Listing mengikuti pool USDC Uniswap v4 terdalam milik token itu. Pilih spread: 0% menjual di harga pasar, −5% menjual 5% di bawahnya, +10% menjual 10% di atasnya, dari −90% sampai +100%. Harga dibaca ulang dari pool pada setiap pembelian, jadi diskon Anda tetap sama saat pasar bergerak. Tambahkan **harga dasar** opsional: listing tidak pernah terjual di bawahnya, apa pun kata pool.
 
-Acuan pasar adalah yang **lebih tinggi** antara rata-rata tertimbang waktu 30 menit dan harga spot pool, setelah rata-rata punya 10 menit observasi. Satu blok yang menjatuhkan harga spot karena itu tidak bisa menguras listing berdiskon; kenaikan nyata langsung tercermin; penurunan berkelanjutan diikuti saat rata-rata menyusul.
+Secara default acuan pasar adalah **harga spot pool pada saat pembelian**, angka yang sama seperti di grafik. Di pool tipis itu berarti seseorang bisa menjatuhkan harga selama satu blok, membeli listing berdiskon Anda di harga palsu, lalu membeli pool kembali, jadi pasang **harga dasar** pada setiap listing berdiskon. Penjual yang ingin lebih aman bisa menyalakan **perlindungan dump**: acuan menjadi yang lebih tinggi antara spot dan rata-rata 30 menit pool, sehingga dump satu blok tidak bisa menurunkan harga Anda, dengan risiko tertinggal dari penurunan nyata sampai 30 menit.
 
 ## Membeli
 
@@ -412,7 +412,7 @@ Penjual membayar **0,5%** dari setiap pembelian, diambil dari hasil penjualan; p
 - Jika alamat penjual menolak USDC, hasil penjualan menunggu di kontrak untuk diklaim; transaksi pembeli tetap berhasil.
 - Listing bukan rekomendasi. Siapa pun bisa melisting apa pun: periksa alamat token sebelum membeli.
 
-Kontrak: [0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C](https://arc.etherscan.io/address/0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C#code)
+Kontrak: [0xf2E95760534C92268eF7C8f9Bc28B84b75129631](https://arc.etherscan.io/address/0xf2E95760534C92268eF7C8f9Bc28B84b75129631#code)
 
 === slug: contracts
 title: Kontrak
@@ -435,7 +435,7 @@ Semua kontrak di bawah terverifikasi sumbernya di Etherscan. Pengaturan compiler
 | ArcFlowVault (v1) | [0x439608bFAC5D2B9EcD803649a1b15A9d56900990](https://arc.etherscan.io/address/0x439608bFAC5D2B9EcD803649a1b15A9d56900990#code) | Vault rentang penuh, digantikan v2 |
 | ArcLend | [0xBF0aD5CAE94A9e4aBeAeFC7cA5816B7f28983793](https://arc.etherscan.io/address/0xBF0aD5CAE94A9e4aBeAeFC7cA5816B7f28983793#code) | Pasar uang USDC terisolasi |
 | ArcTwapOracle | [0xedf33dA5bED98b5BAbDa4D71F55962CF74462491](https://arc.etherscan.io/address/0xedf33dA5bED98b5BAbDa4D71F55962CF74462491#code) | Observasi TWAP pool v4; tanpa pemilik |
-| ArcP2P | [0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C](https://arc.etherscan.io/address/0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C#code) | Penjualan token peer-to-peer dalam USDC |
+| ArcP2P | [0xf2E95760534C92268eF7C8f9Bc28B84b75129631](https://arc.etherscan.io/address/0xf2E95760534C92268eF7C8f9Bc28B84b75129631#code) | Penjualan token peer-to-peer dalam USDC |
 | ArcPayRouter | [0x958Db3732Bfb021c2F2879b9124dECBa0b30cd2c](https://arc.etherscan.io/address/0x958Db3732Bfb021c2F2879b9124dECBa0b30cd2c#code) | Meneruskan pembayaran; tidak memegang apa pun |
 | Pool ArcCash, 1 USDC | [0xdbf688e09c296df6ef4a02995427ee637d1e3ebe](https://arc.etherscan.io/address/0xdbf688e09c296df6ef4a02995427ee637d1e3ebe#code) | Tanpa pemilik |
 | Pool ArcCash, 10 USDC | [0x0303ae09b4f9f599823634aa9c88b6a517b24e1b](https://arc.etherscan.io/address/0x0303ae09b4f9f599823634aa9c88b6a517b24e1b#code) | Tanpa pemilik |

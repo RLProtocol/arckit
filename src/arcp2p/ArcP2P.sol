@@ -18,9 +18,10 @@ import {ArcTwapOracle} from "../arclend/ArcTwapOracle.sol";
 /// Pricing modes:
 ///   - Fixed: a USDC price per whole token the seller sets.
 ///   - Market: the token's Uniswap v4 USDC pool price (ArcTwapOracle) with a spread in basis points, negative
-///     for a discount and positive for a premium, and an optional floor. The reference is the higher of the
-///     30-minute TWAP and spot once the TWAP has 10 minutes of coverage, so a flash dump in the pool cannot
-///     drain a discounted listing; before that it is spot.
+///     for a discount and positive for a premium, and an optional floor. By default the reference is the pool's
+///     spot price at the moment of the fill, exactly what a chart shows. A seller can opt into dump protection,
+///     which uses the higher of the 30-minute TWAP and spot once the TWAP has 10 minutes of coverage, so a
+///     one-block dump of a thin pool cannot buy a discounted listing at a fake low. The floor applies either way.
 ///
 /// The owner only sets the taker fee (capped) and its receiver, and withdraws accrued fees. It can never move
 /// escrowed tokens or change a listing. No upgrades, no pause.
@@ -46,6 +47,7 @@ contract ArcP2P is ReentrancyGuard, Ownable2Step {
         uint256 fixedPrice; // Fixed: USDC wei per whole token
         int32 spreadBps; // Market: added to the reference price, negative = discount
         uint256 floorPrice; // Market: never sell below this (USDC wei per whole token), 0 = none
+        bool dumpProtection; // Market: reference = max(30-min TWAP, spot) instead of spot alone
     }
 
     struct Pool {
@@ -326,8 +328,13 @@ contract ArcP2P is ReentrancyGuard, Ownable2Step {
         return _applySpread(l, _marketPrice(l));
     }
 
-    /// @dev Reference price: max(TWAP, spot) once the TWAP covers MIN_TWAP_COVERAGE, else spot.
+    /// @dev Reference price: the pool's spot price now; with dump protection, max(TWAP, spot) once the TWAP
+    ///      covers MIN_TWAP_COVERAGE.
     function _marketPrice(Listing storage l) internal view returns (uint256 ref) {
+        if (!l.pricing.dumpProtection) {
+            (, uint160 sqrtP) = oracle.spot(l.pool.poolId);
+            return oracle.priceFromSqrt(sqrtP, l.pool.usdcIs0, l.tokenDecimals, l.pool.poolUsdcDecimals);
+        }
         (uint256 twap, uint256 spotPrice, uint32 covered) =
             oracle.prices(l.pool.poolId, TWAP_WINDOW, l.pool.usdcIs0, l.tokenDecimals, l.pool.poolUsdcDecimals);
         ref = spotPrice;

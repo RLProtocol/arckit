@@ -93,11 +93,15 @@ contract ArcP2PTest is Test {
     }
 
     function _fixed(uint256 priceUsdc) internal pure returns (ArcP2P.Pricing memory) {
-        return ArcP2P.Pricing({mode: ArcP2P.Mode.Fixed, fixedPrice: priceUsdc, spreadBps: 0, floorPrice: 0});
+        return ArcP2P.Pricing({mode: ArcP2P.Mode.Fixed, fixedPrice: priceUsdc, spreadBps: 0, floorPrice: 0, dumpProtection: false});
     }
 
     function _market(int32 spread, uint256 floorP) internal pure returns (ArcP2P.Pricing memory) {
-        return ArcP2P.Pricing({mode: ArcP2P.Mode.Market, fixedPrice: 0, spreadBps: spread, floorPrice: floorP});
+        return ArcP2P.Pricing({mode: ArcP2P.Mode.Market, fixedPrice: 0, spreadBps: spread, floorPrice: floorP, dumpProtection: false});
+    }
+
+    function _protected(int32 spread) internal pure returns (ArcP2P.Pricing memory) {
+        return ArcP2P.Pricing({mode: ArcP2P.Mode.Market, fixedPrice: 0, spreadBps: spread, floorPrice: 0, dumpProtection: true});
     }
 
     function _listFixed(uint256 amount, uint256 priceUsdc) internal returns (uint256 id) {
@@ -310,9 +314,25 @@ contract ArcP2PTest is Test {
         assertEq(cur, 1.9 ether); // 1.6 would be below the floor
     }
 
-    function test_market_flashDump_doesNotDiscountBelowTwap() public {
+    function test_market_default_isPureSpot() public {
         vm.prank(alice);
         uint256 id = p2p.list(tok, 100 ether, _market(-500, 0), pool, open);
+        _ticks(TICK_2USDC, 30 minutes);
+        // spot drops 10% in one block: the default listing follows it immediately, like a chart would
+        sv.set(pid, TICK_1_8USDC);
+        (uint256 cur, uint256 ref) = p2p.price(id);
+        assertApproxEqRel(ref, 1.8 ether, 2e15);
+        assertApproxEqRel(cur, 1.8 ether * 9500 / 10_000, 2e15);
+        // but the floor still holds the line
+        vm.prank(alice);
+        p2p.update(id, _market(-500, 1.9 ether), open);
+        (cur,) = p2p.price(id);
+        assertEq(cur, 1.9 ether);
+    }
+
+    function test_market_dumpProtection_doesNotDiscountBelowTwap() public {
+        vm.prank(alice);
+        uint256 id = p2p.list(tok, 100 ether, _protected(-500), pool, open);
         _ticks(TICK_2USDC, 30 minutes); // TWAP established at 2 USDC
         // spot is pushed down 10% in one block: reference stays at the TWAP
         sv.set(pid, TICK_1_8USDC);

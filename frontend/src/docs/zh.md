@@ -386,7 +386,7 @@ ArcP2P 是一个无需许可的订单簿，用于把代币卖成 USDC。**卖家
 
 **市场价 ± 价差。** 挂单跟随该代币流动性最深的 Uniswap v4 USDC 池。选择一个价差：0% 按市场价卖出，−5% 低于市场价 5%，+10% 高于市场价 10%，范围从 −90% 到 +100%。每次成交都会重新读取池子价格，所以无论市场怎么走，你的折扣始终不变。还可以设置**底价**：无论池子怎么报价，挂单都不会低于它成交。
 
-市场参考价取池子 30 分钟时间加权平均价与现价中的**较高者**（平均价需有 10 分钟观测）。因此单个区块砸低现价无法掏空折扣挂单；真实上涨会立即反映；持续下跌会随平均价追上而被跟随。
+默认情况下，市场参考价是**成交当刻池子的现价**，与行情图上显示的数字一致。在流动性薄的池子里，这意味着有人可以在一个区块内砸低价格、以虚假低价买走你的折扣挂单再把池子买回去，因此折扣挂单请务必设置**底价**。想要更强保护的卖家可以开启**防砸盘保护**：参考价变为现价与池子 30 分钟均价中的较高者，单个区块的砸盘无法压低你的价格，代价是真实下跌最多滞后 30 分钟。
 
 ## 买入
 
@@ -412,7 +412,7 @@ ArcP2P 是一个无需许可的订单簿，用于把代币卖成 USDC。**卖家
 - 若卖家地址拒收 USDC，所得会留在合约中等待其领取；买家的交易照常完成。
 - 挂单不代表背书。任何人都可以挂任何代币：买前请核对代币地址。
 
-合约：[0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C](https://arc.etherscan.io/address/0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C#code)
+合约：[0xf2E95760534C92268eF7C8f9Bc28B84b75129631](https://arc.etherscan.io/address/0xf2E95760534C92268eF7C8f9Bc28B84b75129631#code)
 
 === slug: contracts
 title: 合约
@@ -435,7 +435,7 @@ summary: Arc Kit 的每个合约、它在 Arc（链 5042）上的地址，以及
 | ArcFlowVault (v1) | [0x439608bFAC5D2B9EcD803649a1b15A9d56900990](https://arc.etherscan.io/address/0x439608bFAC5D2B9EcD803649a1b15A9d56900990#code) | 全区间金库，已被 v2 取代 |
 | ArcLend | [0xBF0aD5CAE94A9e4aBeAeFC7cA5816B7f28983793](https://arc.etherscan.io/address/0xBF0aD5CAE94A9e4aBeAeFC7cA5816B7f28983793#code) | 隔离的 USDC 借贷市场 |
 | ArcTwapOracle | [0xedf33dA5bED98b5BAbDa4D71F55962CF74462491](https://arc.etherscan.io/address/0xedf33dA5bED98b5BAbDa4D71F55962CF74462491#code) | v4 池 TWAP 观测；无所有者 |
-| ArcP2P | [0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C](https://arc.etherscan.io/address/0xe9dCcE4B08f6B2b589eF68fDd811F0b3Cf708A4C#code) | 以 USDC 结算的点对点代币交易 |
+| ArcP2P | [0xf2E95760534C92268eF7C8f9Bc28B84b75129631](https://arc.etherscan.io/address/0xf2E95760534C92268eF7C8f9Bc28B84b75129631#code) | 以 USDC 结算的点对点代币交易 |
 | ArcPayRouter | [0x958Db3732Bfb021c2F2879b9124dECBa0b30cd2c](https://arc.etherscan.io/address/0x958Db3732Bfb021c2F2879b9124dECBa0b30cd2c#code) | 转发付款；不持有资金 |
 | ArcCash 池，1 USDC | [0xdbf688e09c296df6ef4a02995427ee637d1e3ebe](https://arc.etherscan.io/address/0xdbf688e09c296df6ef4a02995427ee637d1e3ebe#code) | 无所有者 |
 | ArcCash 池，10 USDC | [0x0303ae09b4f9f599823634aa9c88b6a517b24e1b](https://arc.etherscan.io/address/0x0303ae09b4f9f599823634aa9c88b6a517b24e1b#code) | 无所有者 |

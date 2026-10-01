@@ -47,7 +47,7 @@ function P2PSoon() {
         <div className="card stack" style={{ gap: 8 }}><div className="kicker">For sellers</div><h3>List any token, name your price</h3><p className="muted small">Escrow any ERC-20 on Arc and set a price in USDC. No listing approval, no minimum size. Cancel any time and the unsold tokens come straight back.</p></div>
         <div className="card stack" style={{ gap: 8 }}><div className="kicker">Dynamic pricing</div><h3>Market price, plus or minus a spread</h3><p className="muted small">Peg a listing to the token&apos;s Uniswap v4 USDC pool and sell at market, 5% below it, 10% above it, whatever you choose. The price re-reads the pool on every fill, with an optional floor you never sell under. Or set a fixed USDC price that never moves.</p></div>
         <div className="card stack" style={{ gap: 8 }}><div className="kicker">For buyers</div><h3>Take all of it or just a slice</h3><p className="muted small">Pay native USDC and receive the tokens in the same transaction. Buy the whole listing or any part above the seller&apos;s minimum. Any USDC sent beyond the price is refunded in the same call.</p></div>
-        <div className="card stack" style={{ gap: 8 }}><div className="kicker">Manipulation resistant</div><h3>Higher of 30-minute average and spot</h3><p className="muted small">Market-priced listings use the higher of the pool&apos;s 30-minute time-weighted average and its spot price, so a flash dump in the pool cannot drain a discounted listing.</p></div>
+        <div className="card stack" style={{ gap: 8 }}><div className="kicker">Live price</div><h3>The chart price, at the moment of the fill</h3><p className="muted small">Market-priced listings read the pool&apos;s spot price inside the buyer&apos;s transaction, so what the chart shows is what you sell at, minus your spread. Add a floor, or switch on optional dump protection, to guard a discounted listing on a thin pool.</p></div>
         <div className="card stack" style={{ gap: 8 }}><div className="kicker">OTC mode</div><h3>Private deals, on-chain settlement</h3><p className="muted small">Restrict a listing to one buyer address, add an expiry, set a minimum fill. The counterparty pays, the contract settles, nobody has to go first.</p></div>
         <div className="card stack" style={{ gap: 8 }}><div className="kicker">Fees</div><h3>0.5% of each fill, paid by the seller</h3><p className="muted small">Buyers pay exactly the quoted price. The fee is capped at 1% in the contract and goes to AKIT revenue. The owner can never move escrowed tokens or change a listing.</p></div>
       </div>
@@ -122,7 +122,7 @@ function P2PLive() {
                 );
               })}
             </div>
-            <p className="tiny faint">Market-priced listings follow the token&apos;s Uniswap v4 pool and use the higher of the 30-minute average and spot, so a flash dump cannot drain a discounted listing. The seller pays a 0.5% fee on each fill; buyers pay exactly the quoted price.</p>
+            <p className="tiny faint">Market-priced listings read the token&apos;s Uniswap v4 pool at the moment you buy, the same live price a chart shows. The seller pays a 0.5% fee on each fill; buyers pay exactly the quoted price.</p>
           </div>
           <div className="stack">
             {selected ? <BuyPanel l={selected} market={marketPrice[selected.token.toLowerCase()]} onDone={refetch} /> : <div className="card"><p className="muted small">Pick a listing to buy.</p></div>}
@@ -137,7 +137,7 @@ function P2PLive() {
             <div className="card stack" style={{ gap: 8 }}>
               <div className="kicker">How selling works</div>
               <p className="muted small">Your tokens move into the ArcP2P contract and stay yours until someone buys: cancel any time and they come straight back. Each fill pays you USDC in the same transaction, minus a 0.5% fee.</p>
-              <p className="muted small"><strong>Fixed price</strong> is a USDC amount per token that never moves. <strong>Market price</strong> reads the token&apos;s deepest Uniswap v4 USDC pool every time someone buys and applies your discount or premium, so a 5% discount stays 5% as the market moves. Add a floor to never sell below a price you choose.</p>
+              <p className="muted small"><strong>Fixed price</strong> is a USDC amount per token that never moves. <strong>Market price</strong> reads the token&apos;s deepest Uniswap v4 USDC pool at the moment someone buys and applies your discount or premium, so a 5% discount stays 5% as the market moves. Add a floor to never sell below a price you choose.</p>
               <p className="muted small">Buyers can take any amount above your minimum fill. Set a buyer address to make a private OTC deal only that wallet can accept.</p>
             </div>
             <div className="card stack" style={{ gap: 8 }}>
@@ -193,7 +193,7 @@ function BuyPanel({ l, market, onDone }: { l: Listing; market: bigint | undefine
       </div>
       <div className="ledger cash-ledger">
         <div><span className="muted">Price</span><span><strong>${fmtPrice(l.price)}</strong> per {l.symbol} {vs !== undefined && <span className={vs < 0 ? "lend-apy" : "faint"}>· {fmtPct(vs)} vs market</span>}</span></div>
-        <div><span className="muted">Pricing</span><span>{l.mode === 1 ? <>{fmtSpread(l.spreadBps)}{l.floorPrice > 0n && <span className="faint"> · floor ${fmtPrice(l.floorPrice)}</span>}</> : "fixed by the seller"}</span></div>
+        <div><span className="muted">Pricing</span><span>{l.mode === 1 ? <>{fmtSpread(l.spreadBps)}{l.floorPrice > 0n && <span className="faint"> · floor ${fmtPrice(l.floorPrice)}</span>}{l.dumpProtection && <span className="faint"> · dump protection</span>}</> : "fixed by the seller"}</span></div>
         <div><span className="muted">Available</span><span>{fmtTok(l.remaining, l.decimals)} {l.symbol} <span className="faint">≈ {fmtUsd(costOf(l.remaining, l.price, l.decimals))} USDC</span></span></div>
         {l.minFill > 0n && <div><span className="muted">Minimum</span><span>{fmtTok(l.minFill, l.decimals)} {l.symbol}</span></div>}
         {l.expiry > 0 && <div><span className="muted">Open until</span><span>{new Date(l.expiry * 1000).toLocaleString()}</span></div>}
@@ -241,6 +241,7 @@ function SellForm({ onDone }: { onDone: () => void }) {
   const [spread, setSpread] = useState(0);
   const [customSpread, setCustomSpread] = useState("");
   const [floor, setFloor] = useState("");
+  const [protect, setProtect] = useState(false);
   const [poolId, setPoolId] = useState<Hex | undefined>();
   const [minFill, setMinFill] = useState("");
   const [expiry, setExpiry] = useState(0);
@@ -275,7 +276,7 @@ function SellForm({ onDone }: { onDone: () => void }) {
   const submit = () => {
     if (!addr || !units || err) return;
     if (needsApproval) return tx.writeContract({ address: addr, abi: erc20Abi, functionName: "approve", args: [ARCP2P_ADDRESS!, units], chainId: arc.id });
-    const pricing = { mode, fixedPrice: mode === 0 ? fixedWei! : 0n, spreadBps: mode === 1 ? spreadBps : 0, floorPrice: mode === 1 ? (floorWei ?? 0n) : 0n };
+    const pricing = { mode, fixedPrice: mode === 0 ? fixedWei! : 0n, spreadBps: mode === 1 ? spreadBps : 0, floorPrice: mode === 1 ? (floorWei ?? 0n) : 0n, dumpProtection: mode === 1 && protect };
     const poolArg = mode === 1 && pool ? { poolId: pool.poolId, usdcIs0: pool.usdcIs0, poolUsdcDecimals: pool.poolUsdcDecimals } : EMPTY_POOL;
     const terms = { minFill: safeParse(minFill, info.decimals) ?? 0n, expiry: expiry ? Math.floor(Date.now() / 1000) + expiry : 0, buyer: buyer.trim() ? (buyer as Address) : zeroAddress };
     tx.writeContract({ address: ARCP2P_ADDRESS!, abi: arcP2PAbi, functionName: "list", args: [addr, units, pricing, poolArg, terms], chainId: arc.id });
@@ -313,12 +314,17 @@ function SellForm({ onDone }: { onDone: () => void }) {
             <label>Discount or premium to market</label>
             <div className="presets">{SPREADS.map(([bps, label]) => <button key={bps} type="button" className={`preset ${!customSpread && spread === bps ? "on" : ""}`} onClick={() => { setSpread(bps); setCustomSpread(""); }}>{label}</button>)}
               <input className="input mono" style={{ width: 110 }} placeholder="custom %" value={customSpread} onChange={(e) => setCustomSpread(e.target.value)} /></div>
-            <div className="hint">{pool ? <>Market now ${fmtPrice(marketNow)} → you sell at <strong>${fmtPrice(effective)}</strong>. The price re-reads the pool on every fill.</> : pools.isLoading ? "Finding the token's USDC pool…" : pools.error || "Enter a token to see its market price."}</div>
+            <div className="hint">{pool ? <>Market now ${fmtPrice(marketNow)} → you sell at <strong>${fmtPrice(effective)}</strong>. The live pool price is read again at the moment of every fill.</> : pools.isLoading ? "Finding the token's USDC pool…" : pools.error || "Enter a token to see its market price."}</div>
           </div>
           <div className="field">
             <label>Floor price in USDC <span className="faint">(optional)</span></label>
             <input className="input mono" inputMode="decimal" placeholder="never sell below…" value={floor} onChange={(e) => setFloor(e.target.value)} />
+            {spreadBps < 0 && !floor.trim() && <div className="hint" style={{ color: "var(--gold, #f2c464)" }}>Recommended for a discounted listing: on a thin pool, someone can push the price down for one block and buy at the fake low. A floor stops that.</div>}
           </div>
+          <label className="row" style={{ gap: 10, alignItems: "flex-start", cursor: "pointer" }}>
+            <input type="checkbox" checked={protect} onChange={(e) => setProtect(e.target.checked)} style={{ marginTop: 4 }} />
+            <span className="small"><strong>Dump protection</strong> <span className="muted">— price off the higher of live spot and the 30-minute average. A one-block dump cannot lower your price, but a real fall is followed with up to 30 minutes of lag. Off means pure live price, like the chart.</span></span>
+          </label>
           {poolChoices.length > 1 && (
             <div className="field">
               <label>Reference pool</label>
@@ -384,7 +390,7 @@ function ManageCard({ l, onDone }: { l: Listing; onDone: () => void }) {
 
   const save = () => {
     const spreadBps = Math.round(Number(spread) * 100);
-    const pricing = { mode: l.mode, fixedPrice: l.mode === 0 ? (safeParse(fixedPrice, 18) ?? l.fixedPrice) : 0n, spreadBps: l.mode === 1 ? spreadBps : 0, floorPrice: l.mode === 1 && floor.trim() ? (safeParse(floor, 18) ?? 0n) : 0n };
+    const pricing = { mode: l.mode, fixedPrice: l.mode === 0 ? (safeParse(fixedPrice, 18) ?? l.fixedPrice) : 0n, spreadBps: l.mode === 1 ? spreadBps : 0, floorPrice: l.mode === 1 && floor.trim() ? (safeParse(floor, 18) ?? 0n) : 0n, dumpProtection: l.dumpProtection };
     tx.writeContract({ address: ARCP2P_ADDRESS!, abi: arcP2PAbi, functionName: "update", args: [BigInt(l.id), pricing, { minFill: l.minFill, expiry: l.expiry, buyer: l.buyer }], chainId: arc.id });
   };
 

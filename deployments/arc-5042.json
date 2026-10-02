@@ -224,7 +224,7 @@
         "minTwapCoverageSec": 600
       },
       "note": "Permissionless P2P token sales quoted in native USDC: fixed or market±spread pricing. Market reference is pool spot at fill time by default; per-listing dumpProtection switches to max(TWAP, spot). Partial fills, min fill, expiry, private buyer, floor. Owner can only set the fee (≤1%) and withdraw accrued fees.",
-      "status": "deployed + verified 2026-10-01; UI built, not yet published",
+      "status": "live on usearckit.locker/p2p since 2026-10-02",
       "compiler": "solc 0.8.26, evm cancun, optimizer 200 runs",
       "deployedAt": "2026-10-01",
       "superseded": {

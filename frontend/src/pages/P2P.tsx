@@ -27,7 +27,7 @@ function safeParse(v: string, dec: number): bigint | undefined {
 type Tab = "buy" | "sell" | "mine";
 
 /** Flip to true to open the live order book. While false, /p2p shows the coming-soon explainer below. */
-const P2P_LIVE = false as boolean;
+const P2P_LIVE = true as boolean;
 
 export function P2P() {
   return P2P_LIVE ? <P2PLive /> : <P2PSoon />;

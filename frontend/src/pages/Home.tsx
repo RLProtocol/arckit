@@ -194,7 +194,7 @@ const TOOLS: { key: string; name: string; icon: ReactNode; text: string; tags: s
   {
     key: "p2p",
     name: "ArcP2P",
-    live: false,
+    live: true,
     to: "/p2p",
     cta: "Trade peer to peer",
     icon: <P2PIcon />,

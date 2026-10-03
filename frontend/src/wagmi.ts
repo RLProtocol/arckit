@@ -1,5 +1,5 @@
 import { http, fallback, createConfig } from "wagmi";
-import { injected } from "wagmi/connectors";
+import { injected, walletConnect } from "wagmi/connectors";
 import { defineChain } from "viem";
 import deployments from "@deployments/arc-5042.json";
 
@@ -43,9 +43,30 @@ const transport = fallback(
   { rank: { interval: 30_000, sampleCount: 5, timeout: 4_000 } },
 );
 
+/**
+ * WalletConnect (Reown) lets a visitor on mobile Chrome, or any browser without an extension, connect a wallet app
+ * by QR code or deep link. The project ID is public (it only identifies this site to the relay); without one the
+ * connector is left out and only injected wallets are offered.
+ */
+export const WALLETCONNECT_PROJECT_ID = (import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "").trim();
+const SITE = typeof window !== "undefined" ? window.location.origin : "https://www.usearckit.locker";
+const connectors = [
+  injected(),
+  ...(WALLETCONNECT_PROJECT_ID
+    ? [
+        walletConnect({
+          projectId: WALLETCONNECT_PROJECT_ID,
+          showQrModal: true,
+          metadata: { name: "Arc Kit", description: "On-chain tools for teams and users on Arc: locks, vesting, airdrops, staking, lending, P2P, private transfers.", url: SITE, icons: [`${SITE}/icon-512.png`] },
+          qrModalOptions: { themeMode: "dark", themeVariables: { "--wcm-accent-color": "#8fb3ff", "--wcm-background-color": "#0b1d36", "--wcm-z-index": "1000" } },
+        }),
+      ]
+    : []),
+];
+
 export const config = createConfig({
   chains: [arc],
-  connectors: [injected()],
+  connectors,
   transports: { [arc.id]: transport },
   multiInjectedProviderDiscovery: true,
   // Fewer background polls: the default 4s block watcher was a large share of the failing requests.

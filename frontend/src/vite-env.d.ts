@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_LOCKER_ADDRESS?: string;
+  readonly VITE_WALLETCONNECT_PROJECT_ID?: string;
   readonly VITE_VESTING_ADDRESS?: string;
   readonly VITE_AIRDROP_ADDRESS?: string;
 }

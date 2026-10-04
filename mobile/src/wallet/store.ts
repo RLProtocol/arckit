@@ -1,12 +1,17 @@
 // Key storage. The seed phrase never leaves the device: on iOS/Android it sits in the Keychain / Keystore via
 // expo-secure-store; the web build (used only for design previews) falls back to localStorage with a warning.
+//
+// Performance: turning a seed phrase into a key (BIP-39 PBKDF2, 2048 rounds of HMAC-SHA512) takes seconds on a
+// phone's JS engine, so it happens exactly once, when the wallet is created or imported. The derived private key
+// is stored in the same secure slot and every later unlock loads it directly, which is near-instant.
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { english, generateMnemonic, mnemonicToAccount, type HDAccount } from "viem/accounts";
-import { keccak256, toHex, type Address } from "viem";
+import { english, generateMnemonic, mnemonicToAccount, privateKeyToAccount, type HDAccount, type PrivateKeyAccount } from "viem/accounts";
+import { validateMnemonic } from "@scure/bip39";
+import { keccak256, toHex, type Address, type Hex } from "viem";
 
-const K = { mnemonic: "arckit.mnemonic", pin: "arckit.pin", bio: "arckit.biometrics", tokens: "arckit.tokens", address: "arckit.address" } as const;
+const K = { mnemonic: "arckit.mnemonic", pk: "arckit.pk", pin: "arckit.pin", bio: "arckit.biometrics", tokens: "arckit.tokens", address: "arckit.address" } as const;
 
 async function secureGet(key: string): Promise<string | null> {
   if (Platform.OS === "web") return typeof localStorage !== "undefined" ? localStorage.getItem(key) : null;
@@ -22,6 +27,9 @@ async function secureDel(key: string) {
 }
 
 export const isWebPreview = Platform.OS === "web";
+export type WalletAccount = HDAccount | PrivateKeyAccount;
+
+const normalize = (m: string) => m.trim().toLowerCase().split(/\s+/).join(" ");
 
 export async function hasWallet(): Promise<boolean> {
   return !!(await secureGet(K.mnemonic));
@@ -36,28 +44,27 @@ export function newMnemonic(): string {
   return generateMnemonic(english);
 }
 
+/** Cheap checksum validation only; no key derivation. */
 export function isValidMnemonic(m: string): boolean {
-  const words = m.trim().toLowerCase().split(/\s+/);
+  const words = normalize(m).split(" ");
   if (words.length !== 12 && words.length !== 24) return false;
-  try {
-    mnemonicToAccount(words.join(" "));
-    return true;
-  } catch {
-    return false;
-  }
+  return validateMnemonic(words.join(" "), english);
 }
 
-export function accountFrom(mnemonic: string): HDAccount {
-  return mnemonicToAccount(mnemonic.trim().toLowerCase().split(/\s+/).join(" "));
+/** The slow step. Yields to the UI thread first so a spinner can paint before the phone locks up for a moment. */
+export function deriveAccount(mnemonic: string): Promise<HDAccount> {
+  return new Promise((resolve, reject) => setTimeout(() => { try { resolve(mnemonicToAccount(normalize(mnemonic))); } catch (e) { reject(e); } }, 30));
 }
 
 const hashPin = (pin: string) => keccak256(toHex(`arckit:${pin}`));
 
-export async function saveWallet(mnemonic: string, pin: string) {
-  const acct = accountFrom(mnemonic);
-  await secureSet(K.mnemonic, mnemonic.trim().toLowerCase().split(/\s+/).join(" "));
+/** Persists a wallet whose account was already derived with `deriveAccount`. */
+export async function saveWallet(mnemonic: string, account: HDAccount, pin: string) {
+  const pk = toHex(account.getHdKey().privateKey!);
+  await secureSet(K.mnemonic, normalize(mnemonic));
+  await secureSet(K.pk, pk);
   await secureSet(K.pin, hashPin(pin));
-  await AsyncStorage.setItem(K.address, acct.address);
+  await AsyncStorage.setItem(K.address, account.address);
 }
 
 export async function verifyPin(pin: string): Promise<boolean> {
@@ -71,13 +78,24 @@ export async function changePin(oldPin: string, newPin: string): Promise<boolean
   return true;
 }
 
+/** Loads the signing account. Fast path: the stored private key. Fallback for wallets saved before it existed. */
+export async function loadAccount(): Promise<WalletAccount | null> {
+  const pk = await secureGet(K.pk);
+  if (pk && /^0x[0-9a-fA-F]{64}$/.test(pk)) return privateKeyToAccount(pk as Hex);
+  const m = await secureGet(K.mnemonic);
+  if (!m) return null;
+  const acct = await deriveAccount(m);
+  await secureSet(K.pk, toHex(acct.getHdKey().privateKey!));
+  return acct;
+}
+
 /** Reads the seed. Callers must have authenticated (PIN or biometrics) first. */
 export async function readMnemonic(): Promise<string | null> {
   return secureGet(K.mnemonic);
 }
 
 export async function wipeWallet() {
-  await Promise.all([secureDel(K.mnemonic), secureDel(K.pin), secureDel(K.bio), AsyncStorage.multiRemove([K.address, K.tokens])]);
+  await Promise.all([secureDel(K.mnemonic), secureDel(K.pk), secureDel(K.pin), secureDel(K.bio), AsyncStorage.multiRemove([K.address, K.tokens])]);
 }
 
 export async function biometricsEnabled(): Promise<boolean> {

@@ -35,6 +35,7 @@ export default function Create() {
         <View style={{ marginTop: 30 }}><Eyebrow>Step 3 of 3</Eyebrow><H1>{confirming ? "Repeat your PIN" : "Choose a 6-digit PIN"}</H1><P style={{ marginTop: 8 }}>The PIN unlocks the app and approves transactions. You can add Face ID or fingerprint afterwards in Settings.</P></View>
         <PinPad value={confirming ? pin2 : pin} onChange={(v) => { if (confirming) { setPin2(v); if (v.length === 6) { if (v === pin) void finish(v); else { setPin(""); setPin2(""); } } } else setPin(v); }} disabled={busy} />
         {confirming && pin2.length === 6 && pin2 !== pin ? <Notice tone="coral">PINs did not match. Start again.</Notice> : null}
+        {busy ? <Notice tone="aqua">Securing your wallet… deriving the key from your phrase takes a few seconds on a phone.</Notice> : null}
       </Screen>
     );
   }

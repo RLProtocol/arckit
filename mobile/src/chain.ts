@@ -16,11 +16,16 @@ export const EXPLORER = deployments.explorer;
 export const explorerTx = (h: string) => `${EXPLORER}/tx/${h}`;
 export const explorerAddress = (a: string) => `${EXPLORER}/address/${a}`;
 
-const opts = { batch: true, retryCount: 2, retryDelay: 400, timeout: 12_000 } as const;
+const opts = { batch: true, retryCount: 1, retryDelay: 300, timeout: 8_000 } as const;
 export const publicClient = createPublicClient({
   chain: arc,
-  transport: fallback([http(`${SITE}/api/rpc`, opts), http("https://5042.rpc.thirdweb.com", opts), http(deployments.rpcUrl, opts)], { rank: false }),
+  transport: fallback([http("https://5042.rpc.thirdweb.com", opts), http(`${SITE}/api/rpc`, opts), http(deployments.rpcUrl, opts)], { rank: false }),
 });
+
+/** Rejects after `ms` so a stalled network call becomes a visible error with a retry instead of an endless skeleton. */
+export function withTimeout<T>(p: Promise<T>, ms = 20_000, what = "Arc"): Promise<T> {
+  return new Promise<T>((resolve, reject) => { const t = setTimeout(() => reject(new Error(`${what} did not answer in time. Check your connection and try again.`)), ms); p.then((v) => { clearTimeout(t); resolve(v); }, (e) => { clearTimeout(t); reject(e); }); });
+}
 
 export const USDC_ERC20 = "0x3600000000000000000000000000000000000000" as Address;
 

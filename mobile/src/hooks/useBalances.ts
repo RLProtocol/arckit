@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { type Address } from "viem";
-import { ADDR, KNOWN_TOKENS, publicClient } from "../chain";
+import { ADDR, KNOWN_TOKENS, publicClient, withTimeout } from "../chain";
 import { arcLendAbi, erc20Abi } from "../contracts";
 import { customTokens, type CustomToken } from "../wallet/store";
 
@@ -15,11 +15,11 @@ export function useBalances(address?: Address) {
     queryFn: async () => {
       const extra = await customTokens();
       const tokens = [...KNOWN_TOKENS, ...extra.filter((t) => !KNOWN_TOKENS.some((k) => k.address.toLowerCase() === t.address.toLowerCase()))];
-      const [native, bals, prices] = await Promise.all([
+      const [native, bals, prices] = await withTimeout(Promise.all([
         publicClient.getBalance({ address: address! }),
         publicClient.multicall({ contracts: tokens.map((t) => ({ address: t.address, abi: erc20Abi, functionName: "balanceOf", args: [address!] }) as const), allowFailure: true }),
         marketPrices(),
-      ]);
+      ]));
       const list: TokenBalance[] = tokens.map((t, i) => {
         const balance = bals[i].status === "success" ? (bals[i].result as bigint) : 0n;
         const price = prices[t.address.toLowerCase()] ?? 0n;

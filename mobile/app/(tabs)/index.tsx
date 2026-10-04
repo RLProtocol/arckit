@@ -45,7 +45,11 @@ export default function Wallet() {
                 <Text style={{ fontFamily: fonts.display, fontSize: 42, letterSpacing: -1.4, color: colors.text }}>{fmtUsd(total)}<Text style={{ fontSize: 18, color: colors.dim, fontFamily: fonts.displayLight }}>  USDC</Text></Text>
               </Row>
             )}
-            <Text style={{ fontFamily: fonts.body, fontSize: 13, color: "rgba(238,244,255,0.72)", marginTop: 8 }}>{bal.data ? `${fmtUsd(bal.data.native)} USDC cash · ${fmtUsd(total - bal.data.native)} in Arc tokens` : "Reading Arc…"}</Text>
+            {bal.isError ? (
+              <Pressable onPress={() => void bal.refetch()} style={{ marginTop: 8 }}><Text style={{ fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.gold }}>Could not reach Arc. Tap to retry.</Text></Pressable>
+            ) : (
+              <Text style={{ fontFamily: fonts.body, fontSize: 13, color: "rgba(238,244,255,0.72)", marginTop: 8 }}>{bal.data ? `${fmtUsd(bal.data.native)} USDC cash · ${fmtUsd(total - bal.data.native)} in Arc tokens` : "Reading Arc…"}</Text>
+            )}
             <View style={{ flexDirection: "row", gap: 8, marginTop: 20 }}>
               <Action icon="arrow-up" label="Send" onPress={() => router.push("/send")} primary />
               <Action icon="arrow-down" label="Receive" onPress={() => router.push("/receive")} />
@@ -57,7 +61,8 @@ export default function Wallet() {
           <Card>
             <Row between><Eyebrow color={colors.accent}>Assets</Eyebrow><Pressable onPress={() => router.push("/token-add")}><Text style={styles.link}>+ Add token</Text></Pressable></Row>
             <TokenRow logo={<TokenLogo symbol="USDC" />} symbol="USDC" name="USD Coin · native on Arc" amount={bal.data ? fmtUsd(bal.data.native, 4) : undefined} value={bal.data ? fmtUsd(bal.data.native) : undefined} price="1.00" />
-            {bal.isLoading && [0, 1, 2].map((i) => <View key={i} style={{ paddingVertical: 12 }}><Skeleton /></View>)}
+            {bal.isLoading && [0, 1].map((i) => <View key={i} style={{ paddingVertical: 12 }}><Skeleton /></View>)}
+            {bal.isError && <P small style={{ marginTop: 10 }}>Balances could not be loaded. Pull down to refresh.</P>}
             {shown.map((t) => (
               <TokenRow key={t.address} logo={<TokenLogo symbol={t.symbol} uri={images[t.address.toLowerCase()]} />} symbol={t.symbol} name={t.name} amount={fmtTok(t.balance, t.decimals, 2)} value={t.price > 0n ? fmtUsd(t.value) : undefined} price={t.price > 0n ? fmtPrice(t.price) : undefined} onPress={() => router.push({ pathname: "/send", params: { token: t.address } })} />
             ))}

@@ -4,14 +4,14 @@ import * as LocalAuthentication from "expo-local-authentication";
 import { createWalletClient, http, type Address, type Hash, type WalletClient } from "viem";
 import type { HDAccount } from "viem/accounts";
 import { arc, publicClient } from "../chain";
-import { accountFrom, biometricsEnabled, hasWallet, readMnemonic, saveWallet, storedAddress, verifyPin, wipeWallet } from "./store";
+import { biometricsEnabled, deriveAccount, hasWallet, loadAccount, saveWallet, storedAddress, verifyPin, wipeWallet, type WalletAccount } from "./store";
 
 type Status = "loading" | "none" | "locked" | "ready";
 
 type Ctx = {
   status: Status;
   address?: Address;
-  account?: HDAccount;
+  account?: WalletAccount;
   walletClient?: WalletClient;
   biometrics: boolean;
   create: (mnemonic: string, pin: string) => Promise<void>;
@@ -28,7 +28,7 @@ const AUTO_LOCK_MS = 5 * 60_000;
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<Status>("loading");
   const [address, setAddress] = useState<Address | undefined>();
-  const [account, setAccount] = useState<HDAccount | undefined>();
+  const [account, setAccount] = useState<WalletAccount | undefined>();
   const [biometrics, setBiometrics] = useState(false);
   const backgroundedAt = useRef<number | null>(null);
 
@@ -52,14 +52,19 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const open = useCallback(async () => {
-    const m = await readMnemonic();
-    if (!m) return false;
-    const acct = accountFrom(m);
+    const acct = await loadAccount();
+    if (!acct) return false;
     setAccount(acct); setAddress(acct.address); setStatus("ready");
     return true;
   }, []);
 
-  const create = useCallback(async (mnemonic: string, pin: string) => { await saveWallet(mnemonic, pin); await open(); setBiometrics(await biometricsEnabled()); }, [open]);
+  /** Derives the key once (the slow step), stores it, and opens the wallet. */
+  const create = useCallback(async (mnemonic: string, pin: string) => {
+    const acct: HDAccount = await deriveAccount(mnemonic);
+    await saveWallet(mnemonic, acct, pin);
+    setAccount(acct); setAddress(acct.address); setStatus("ready");
+    setBiometrics(await biometricsEnabled());
+  }, []);
   const unlockWithPin = useCallback(async (pin: string) => ((await verifyPin(pin)) ? open() : false), [open]);
   const unlockWithBiometrics = useCallback(async () => {
     if (Platform.OS === "web") return false;

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { type Address, type Hex } from "viem";
-import { ADDR, KNOWN_TOKENS, publicClient, SITE } from "../chain";
+import { ADDR, KNOWN_TOKENS, publicClient, SITE, withTimeout } from "../chain";
 import { arcLendAbi, arcP2PAbi, erc20Abi } from "../contracts";
 
 // ---------------------------------------------------------------- ArcP2P
@@ -19,7 +19,7 @@ export function useListings() {
     enabled: !!ADDR.p2p,
     refetchInterval: 12_000,
     queryFn: async (): Promise<Listing[]> => {
-      const n = Number(await publicClient.readContract({ address: ADDR.p2p, abi: arcP2PAbi, functionName: "listingCount" }));
+      const n = Number(await withTimeout(publicClient.readContract({ address: ADDR.p2p, abi: arcP2PAbi, functionName: "listingCount" })));
       if (n === 0) return [];
       const rows: Raw[] = [];
       for (let i = 0; i < n; i += 100) rows.push(...((await publicClient.readContract({ address: ADDR.p2p, abi: arcP2PAbi, functionName: "getListings", args: [BigInt(i), BigInt(Math.min(n, i + 100))] })) as unknown as Raw[]));
@@ -88,7 +88,7 @@ export function useMarkets() {
     enabled: !!ADDR.lend,
     refetchInterval: 20_000,
     queryFn: async (): Promise<Market[]> => {
-      const n = Number(await publicClient.readContract({ address: ADDR.lend, abi: arcLendAbi, functionName: "marketCount" }));
+      const n = Number(await withTimeout(publicClient.readContract({ address: ADDR.lend, abi: arcLendAbi, functionName: "marketCount" })));
       const ids = Array.from({ length: n }, (_, i) => BigInt(i));
       const res = await publicClient.multicall({
         contracts: ids.flatMap((id) => [{ address: ADDR.lend, abi: arcLendAbi, functionName: "getMarket", args: [id] } as const, { address: ADDR.lend, abi: arcLendAbi, functionName: "rates", args: [id] } as const, { address: ADDR.lend, abi: arcLendAbi, functionName: "priceOf", args: [id] } as const]),
@@ -139,7 +139,7 @@ export function useActivity(address?: Address) {
     enabled: !!address,
     refetchInterval: 30_000,
     queryFn: async (): Promise<Activity[]> => {
-      const r = await fetch(`${SITE}/api/activity?address=${address}`);
+      const r = await fetch(`${SITE}/api/activity?address=${address}`, { signal: AbortSignal.timeout(15_000) });
       if (!r.ok) throw new Error("Could not load activity.");
       const j = (await r.json()) as { items: { hash: Hex; ts: number; from: Address; to: Address; value: string; token?: { symbol: string; decimals: number; address: Address }; fn: string; ok: boolean }[] };
       return j.items.map((it) => ({ ...it, value: BigInt(it.value) }));

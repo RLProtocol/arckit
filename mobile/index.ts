@@ -1,3 +1,3 @@
-// Polyfills must load before viem: secure randomness for seed generation and key signing.
-import "react-native-get-random-values";
+// Polyfills must load before viem and the router.
+import "./src/polyfills";
 import "expo-router/entry";

@@ -75,7 +75,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const lock = useCallback(() => { setAccount(undefined); setStatus("locked"); }, []);
   const reset = useCallback(async () => { await wipeWallet(); setAccount(undefined); setAddress(undefined); setStatus("none"); }, []);
 
-  const walletClient = useMemo(() => (account ? createWalletClient({ account, chain: arc, transport: http("https://5042.rpc.thirdweb.com", { timeout: 20_000, retryCount: 2 }) }) : undefined), [account]);
+  const walletClient = useMemo(() => (account ? createWalletClient({ account, chain: arc, transport: http("https://5042.rpc.thirdweb.com", { timeout: 20_000, retryCount: 2, maxResponseBodySize: false }) }) : undefined), [account]);
 
   const value = useMemo<Ctx>(() => ({ status, address, account, walletClient, biometrics, create, unlockWithPin, unlockWithBiometrics, lock, reset, refresh }), [status, address, account, walletClient, biometrics, create, unlockWithPin, unlockWithBiometrics, lock, reset, refresh]);
   return <WalletCtx.Provider value={value}>{children}</WalletCtx.Provider>;

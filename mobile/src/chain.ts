@@ -16,7 +16,10 @@ export const EXPLORER = deployments.explorer;
 export const explorerTx = (h: string) => `${EXPLORER}/tx/${h}`;
 export const explorerAddress = (a: string) => `${EXPLORER}/address/${a}`;
 
-const opts = { batch: true, retryCount: 1, retryDelay: 300, timeout: 8_000 } as const;
+// maxResponseBodySize: false makes viem read responses with response.text(). The default streams the body through
+// response.body.getReader(), which stalls on Android under Expo's fetch, so balances never arrived.
+export const rpcOpts = { batch: true, retryCount: 1, retryDelay: 300, timeout: 8_000, maxResponseBodySize: false } as const;
+const opts = rpcOpts;
 export const publicClient = createPublicClient({
   chain: arc,
   transport: fallback([http("https://5042.rpc.thirdweb.com", opts), http(`${SITE}/api/rpc`, opts), http(deployments.rpcUrl, opts)], { rank: false }),

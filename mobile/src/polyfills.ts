@@ -24,7 +24,7 @@ if (typeof g.TextDecoder === "undefined") {
   g.TextDecoder = class {
     decode(input?: ArrayBuffer | ArrayBufferView): string {
       if (!input) return "";
-      const b = input instanceof Uint8Array ? input : new Uint8Array(input instanceof ArrayBuffer ? input : (input as ArrayBufferView).buffer);
+      const b = input instanceof Uint8Array ? input : input instanceof ArrayBuffer ? new Uint8Array(input) : new Uint8Array((input as ArrayBufferView).buffer, (input as ArrayBufferView).byteOffset, (input as ArrayBufferView).byteLength);
       let s = "";
       for (let i = 0; i < b.length;) {
         const c = b[i++];

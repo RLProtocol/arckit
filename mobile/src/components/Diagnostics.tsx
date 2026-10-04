@@ -7,8 +7,8 @@ import { Button, Card, Eyebrow, P } from "./ui";
 type Result = { name: string; ok: boolean; ms: number; detail: string };
 
 const ENDPOINTS: [string, string][] = [
-  ["thirdweb RPC", "https://5042.rpc.thirdweb.com"],
   ["Arc Kit RPC proxy", `${SITE}/api/rpc`],
+  ["thirdweb RPC", "https://5042.rpc.thirdweb.com"],
   ["arc-scan RPC", "https://rpc.arc-scan.org"],
 ];
 

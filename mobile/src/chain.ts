@@ -11,7 +11,10 @@ export const arc = defineChain({
   contracts: { multicall3: { address: "0xcA11bde05977b3631167028862bE2a173976CA11", blockCreated: 0 } },
 });
 
-export const SITE = "https://www.usearckit.locker";
+// The app talks to arc-tools.vercel.app, not usearckit.locker: some carrier and VPN DNS servers cannot resolve the
+// .locker ending (seen on a real Android device), and the Vercel domain serves the same site and APIs.
+export const SITE = "https://arc-tools.vercel.app";
+export const SITE_PUBLIC = "https://www.usearckit.locker";
 export const EXPLORER = deployments.explorer;
 export const explorerTx = (h: string) => `${EXPLORER}/tx/${h}`;
 export const explorerAddress = (a: string) => `${EXPLORER}/address/${a}`;
@@ -22,7 +25,8 @@ export const rpcOpts = { batch: true, retryCount: 1, retryDelay: 300, timeout: 8
 const opts = rpcOpts;
 export const publicClient = createPublicClient({
   chain: arc,
-  transport: fallback([http("https://5042.rpc.thirdweb.com", opts), http(`${SITE}/api/rpc`, opts), http(deployments.rpcUrl, opts)], { rank: false }),
+  // Our proxy first: it fronts a private Arc node with no public rate limit. thirdweb returned HTTP 429 on mobile networks.
+  transport: fallback([http(`${SITE}/api/rpc`, opts), http("https://5042.rpc.thirdweb.com", opts), http(deployments.rpcUrl, opts)], { rank: false }),
 });
 
 /** Rejects after `ms` so a stalled network call becomes a visible error with a retry instead of an endless skeleton. */

@@ -2,7 +2,6 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { AppState, Platform } from "react-native";
 import * as LocalAuthentication from "expo-local-authentication";
 import { createWalletClient, http, type Address, type Hash, type WalletClient } from "viem";
-import type { HDAccount } from "viem/accounts";
 import { arc, publicClient } from "../chain";
 import { biometricsEnabled, deriveAccount, hasWallet, loadAccount, saveWallet, storedAddress, verifyPin, wipeWallet, type WalletAccount } from "./store";
 
@@ -51,17 +50,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     return () => sub.remove();
   }, []);
 
+  /** Opens the wallet right away (balances only need the address); the signing key loads in the background. */
   const open = useCallback(async () => {
-    const acct = await loadAccount();
-    if (!acct) return false;
-    setAccount(acct); setAddress(acct.address); setStatus("ready");
+    setStatus("ready");
+    void loadAccount().then((acct) => { if (acct) { setAccount(acct); setAddress(acct.address); } }).catch(() => {});
     return true;
   }, []);
 
   /** Derives the key once (the slow step), stores it, and opens the wallet. */
   const create = useCallback(async (mnemonic: string, pin: string) => {
-    const acct: HDAccount = await deriveAccount(mnemonic);
-    await saveWallet(mnemonic, acct, pin);
+    const { account: acct, privateKey } = await deriveAccount(mnemonic);
+    await saveWallet(mnemonic, acct, privateKey, pin);
     setAccount(acct); setAddress(acct.address); setStatus("ready");
     setBiometrics(await biometricsEnabled());
   }, []);

@@ -31,7 +31,7 @@ export function useTx() {
   const [s, setS] = useState<TxState>({ status: "idle", error: "", busy: false });
 
   const send = useCallback(async (fn: () => Promise<Hash>) => {
-    if (!walletClient) { setS({ status: "error", error: "Wallet is locked.", busy: false }); return; }
+    if (!walletClient) { setS({ status: "error", error: "Your wallet key is still loading. Try again in a few seconds.", busy: false }); return; }
     setS({ status: "signing", error: "", busy: true });
     try {
       const hash = await fn();

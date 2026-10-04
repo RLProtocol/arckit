@@ -23,7 +23,7 @@ export default function Import() {
     setAddress(undefined);
     if (!valid) return;
     let live = true;
-    const t = setTimeout(() => void deriveAccount(clean).then((a) => live && setAddress(a.address)).catch(() => {}), 500);
+    const t = setTimeout(() => void deriveAccount(clean).then((a) => live && setAddress(a.account.address)).catch(() => {}), 500);
     return () => { live = false; clearTimeout(t); };
   }, [clean, valid]);
 

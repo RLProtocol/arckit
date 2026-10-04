@@ -17,6 +17,9 @@
     "api/lend-poke.js": {
       "maxDuration": 60
     },
+    "api/activity.js": {
+      "maxDuration": 30
+    },
     "api/pools.js": {
       "maxDuration": 30
     },

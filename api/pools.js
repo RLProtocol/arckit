@@ -70,6 +70,11 @@ async function poolsFor(token) {
 }
 
 module.exports = async (req, res) => {
+  // read-only and public: let the mobile app's web preview and other sites call it directly
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") { res.statusCode = 204; return res.end(); }
   res.setHeader("Content-Type", "application/json");
   const url = new URL(req.url, "http://x");
   const token = String(url.searchParams.get("token") || "").toLowerCase();

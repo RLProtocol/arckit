@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Arc Kit",
+    "slug": "arckit",
+    "scheme": "arckit",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#050d1a",
+    "splash": { "image": "./assets/splash-icon.png", "resizeMode": "contain", "backgroundColor": "#050d1a" },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "locker.usearckit.wallet",
+      "infoPlist": { "NSFaceIDUsageDescription": "Unlock your Arc Kit wallet with Face ID." }
+    },
+    "android": {
+      "package": "locker.usearckit.wallet",
+      "adaptiveIcon": { "backgroundColor": "#050d1a", "foregroundImage": "./assets/android-icon-foreground.png", "monochromeImage": "./assets/android-icon-monochrome.png" },
+      "permissions": ["USE_BIOMETRIC", "USE_FINGERPRINT"],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": { "favicon": "./assets/favicon.png", "bundler": "metro", "output": "single" },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      ["expo-local-authentication", { "faceIDPermission": "Unlock your Arc Kit wallet with Face ID." }]
+    ],
+    "experiments": { "typedRoutes": false }
+  }
+}

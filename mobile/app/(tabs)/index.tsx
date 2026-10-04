@@ -46,7 +46,7 @@ export default function Wallet() {
               </Row>
             )}
             {bal.isError ? (
-              <Pressable onPress={() => void bal.refetch()} style={{ marginTop: 8 }}><Text style={{ fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.gold }}>Could not reach Arc. Tap to retry.</Text></Pressable>
+              <Pressable onPress={() => void bal.refetch()} style={{ marginTop: 8 }}><Text style={{ fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.gold }}>Could not load balances. Tap to retry.</Text><Text style={{ fontFamily: fonts.mono, fontSize: 11, color: "rgba(238,244,255,0.6)", marginTop: 4 }} selectable>{(bal.error as Error)?.message?.slice(0, 200)}</Text></Pressable>
             ) : (
               <Text style={{ fontFamily: fonts.body, fontSize: 13, color: "rgba(238,244,255,0.72)", marginTop: 8 }}>{bal.data ? `${fmtUsd(bal.data.native)} USDC cash · ${fmtUsd(total - bal.data.native)} in Arc tokens` : "Reading Arc…"}</Text>
             )}

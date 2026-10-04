@@ -12,8 +12,9 @@ export function useBalances(address?: Address) {
     queryKey: ["balances", address],
     enabled: !!address,
     refetchInterval: 15_000,
+    retry: 2,
     queryFn: async () => {
-      const extra = await customTokens();
+      const extra = await customTokens().catch(() => []);
       const tokens = [...KNOWN_TOKENS, ...extra.filter((t) => !KNOWN_TOKENS.some((k) => k.address.toLowerCase() === t.address.toLowerCase()))];
       const [native, bals, prices] = await withTimeout(Promise.all([
         publicClient.getBalance({ address: address! }),

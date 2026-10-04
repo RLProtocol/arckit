@@ -1,4 +1,5 @@
 import { Image, Text, View } from "react-native";
+const USDC = require("../../assets/usdc.png");
 import { useRouter } from "expo-router";
 import { Button, Eyebrow, H1, P, Screen } from "@/components/ui";
 import { colors, fonts } from "@/theme";
@@ -14,7 +15,10 @@ export default function Welcome() {
   return (
     <Screen footer={<View style={{ padding: 20, paddingBottom: 34 }}><Button title="Create a new wallet" onPress={() => router.push("/onboarding/create")} /><Button title="I already have a seed phrase" kind="ghost" onPress={() => router.push("/onboarding/import")} /></View>}>
       <View style={{ alignItems: "center", marginTop: 40 }}>
-        <Image source={require("../../assets/icon.png")} style={{ width: 84, height: 84, borderRadius: 22, borderWidth: 1, borderColor: colors.lineStrong }} />
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Image source={require("../../assets/logo.png")} style={{ width: 84, height: 84, borderRadius: 24, borderWidth: 1, borderColor: colors.lineStrong }} />
+          <Image source={USDC} style={{ width: 56, height: 56, borderRadius: 28, marginLeft: -14, borderWidth: 2, borderColor: colors.navy800 }} />
+        </View>
         <Text style={{ fontFamily: fonts.display, fontSize: 40, color: colors.text, marginTop: 22, letterSpacing: -1 }}>Arc<Text style={{ fontFamily: fonts.displayLight, color: colors.dim }}> Kit</Text></Text>
         <P style={{ textAlign: "center", marginTop: 6 }}>The wallet for Arc. Self-custody, USDC first.</P>
       </View>

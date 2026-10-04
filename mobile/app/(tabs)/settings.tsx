@@ -7,6 +7,7 @@ import { useWallet } from "@/wallet/provider";
 import { setBiometricsEnabled } from "@/wallet/store";
 import { explorerAddress, SITE } from "@/chain";
 import { Card, Eyebrow, H1, Mono, Notice, P, Row, Screen } from "@/components/ui";
+import { Brand } from "@/components/TokenLogo";
 import { shortAddr } from "@/lib/format";
 import { colors, fonts } from "@/theme";
 
@@ -24,7 +25,8 @@ export default function Settings() {
 
   return (
     <Screen>
-      <View style={{ marginTop: 14 }}><Eyebrow>Settings</Eyebrow><H1>Wallet</H1></View>
+      <Brand subtitle="SETTINGS" />
+      <View style={{ marginTop: 22 }}><H1>Wallet</H1></View>
       <Card>
         <Eyebrow color={colors.accent}>Address</Eyebrow>
         <Pressable onPress={() => address && void Clipboard.setStringAsync(address)}><Mono size={13} style={{ marginTop: 8, color: colors.dim }}>{address}</Mono></Pressable>

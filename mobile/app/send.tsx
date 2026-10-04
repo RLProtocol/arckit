@@ -7,7 +7,9 @@ import { useTx } from "@/wallet/useTx";
 import { useBalances } from "@/hooks/useBalances";
 import { erc20Abi } from "@/contracts";
 import { publicClient } from "@/chain";
-import { Avatar, Button, Card, Eyebrow, Field, H1, Ledger, Notice, P, Row, Screen } from "@/components/ui";
+import { Button, Card, Eyebrow, Field, H1, Ledger, Notice, P, Row, Screen } from "@/components/ui";
+import { TokenLogo } from "@/components/TokenLogo";
+import { useTokenImages } from "@/hooks/useTokenImages";
 import { TxStatus } from "@/components/TxStatus";
 import { fmtTok, fmtUsd, safeParse, shortAddr } from "@/lib/format";
 import { colors, fonts } from "@/theme";
@@ -22,6 +24,7 @@ export default function Send() {
   const [amt, setAmt] = useState("");
   const tx = useTx();
   const [gas, setGas] = useState<bigint | undefined>();
+  const images = useTokenImages(bal.data?.tokens.map((t) => t.address) ?? []);
 
   const asset = useMemo(() => (token === "native" ? { symbol: "USDC", decimals: 18, balance: bal.data?.native ?? 0n } : bal.data?.tokens.find((t) => t.address.toLowerCase() === token.toLowerCase()) ?? { symbol: "…", decimals: 18, balance: 0n }), [token, bal.data]);
   const units = safeParse(amt, asset.decimals);
@@ -48,7 +51,7 @@ export default function Send() {
       <Row between style={{ marginTop: 14 }}><View><Eyebrow>Send</Eyebrow><H1>Send {asset.symbol}</H1></View><Pressable onPress={() => router.back()}><Text style={{ fontFamily: fonts.bodyMedium, color: colors.dim }}>Close</Text></Pressable></Row>
       <Card tight style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, padding: 8 }}>
         <AssetChip on={token === "native"} symbol="USDC" onPress={() => { setToken("native"); setAmt(""); }} />
-        {bal.data?.tokens.filter((t) => t.balance > 0n || t.address.toLowerCase() === token.toLowerCase()).map((t) => <AssetChip key={t.address} on={token.toLowerCase() === t.address.toLowerCase()} symbol={t.symbol} onPress={() => { setToken(t.address); setAmt(""); }} />)}
+        {bal.data?.tokens.filter((t) => t.balance > 0n || t.address.toLowerCase() === token.toLowerCase()).map((t) => <AssetChip key={t.address} on={token.toLowerCase() === t.address.toLowerCase()} symbol={t.symbol} uri={images[t.address.toLowerCase()]} onPress={() => { setToken(t.address); setAmt(""); }} />)}
       </Card>
       <Field label="To" placeholder="0x…" value={to} onChangeText={(v) => setTo(v.trim())} error={to && !isAddress(to) ? "That is not a valid Arc address." : undefined} hint={isAddress(to) ? `Sending on Arc to ${shortAddr(to, 6)}` : "An Arc / EVM address. Double-check it: transfers cannot be reversed."} />
       <Field label={`Amount in ${asset.symbol}`} placeholder="0.00" keyboardType="decimal-pad" value={amt} onChangeText={setAmt} onBlur={estimate} error={err && units ? err : undefined} hint={`Balance: ${token === "native" ? fmtUsd(asset.balance, 4) : fmtTok(asset.balance, asset.decimals)} ${asset.symbol}`}
@@ -63,10 +66,10 @@ export default function Send() {
   );
 }
 
-function AssetChip({ on, symbol, onPress }: { on: boolean; symbol: string; onPress: () => void }) {
+function AssetChip({ on, symbol, uri, onPress }: { on: boolean; symbol: string; uri?: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={{ flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, backgroundColor: on ? colors.accentSoft : "transparent", borderWidth: 1, borderColor: on ? colors.accentLine : colors.line }}>
-      <Avatar symbol={symbol} size={20} /><Text style={{ fontFamily: fonts.bodyMedium, fontSize: 13, color: on ? colors.accent : colors.dim }}>{symbol}</Text>
+      <TokenLogo symbol={symbol} uri={uri} size={20} /><Text style={{ fontFamily: fonts.bodyMedium, fontSize: 13, color: on ? colors.accent : colors.dim }}>{symbol}</Text>
     </Pressable>
   );
 }

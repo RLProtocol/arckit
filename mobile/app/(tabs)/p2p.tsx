@@ -7,7 +7,9 @@ import { ADDR, publicClient } from "@/chain";
 import { arcP2PAbi, erc20Abi } from "@/contracts";
 import { useListings, usePoolsFor, type Listing } from "@/hooks/useArcKit";
 import { fetchTokenMeta, useBalances } from "@/hooks/useBalances";
-import { Avatar, Button, Card, Eyebrow, Field, H1, H2, Ledger, Notice, P, Pill, Row, Screen, Seg, Skeleton } from "@/components/ui";
+import { Button, Card, Eyebrow, Field, H1, H2, Ledger, Notice, P, Pill, Row, Screen, Seg, Skeleton } from "@/components/ui";
+import { Brand, TokenLogo } from "@/components/TokenLogo";
+import { useTokenImages } from "@/hooks/useTokenImages";
 import { TxStatus } from "@/components/TxStatus";
 import { costOf, fmtPct, fmtPrice, fmtTok, fmtUsd, safeParse, shortAddr } from "@/lib/format";
 import { colors, fonts, radius } from "@/theme";
@@ -23,10 +25,12 @@ export default function P2P() {
   const open = useMemo(() => (listings.data ?? []).filter((l) => l.active && (l.buyer === zeroAddress || l.buyer.toLowerCase() === address?.toLowerCase())).sort((a, b) => b.createdAt - a.createdAt), [listings.data, address]);
   const selected = open.find((l) => l.id === sel);
   const mine = useMemo(() => (listings.data ?? []).filter((l) => l.seller.toLowerCase() === address?.toLowerCase()).reverse(), [listings.data, address]);
+  const images = useTokenImages((listings.data ?? []).map((l) => l.token));
 
   return (
     <Screen>
-      <View style={{ marginTop: 14 }}><Eyebrow>ArcP2P</Eyebrow><H1>Trade peer to peer</H1><P small style={{ marginTop: 6 }}>Sell any token for USDC at a fixed or market price. Buy whole listings or a slice. The pool is never touched: zero slippage.</P></View>
+      <Brand subtitle="ARCP2P" />
+      <View style={{ marginTop: 22 }}><H1>Trade peer to peer</H1><P small style={{ marginTop: 6 }}>Sell any token for USDC at a fixed or market price. Buy whole listings or a slice. The pool is never touched: zero slippage.</P></View>
       <Seg value={tab} options={[["buy", "Buy"], ["sell", "Sell"], ["mine", "Mine"]]} onChange={(v) => { setTab(v); setSel(undefined); }} />
 
       {tab === "buy" && !selected && (
@@ -37,21 +41,21 @@ export default function P2P() {
             const vs = l.mode === 1 && l.marketRef > 0n ? (Number(l.price) / Number(l.marketRef) - 1) * 100 : undefined;
             return (
               <Pressable key={l.id} onPress={() => setSel(l.id)} style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 12, borderRadius: radius.md, backgroundColor: pressed ? colors.navy600 : "transparent" })}>
-                <Row><Avatar symbol={l.symbol} /><View><Text style={{ fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.text }}>{l.symbol}</Text><Text style={{ fontFamily: fonts.body, fontSize: 12, color: colors.faint }}>{l.mode === 1 ? spreadText(l.spreadBps) : "fixed price"} · {fmtTok(l.remaining, l.decimals, 0)} left</Text></View></Row>
+                <Row><TokenLogo symbol={l.symbol} uri={images[l.token.toLowerCase()]} /><View><Text style={{ fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.text }}>{l.symbol}</Text><Text style={{ fontFamily: fonts.body, fontSize: 12, color: colors.faint }}>{l.mode === 1 ? spreadText(l.spreadBps) : "fixed price"} · {fmtTok(l.remaining, l.decimals, 0)} left</Text></View></Row>
                 <View style={{ alignItems: "flex-end" }}><Text style={{ fontFamily: fonts.mono, fontSize: 14, color: colors.text }}>${fmtPrice(l.price)}</Text>{vs !== undefined && <Text style={{ fontFamily: fonts.mono, fontSize: 11, color: vs < 0 ? colors.aqua : colors.faint }}>{fmtPct(vs)} vs market</Text>}</View>
               </Pressable>
             );
           })}
         </Card>
       )}
-      {tab === "buy" && selected && <BuyPanel l={selected} onBack={() => setSel(undefined)} />}
+      {tab === "buy" && selected && <BuyPanel l={selected} uri={images[selected.token.toLowerCase()]} onBack={() => setSel(undefined)} />}
       {tab === "sell" && <SellForm onDone={() => setTab("mine")} />}
-      {tab === "mine" && <Mine mine={mine} />}
+      {tab === "mine" && <Mine mine={mine} images={images} />}
     </Screen>
   );
 }
 
-function BuyPanel({ l, onBack }: { l: Listing; onBack: () => void }) {
+function BuyPanel({ l, uri, onBack }: { l: Listing; uri?: string; onBack: () => void }) {
   const { address, walletClient } = useWallet();
   const bal = useBalances(address);
   const [amt, setAmt] = useState("");
@@ -64,7 +68,7 @@ function BuyPanel({ l, onBack }: { l: Listing; onBack: () => void }) {
   const vs = l.mode === 1 && l.marketRef > 0n ? (Number(l.price) / Number(l.marketRef) - 1) * 100 : undefined;
   return (
     <Card>
-      <Row between><Row><Avatar symbol={l.symbol} /><View><Eyebrow color={colors.accent}>Listing #{l.id}</Eyebrow><H2>Buy {l.symbol}</H2></View></Row><Pressable onPress={onBack}><Text style={{ fontFamily: fonts.bodyMedium, color: colors.dim }}>Back</Text></Pressable></Row>
+      <Row between><Row><TokenLogo symbol={l.symbol} uri={uri} /><View><Eyebrow color={colors.accent}>Listing #{l.id}</Eyebrow><H2>Buy {l.symbol}</H2></View></Row><Pressable onPress={onBack}><Text style={{ fontFamily: fonts.bodyMedium, color: colors.dim }}>Back</Text></Pressable></Row>
       <Ledger rows={[["Price", `$${fmtPrice(l.price)} per ${l.symbol}${vs !== undefined ? ` · ${fmtPct(vs)} vs market` : ""}`], ["Pricing", l.mode === 1 ? `${spreadText(l.spreadBps)}${l.floorPrice > 0n ? ` · floor $${fmtPrice(l.floorPrice)}` : ""}${l.dumpProtection ? " · dump protection" : ""}` : "fixed by the seller"], ["Available", `${fmtTok(l.remaining, l.decimals)} ${l.symbol} ≈ ${fmtUsd(costOf(l.remaining, l.price, l.decimals))} USDC`], ["Seller", shortAddr(l.seller, 6)]]} />
       <Field label={`${l.symbol} to buy`} placeholder="0.00" keyboardType="decimal-pad" value={amt} onChangeText={setAmt} error={err || undefined} hint={`Wallet: ${fmtUsd(usdc)} USDC`} right={<Pressable onPress={() => setAmt((Number(l.remaining) / 10 ** l.decimals).toString())} style={{ paddingHorizontal: 14 }}><Text style={{ fontFamily: fonts.bodyMedium, color: colors.accent }}>Max</Text></Pressable>} />
       {units && !err ? <Notice>You receive {fmtTok(units, l.decimals)} {l.symbol} for {fmtUsd(cost, 4)} USDC.{l.mode === 1 ? " Up to 1% extra is sent for price movement and refunded in the same transaction." : ""}</Notice> : null}
@@ -133,7 +137,7 @@ function SellForm({ onDone }: { onDone: () => void }) {
   );
 }
 
-function Mine({ mine }: { mine: Listing[] }) {
+function Mine({ mine, images }: { mine: Listing[]; images: Record<string, string> }) {
   const { walletClient } = useWallet();
   const tx = useTx();
   if (mine.length === 0) return <Card><P small>You have no listings yet.</P></Card>;
@@ -144,7 +148,7 @@ function Mine({ mine }: { mine: Listing[] }) {
         const status = l.remaining === 0n ? (l.sold > 0n ? "sold out" : "cancelled") : l.expiry > 0 && l.expiry * 1000 < Date.now() ? "expired" : "open";
         return (
           <Card key={l.id}>
-            <Row between><Row><Avatar symbol={l.symbol} size={30} /><Text style={{ fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.text }}>{l.symbol} <Text style={{ color: colors.faint, fontFamily: fonts.mono, fontSize: 12 }}>#{l.id}</Text></Text></Row><Pill tone={status === "open" ? "aqua" : "dim"}>{status}</Pill></Row>
+            <Row between><Row><TokenLogo symbol={l.symbol} uri={images[l.token.toLowerCase()]} size={30} /><Text style={{ fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.text }}>{l.symbol} <Text style={{ color: colors.faint, fontFamily: fonts.mono, fontSize: 12 }}>#{l.id}</Text></Text></Row><Pill tone={status === "open" ? "aqua" : "dim"}>{status}</Pill></Row>
             <Ledger rows={[["Price", `$${fmtPrice(l.price)} · ${l.mode === 1 ? spreadText(l.spreadBps) : "fixed"}`], ["Remaining", `${fmtTok(l.remaining, l.decimals)} ${l.symbol}`], ["Sold", `${fmtTok(l.sold, l.decimals)} (${total === 0n ? 0 : Number((l.sold * 1000n) / total) / 10}%) · received ${fmtUsd(l.proceeds)} USDC`]]} />
             {l.remaining > 0n && <Button kind="ghost" title="Cancel and withdraw tokens" loading={tx.busy} onPress={() => void tx.send(() => walletClient!.writeContract({ account: walletClient!.account!, chain: walletClient!.chain, address: ADDR.p2p, abi: arcP2PAbi, functionName: "cancel", args: [BigInt(l.id)] }))} />}
           </Card>

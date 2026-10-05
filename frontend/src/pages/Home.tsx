@@ -26,6 +26,14 @@ function HeroArt() {
   );
 }
 
+/** Android build of the Arc Kit Wallet, published as a GitHub release; "latest" always points at the newest one. */
+const APK_URL = "https://github.com/RLProtocol/arckit/releases/latest/download/arckit-wallet.apk";
+const AndroidIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ marginRight: 2 }}>
+    <path d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.86 3.22a11.4 11.4 0 0 0-9.84 0L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z" />
+  </svg>
+);
+
 /** Shown in the hero until the first real lock exists: live chain facts, nothing invented. */
 function NetworkCard({ total, fee }: { total?: number; fee?: bigint }) {
   const block = useBlockNumber({ watch: true });
@@ -257,6 +265,10 @@ export function Home() {
               <Link to="/explore" className="btn btn-ghost btn-lg">
                 Browse locks
               </Link>
+              <a href={APK_URL} className="btn btn-ghost btn-lg" download title="Arc Kit Wallet for Android, version 1.0.0">
+                <AndroidIcon />
+                Download app
+              </a>
             </div>
             <div className="hero-stats">
               <div>

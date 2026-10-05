@@ -181,7 +181,6 @@
   "The price could not be read. Check the pool or use a fixed price.": "Harga tidak bisa dibaca. Periksa pool atau gunakan harga tetap.",
   "Market pricing needs a Uniswap v4 USDC pool for this token.": "Harga pasar membutuhkan pool USDC Uniswap v4 untuk token ini.",
   "Expiry must be in the future.": "Kedaluwarsa harus di masa depan.",
-
   "Lend USDC. Borrow against your tokens.": "Pinjamkan USDC. Pinjam dengan jaminan token Anda.",
   "Isolated markets, one per token. Lenders supply USDC and earn every second from borrowers, who post the token as collateral and borrow up to the market's loan-to-value. Prices come from a 30-minute on-chain average of the token's Uniswap v4 pool.": "Pasar terisolasi, satu per token. Pemberi pinjaman menyetor USDC dan mendapat bunga setiap detik dari peminjam, yang menaruh token sebagai jaminan dan meminjam sampai loan-to-value pasar. Harga berasal dari rata-rata on-chain 30 menit pool Uniswap v4 token.",
   "USDC supplied": "USDC disetor",
@@ -263,5 +262,6 @@
   "Pick a market and supply USDC as the native coin, no approval needed. Your balance grows with the market's supply APY, which is the borrow rate times utilisation. Withdraw whenever idle USDC is available; when a market is fully lent out, the high utilisation rate pulls repayments and new supply in.": "Pilih pasar dan setor USDC sebagai koin native, tanpa perlu approval. Saldo Anda tumbuh mengikuti APY setoran pasar, yaitu suku bunga pinjaman dikali utilisasi. Tarik kapan saja ada USDC menganggur; saat pasar sepenuhnya dipinjamkan, utilisasi tinggi menarik pelunasan dan setoran baru.",
   "The deepest USDC pools on Arc's Uniswap v4 plus AKIT. First-week caps: 10 USDC supplied and 10 USDC borrowed per market, raised gradually as the oracle proves itself. 10% of interest goes to the protocol as AKIT revenue.": "Pool USDC terdalam di Uniswap v4 Arc plus AKIT. Batas minggu pertama: 10 USDC setoran dan 10 USDC pinjaman per pasar, dinaikkan bertahap seiring oracle membuktikan diri. 10% bunga masuk ke protokol sebagai pendapatan AKIT.",
   "Arc has no price feeds, so collateral is priced from the token's Uniswap v4 USDC pool using a 30-minute time-weighted average. Borrowing pauses when the spot price is more than 5% away from that average, so a single manipulated block cannot open bad loans.": "Arc tidak punya price feed, jadi jaminan dihargai dari pool USDC Uniswap v4 token memakai rata-rata tertimbang waktu 30 menit. Pinjaman dijeda saat harga spot lebih dari 5% menjauh dari rata-rata itu, jadi satu blok yang dimanipulasi tidak bisa membuka pinjaman buruk.",
-  "AKIT · ARCMAN · ARCOON · AF · ASTOCK": "AKIT · ARCMAN · ARCOON · AF · ASTOCK"
+  "AKIT · ARCMAN · ARCOON · AF · ASTOCK": "AKIT · ARCMAN · ARCOON · AF · ASTOCK",
+  "Download app": "Unduh aplikasi"
 }

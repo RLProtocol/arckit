@@ -455,6 +455,7 @@
   "Done": "完成",
   "Done.": "完成。",
   "Download .txt": "下载 .txt",
+  "Download app": "下载应用",
   "Downloaded ✓": "已下载 ✓",
   "Downloading the proving key": "正在下载证明密钥",
   "Duplicate addresses will each receive their own send. Merge them into one line per address instead?": "重复的地址会各自收到一笔发送。是否合并为每个地址一行？",

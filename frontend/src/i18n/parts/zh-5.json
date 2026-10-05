@@ -181,7 +181,6 @@
   "The price could not be read. Check the pool or use a fixed price.": "无法读取价格。请检查池子或改用固定价格。",
   "Market pricing needs a Uniswap v4 USDC pool for this token.": "市场定价需要该代币的 Uniswap v4 USDC 池。",
   "Expiry must be in the future.": "到期时间必须在未来。",
-
   "Lend USDC. Borrow against your tokens.": "出借 USDC。以你的代币为抵押借款。",
   "Isolated markets, one per token. Lenders supply USDC and earn every second from borrowers, who post the token as collateral and borrow up to the market's loan-to-value. Prices come from a 30-minute on-chain average of the token's Uniswap v4 pool.": "隔离市场，每个代币一个。出借人存入 USDC，每秒从借款人处赚取利息；借款人以代币作抵押，按市场的贷款价值比借出 USDC。价格来自代币 Uniswap v4 池的 30 分钟链上均价。",
   "USDC supplied": "已存入 USDC",
@@ -263,5 +262,6 @@
   "Pick a market and supply USDC as the native coin, no approval needed. Your balance grows with the market's supply APY, which is the borrow rate times utilisation. Withdraw whenever idle USDC is available; when a market is fully lent out, the high utilisation rate pulls repayments and new supply in.": "选择一个市场，以原生币形式存入 USDC，无需授权。你的余额按市场存款年化增长，即借款利率乘以利用率。只要有闲置 USDC 就可随时提取；当市场全部借出时，高利用率会吸引还款和新存款。",
   "The deepest USDC pools on Arc's Uniswap v4 plus AKIT. First-week caps: 10 USDC supplied and 10 USDC borrowed per market, raised gradually as the oracle proves itself. 10% of interest goes to the protocol as AKIT revenue.": "Arc Uniswap v4 上流动性最深的 USDC 池加上 AKIT。首周上限：每个市场 10 USDC 存款和 10 USDC 借款，随预言机验证逐步提高。10% 的利息归协议作为 AKIT 收入。",
   "Arc has no price feeds, so collateral is priced from the token's Uniswap v4 USDC pool using a 30-minute time-weighted average. Borrowing pauses when the spot price is more than 5% away from that average, so a single manipulated block cannot open bad loans.": "Arc 没有价格喂送，因此抵押品按代币 Uniswap v4 USDC 池的 30 分钟时间加权均价定价。当现价偏离均价超过 5% 时暂停借款，因此单个被操纵的区块无法开出坏账。",
-  "AKIT · ARCMAN · ARCOON · AF · ASTOCK": "AKIT · ARCMAN · ARCOON · AF · ASTOCK"
+  "AKIT · ARCMAN · ARCOON · AF · ASTOCK": "AKIT · ARCMAN · ARCOON · AF · ASTOCK",
+  "Download app": "下载应用"
 }

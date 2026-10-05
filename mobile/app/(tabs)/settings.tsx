@@ -8,7 +8,6 @@ import { setBiometricsEnabled } from "@/wallet/store";
 import { explorerAddress, SITE } from "@/chain";
 import { Card, Eyebrow, H1, Mono, Notice, P, Row, Screen } from "@/components/ui";
 import { Brand } from "@/components/TokenLogo";
-import { Diagnostics } from "@/components/Diagnostics";
 import { shortAddr } from "@/lib/format";
 import { colors, fonts } from "@/theme";
 
@@ -46,10 +45,8 @@ export default function Settings() {
         <Eyebrow color={colors.accent}>About</Eyebrow>
         <Item label="Arc Kit website" sub="usearckit.online" onPress={() => Linking.openURL(SITE)} />
         <Item label="Documentation" sub="How every tool works" onPress={() => Linking.openURL(`${SITE}/docs`)} />
-        <Item label="Source code" sub="github.com/RLProtocol/arckit" onPress={() => Linking.openURL("https://github.com/RLProtocol/arckit")} />
         <P small style={{ marginTop: 12 }}>Arc Kit Wallet 1.0 · Arc chain 5042 · keys never leave this device.</P>
       </Card>
-      <Diagnostics address={address} />
       <Card style={{ borderColor: "rgba(255,122,110,0.35)" }}>
         <Eyebrow color={colors.coral}>Danger zone</Eyebrow>
         <Item label="Erase wallet from this phone" sub={`Removes ${shortAddr(address)} and its seed. Funds stay on Arc; only the phrase brings them back.`} onPress={() => setConfirmErase(!confirmErase)} danger />

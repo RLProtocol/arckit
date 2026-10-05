@@ -30,7 +30,7 @@ export default function Wallet() {
       <LinearGradient colors={[colors.navy800, colors.navy700, "#0a2a3a"]} locations={[0, 0.55, 1]} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={[StyleSheet.absoluteFill, { pointerEvents: "none" }]} />
       <SafeAreaView style={{ flex: 1, zIndex: 1 }} edges={["top"]}>
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} refreshControl={<RefreshControl refreshing={bal.isRefetching} onRefresh={() => { void bal.refetch(); void act.refetch(); }} tintColor={colors.accent} />} showsVerticalScrollIndicator={false}>
-          <Brand subtitle="WALLET · ARC" right={<Pressable onPress={() => router.push("/activity")} hitSlop={10} style={styles.iconBtn}><Ionicons name="time-outline" size={20} color={colors.dim} /></Pressable>} />
+          <Brand subtitle="WALLET · ARC" right={<Row style={{ gap: 8 }}><Pressable onPress={() => router.push("/activity")} hitSlop={8} style={styles.iconBtn}><Ionicons name="time-outline" size={19} color={colors.dim} /></Pressable><Pressable onPress={() => router.push("/settings")} hitSlop={8} style={styles.iconBtn}><Ionicons name="settings-outline" size={19} color={colors.dim} /></Pressable></Row>} />
 
           {/* hero balance card */}
           <LinearGradient colors={["#123a63", "#0b2240", "#0e3a4a"]} locations={[0, 0.55, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
@@ -54,8 +54,8 @@ export default function Wallet() {
             <View style={{ flexDirection: "row", gap: 8, marginTop: 20 }}>
               <Action icon="arrow-up" label="Send" onPress={() => router.push("/send")} primary />
               <Action icon="arrow-down" label="Receive" onPress={() => router.push("/receive")} />
-              <Action icon="cart-outline" label="Buy" onPress={() => router.push({ pathname: "/dapp", params: { path: "/pay", title: "ArcPay" } })} />
-              <Action icon="swap-horizontal" label="Trade" onPress={() => router.push("/p2p")} />
+              <Action icon="pulse-outline" label="Trade" onPress={() => router.push("/trade")} />
+              <Action icon="people-outline" label="P2P" onPress={() => router.push("/p2p")} />
             </View>
           </LinearGradient>
 

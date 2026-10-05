@@ -16,7 +16,8 @@ const TOOLS: Tool[] = [
   { key: "pay", name: "ArcPay", text: "Gift cards and top-ups with USDC, 100+ countries.", icon: "cart-outline", path: "/pay", tint: [...T.coral] },
   { key: "cash", name: "ArcCash", text: "Private transfers with a zero-knowledge proof.", icon: "eye-off-outline", path: "/cash", tint: [...T.violet] },
   { key: "lend", name: "ArcLend", text: "Lend USDC, borrow against tokens.", icon: "trending-up-outline", tab: "/lend", tint: [...T.aqua] },
-  { key: "p2p", name: "ArcP2P", text: "Sell any token for USDC, zero slippage.", icon: "swap-horizontal-outline", tab: "/p2p", tint: [...T.gold] },
+  { key: "trade", name: "Trade", text: "Buy or sell any Arc token with USDC.", icon: "pulse-outline", tab: "/trade", tint: [...T.coral] },
+  { key: "p2p", name: "ArcP2P", text: "Sell any token for USDC, zero slippage.", icon: "people-outline", tab: "/p2p", tint: [...T.gold] },
   { key: "docs", name: "Docs", text: "How every tool works, in EN · 中文 · ID.", icon: "book-outline", path: "/docs", tint: [...T.blue] },
 ];
 
@@ -24,7 +25,7 @@ export default function Tools() {
   const router = useRouter();
   return (
     <Screen>
-      <Brand subtitle="TOOLS" />
+      <Brand subtitle="TOOLS" right={<Pressable onPress={() => router.push("/settings")} hitSlop={8} style={{ width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colors.lineStrong, backgroundColor: colors.card }}><Ionicons name="settings-outline" size={19} color={colors.dim} /></Pressable>} />
       <View style={{ marginTop: 22 }}><H1>Every tool, one wallet</H1><P small style={{ marginTop: 6 }}>Tools open inside the app and sign with this wallet. No browser extension, no WalletConnect.</P></View>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 18 }}>
         {TOOLS.map((t) => (

@@ -21,10 +21,12 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen name="index" options={{ title: "Wallet", tabBarIcon: icon("wallet-outline") }} />
-      <Tabs.Screen name="p2p" options={{ title: "P2P", tabBarIcon: icon("swap-horizontal-outline") }} />
+      <Tabs.Screen name="trade" options={{ title: "Trade", tabBarIcon: icon("pulse-outline") }} />
+      <Tabs.Screen name="p2p" options={{ title: "P2P", tabBarIcon: icon("people-outline") }} />
       <Tabs.Screen name="lend" options={{ title: "Lend", tabBarIcon: icon("trending-up-outline") }} />
       <Tabs.Screen name="tools" options={{ title: "Tools", tabBarIcon: icon("grid-outline") }} />
-      <Tabs.Screen name="settings" options={{ title: "Settings", tabBarIcon: icon("settings-outline") }} />
+      {/* reached from the gear on Wallet and Tools, not the tab bar */}
+      <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>
   );
 }

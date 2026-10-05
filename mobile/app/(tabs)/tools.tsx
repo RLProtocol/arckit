@@ -35,7 +35,7 @@ export default function Tools() {
           </Pressable>
         ))}
       </View>
-      <Notice>Lending and P2P run natively in the app. The other tools load usearckit.locker inside the app with your wallet already connected; every transaction still asks for your confirmation.</Notice>
+      <Notice>Lending and P2P run natively in the app. The other tools load usearckit.online inside the app with your wallet already connected; every transaction still asks for your confirmation.</Notice>
     </Screen>
   );
 }

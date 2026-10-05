@@ -1,11 +1,12 @@
 import { Children, type ReactNode } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, fonts, radius } from "../theme";
 
 /** Full-screen Arc backdrop: navy gradient with the teal glow and the signature arcs. */
 export function Screen({ children, scroll = true, padded = true, footer }: { children: ReactNode; scroll?: boolean; padded?: boolean; footer?: ReactNode }) {
+  const insets = useSafeAreaInsets();
   const body = (
     <View style={[{ flex: 1 }, padded && { paddingHorizontal: 20 }]}>{children}</View>
   );
@@ -17,7 +18,7 @@ export function Screen({ children, scroll = true, padded = true, footer }: { chi
       <View style={[styles.glow, { pointerEvents: "none" }]} />
       <SafeAreaView style={{ flex: 1, zIndex: 1 }} edges={["top", "left", "right"]}>
         {scroll ? <ScrollView contentContainerStyle={{ paddingBottom: 110 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>{body}</ScrollView> : body}
-        {footer}
+        {footer ? <View style={{ paddingBottom: Math.max(insets.bottom - 20, 0) }}>{footer}</View> : null}
       </SafeAreaView>
     </View>
   );

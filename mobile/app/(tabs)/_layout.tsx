@@ -1,16 +1,20 @@
 import { Tabs } from "expo-router";
 import { Platform, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, fonts } from "@/theme";
 
 const icon = (name: keyof typeof Ionicons.glyphMap) => ({ color, focused }: { color: string | import("react-native").OpaqueColorValue; focused: boolean }) => <Ionicons name={name} size={22} color={focused ? colors.accent : (color as string)} />;
 
 export default function TabsLayout() {
+  // bottom inset = Android 3-button / gesture bar or the iPhone home indicator; the bar sits above it
+  const insets = useSafeAreaInsets();
+  const bottom = Math.max(insets.bottom, Platform.OS === "android" ? 8 : 0);
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: { backgroundColor: "rgba(7,20,38,0.96)", borderTopColor: colors.line, height: Platform.OS === "ios" ? 86 : 68, paddingTop: 8 },
+        tabBarStyle: { backgroundColor: "rgba(7,20,38,0.98)", borderTopColor: colors.line, height: 60 + bottom, paddingTop: 8, paddingBottom: bottom },
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.faint,
         tabBarLabel: ({ color, children }) => <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 11, color, marginTop: 2 }}>{children}</Text>,

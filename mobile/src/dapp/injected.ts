@@ -39,7 +39,7 @@ export const injectedProvider = (address: string, chainIdHex: string) => `
     if (msg.error) p.reject(Object.assign(new Error(msg.error.message || "Request failed"), { code: msg.error.code || -32000 })); else p.resolve(msg.result);
   };
   try { Object.defineProperty(window, "ethereum", { value: provider, configurable: true, writable: true }); } catch (e) { window.ethereum = provider; }
-  var info = { uuid: "7b1c2d3e-4f50-4a6b-8c7d-9e0f1a2b3c4d", name: "Arc Kit Wallet", icon: "https://arc-tools.vercel.app/icon-512.png", rdns: "locker.usearckit.wallet" };
+  var info = { uuid: "7b1c2d3e-4f50-4a6b-8c7d-9e0f1a2b3c4d", name: "Arc Kit Wallet", icon: "https://www.usearckit.online/icon-512.png", rdns: "locker.usearckit.wallet" };
   function announce() { window.dispatchEvent(new CustomEvent("eip6963:announceProvider", { detail: Object.freeze({ info: info, provider: provider }) })); }
   window.addEventListener("eip6963:requestProvider", announce); announce();
   setTimeout(function () { emit("connect", { chainId: provider.chainId }); emit("accountsChanged", provider._accounts.slice()); }, 0);

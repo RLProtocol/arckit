@@ -11,10 +11,10 @@ export const arc = defineChain({
   contracts: { multicall3: { address: "0xcA11bde05977b3631167028862bE2a173976CA11", blockCreated: 0 } },
 });
 
-// The app talks to arc-tools.vercel.app, not usearckit.locker: some carrier and VPN DNS servers cannot resolve the
-// .locker ending (seen on a real Android device), and the Vercel domain serves the same site and APIs.
-export const SITE = "https://arc-tools.vercel.app";
-export const SITE_PUBLIC = "https://www.usearckit.locker";
+// usearckit.online: a common ending every DNS resolves (some carrier/VPN DNS cannot resolve .locker). The www host is
+// used directly because the bare domain answers with a redirect, which would turn RPC POSTs into extra round trips.
+export const SITE = "https://www.usearckit.online";
+export const SITE_LABEL = "usearckit.online";
 export const EXPLORER = deployments.explorer;
 export const explorerTx = (h: string) => `${EXPLORER}/tx/${h}`;
 export const explorerAddress = (a: string) => `${EXPLORER}/address/${a}`;

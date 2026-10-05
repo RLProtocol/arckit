@@ -44,7 +44,7 @@ export default function Settings() {
       </Card>
       <Card>
         <Eyebrow color={colors.accent}>About</Eyebrow>
-        <Item label="Arc Kit website" sub="usearckit.locker" onPress={() => Linking.openURL(SITE)} />
+        <Item label="Arc Kit website" sub="usearckit.online" onPress={() => Linking.openURL(SITE)} />
         <Item label="Documentation" sub="How every tool works" onPress={() => Linking.openURL(`${SITE}/docs`)} />
         <Item label="Source code" sub="github.com/RLProtocol/arckit" onPress={() => Linking.openURL("https://github.com/RLProtocol/arckit")} />
         <P small style={{ marginTop: 12 }}>Arc Kit Wallet 1.0 · Arc chain 5042 · keys never leave this device.</P>

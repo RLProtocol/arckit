@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
   const address = String(url.searchParams.get("address") || "").toLowerCase();
   if (!/^0x[0-9a-f]{40}$/.test(address)) { res.statusCode = 400; return res.end(JSON.stringify({ error: "Bad address." })); }
   try {
-    const cacheKey = `activity:${address}`;
+    const cacheKey = `activity:v2:${address}`;
     let items = kv.configured() ? await kv.getJson(cacheKey).catch(() => null) : null;
     if (!Array.isArray(items)) {
       const [txs, erc20] = await Promise.all([
@@ -54,11 +54,25 @@ module.exports = async (req, res) => {
         const fn = t.functionName ? t.functionName.replace(/\(.*$/, "") : t.input && t.input !== "0x" ? "contract call" : "transfer";
         byHash.set(t.hash, { hash: t.hash, ts: Number(t.timeStamp), from: t.from, to: t.to, value: String(t.value), fn: KNOWN[to] ? `${KNOWN[to]} · ${fn}` : fn, ok: t.isError === "0" && t.txreceipt_status !== "0" });
       }
+      // Arc logs each native USDC move twice: as the 6-decimal USDC token (0x3600…) and from the system address
+      // 0xffff…fffe with no symbol and 0 decimals but an 18-decimal amount. Drop the system copy, and per transaction
+      // show the transfer that involves this wallet, preferring a non-USDC token (the thing actually traded).
+      const SYSTEM = "0xfffffffffffffffffffffffffffffffffffffffe";
+      const pick = new Map();
       for (const t of erc20) {
+        if (String(t.contractAddress).toLowerCase() === SYSTEM) continue;
+        if (String(t.from).toLowerCase() !== address && String(t.to).toLowerCase() !== address) continue;
+        const cur = pick.get(t.hash);
+        const isUsdc = String(t.tokenSymbol).toUpperCase() === "USDC";
+        if (!cur || (cur.isUsdc && !isUsdc)) pick.set(t.hash, { t, isUsdc });
+      }
+      for (const { t } of pick.values()) {
         const prev = byHash.get(t.hash);
-        const token = { symbol: t.tokenSymbol, decimals: Number(t.tokenDecimal), address: t.contractAddress };
-        if (prev) { if (!prev.token) { prev.token = token; prev.tokenValue = String(t.value); prev.tokenFrom = t.from; prev.tokenTo = t.to; } }
-        else byHash.set(t.hash, { hash: t.hash, ts: Number(t.timeStamp), from: t.from, to: t.to, value: "0", token, tokenValue: String(t.value), tokenFrom: t.from, tokenTo: t.to, fn: "token transfer", ok: true });
+        const decimals = Number(t.tokenDecimal);
+        const token = { symbol: t.tokenSymbol || "TOKEN", decimals: Number.isFinite(decimals) ? decimals : 18, address: t.contractAddress };
+        const patch = { token, tokenValue: String(t.value), tokenFrom: t.from, tokenTo: t.to };
+        if (prev) Object.assign(prev, patch);
+        else byHash.set(t.hash, { hash: t.hash, ts: Number(t.timeStamp), from: t.from, to: t.to, value: "0", ...patch, fn: "token transfer", ok: true });
       }
       items = [...byHash.values()].sort((a, b) => b.ts - a.ts).slice(0, 60).map((it) => ({
         hash: it.hash, ts: it.ts, from: it.tokenFrom || it.from, to: it.tokenTo || it.to,

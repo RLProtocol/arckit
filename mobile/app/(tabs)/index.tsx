@@ -10,6 +10,7 @@ import { useActivity } from "@/hooks/useArcKit";
 import { useTokenImages } from "@/hooks/useTokenImages";
 import { Card, Eyebrow, Mono, P, Row, Skeleton } from "@/components/ui";
 import { Brand, TokenLogo } from "@/components/TokenLogo";
+import { ActivityRow } from "@/components/ActivityRow";
 import { fmtPrice, fmtTok, fmtUsd, shortAddr, timeAgo } from "@/lib/format";
 import { colors, fonts, radius } from "@/theme";
 
@@ -72,15 +73,7 @@ export default function Wallet() {
             <Row between><Eyebrow color={colors.accent}>Recent activity</Eyebrow><Pressable onPress={() => router.push("/activity")}><Text style={styles.link}>See all</Text></Pressable></Row>
             {act.isLoading && <View style={{ paddingVertical: 12 }}><Skeleton /></View>}
             {act.data?.length === 0 && <P small style={{ marginTop: 10 }}>No transactions yet. Receive some USDC to get started.</P>}
-            {act.data?.slice(0, 4).map((a) => {
-              const out = a.from.toLowerCase() === address?.toLowerCase();
-              return (
-                <Row key={a.hash} between style={{ paddingVertical: 11, borderTopWidth: 1, borderTopColor: colors.line }}>
-                  <Row><View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: out ? colors.coralSoft : colors.aquaSoft, alignItems: "center", justifyContent: "center" }}><Ionicons name={out ? "arrow-up" : "arrow-down"} size={16} color={out ? colors.coral : colors.aqua} /></View><View><Text style={{ fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.text }}>{a.fn}</Text><Mono size={11} style={{ color: colors.faint }}>{out ? `to ${shortAddr(a.to)}` : `from ${shortAddr(a.from)}`} · {timeAgo(a.ts)}</Mono></View></Row>
-                  <Text style={{ fontFamily: fonts.mono, fontSize: 13, color: out ? colors.text : colors.aqua }}>{a.value > 0n ? `${out ? "−" : "+"}${a.token ? fmtTok(a.value, a.token.decimals, 2) + " " + a.token.symbol : fmtUsd(a.value, 4) + " USDC"}` : ""}</Text>
-                </Row>
-              );
-            })}
+            {act.data?.slice(0, 4).map((a) => <ActivityRow key={a.hash} a={a} me={address} />)}
           </Card>
           <Row style={{ marginTop: 16, gap: 8 }}><View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.aqua }} /><Mono size={11} style={{ color: colors.faint }}>Arc · chain 5042 · gas paid in USDC</Mono></Row>
         </ScrollView>

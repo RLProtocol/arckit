@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, fonts } from "../theme";
 
 /** Six dots and a numeric keypad; `onChange` receives the new value on every tap. */
@@ -11,9 +12,10 @@ export function PinPad({ value, onChange, disabled, extra }: { value: string; on
     if (k === "⌫") return onChange(value.slice(0, -1));
     if (value.length < 6) onChange(value + k);
   };
+  const insets = useSafeAreaInsets();
   const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", extra ? "•" : "", "0", "⌫"];
   return (
-    <View style={{ flex: 1, justifyContent: "flex-end", paddingBottom: 30 }}>
+    <View style={{ flex: 1, justifyContent: "flex-end", paddingBottom: 30 + insets.bottom }}>
       <View style={{ flexDirection: "row", justifyContent: "center", gap: 14, marginBottom: 34 }}>
         {[0, 1, 2, 3, 4, 5].map((i) => <View key={i} style={{ width: 14, height: 14, borderRadius: 7, borderWidth: 1.5, borderColor: colors.accentLine, backgroundColor: i < value.length ? colors.accent : "transparent" }} />)}
       </View>

@@ -81,7 +81,7 @@ export default function DApp() {
       <SafeAreaView edges={["top"]} style={{ backgroundColor: colors.navy800 }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.line }}>
           <Pressable onPress={() => router.back()} hitSlop={10}><Ionicons name="chevron-down" size={24} color={colors.text} /></Pressable>
-          <View style={{ flex: 1 }}><Text style={{ fontFamily: fonts.display, fontSize: 16, color: colors.text }}>{title}</Text><Mono size={11} style={{ color: colors.faint }}>usearckit.locker{path} · {shortAddr(address)}</Mono></View>
+          <View style={{ flex: 1 }}><Text style={{ fontFamily: fonts.display, fontSize: 16, color: colors.text }}>{title}</Text><Mono size={11} style={{ color: colors.faint }}>usearckit.online{path} · {shortAddr(address)}</Mono></View>
           {loading ? <ActivityIndicator color={colors.accent} /> : <Pressable onPress={() => web.current?.reload()} hitSlop={10}><Ionicons name="refresh" size={20} color={colors.dim} /></Pressable>}
         </View>
       </SafeAreaView>

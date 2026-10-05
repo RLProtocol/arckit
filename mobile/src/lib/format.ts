@@ -7,6 +7,17 @@ export const fmtUsd = (wei: bigint, digits = 2) => {
   return n.toLocaleString("en-US", { maximumFractionDigits: n !== 0 && n < 0.01 ? 6 : digits });
 };
 export const fmtTok = (units: bigint, dec: number, digits = 4) => Number(formatUnits(units, dec)).toLocaleString("en-US", { maximumFractionDigits: digits });
+
+/** Short amounts for tight rows: 1.2K, 3.4M, 5.6B; small values keep their precision. */
+export function fmtCompact(units: bigint, dec: number): string {
+  const n = Number(formatUnits(units, dec));
+  if (n === 0) return "0";
+  if (Math.abs(n) < 0.0001) return "<0.0001";
+  if (Math.abs(n) < 1000) return n.toLocaleString("en-US", { maximumFractionDigits: n < 1 ? 4 : 2 });
+  const abs = Math.abs(n);
+  const [div, suffix] = abs >= 1e12 ? [1e12, "T"] : abs >= 1e9 ? [1e9, "B"] : abs >= 1e6 ? [1e6, "M"] : [1e3, "K"];
+  return `${(n / div).toFixed(2).replace(/.?0+$/, "")}${suffix}`;
+}
 export const fmtPrice = (wei: bigint) => {
   const n = Number(formatEther(wei));
   return n === 0 ? "—" : n >= 1 ? n.toFixed(2) : n >= 0.01 ? n.toFixed(4) : n.toPrecision(3);

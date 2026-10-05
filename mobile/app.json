@@ -8,25 +8,58 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#050d1a",
-    "splash": { "image": "./assets/splash-icon.png", "resizeMode": "contain", "backgroundColor": "#050d1a" },
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#050d1a"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "locker.usearckit.wallet",
-      "infoPlist": { "NSFaceIDUsageDescription": "Unlock your Arc Kit wallet with Face ID." }
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Unlock your Arc Kit wallet with Face ID."
+      }
     },
     "android": {
       "package": "locker.usearckit.wallet",
-      "adaptiveIcon": { "backgroundColor": "#050d1a", "foregroundImage": "./assets/android-icon-foreground.png", "monochromeImage": "./assets/android-icon-monochrome.png" },
-      "permissions": ["USE_BIOMETRIC", "USE_FINGERPRINT"],
+      "adaptiveIcon": {
+        "backgroundColor": "#050d1a",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ],
       "predictiveBackGestureEnabled": false
     },
-    "web": { "favicon": "./assets/favicon.png", "bundler": "metro", "output": "single" },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single"
+    },
     "plugins": [
       "expo-router",
       "expo-secure-store",
       "expo-font",
-      ["expo-local-authentication", { "faceIDPermission": "Unlock your Arc Kit wallet with Face ID." }]
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Unlock your Arc Kit wallet with Face ID."
+        }
+      ]
     ],
-    "experiments": { "typedRoutes": false }
+    "experiments": {
+      "typedRoutes": false
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3cb9238e-48b9-45af-8cff-eab3162e6b59"
+      }
+    },
+    "owner": "aayush2306"
   }
 }

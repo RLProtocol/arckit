@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { Children, type ReactNode } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -111,7 +111,8 @@ export function Notice({ children, tone = "accent" }: { children: ReactNode; ton
   const [bg, line, fg] = map[tone];
   return (
     <View style={{ backgroundColor: bg, borderColor: line, borderWidth: 1, borderRadius: radius.sm, padding: 12, marginTop: 12 }}>
-      {typeof children === "string" ? <Text style={{ fontFamily: fonts.body, fontSize: 13, lineHeight: 18, color: fg }}>{children}</Text> : children}
+      {/* any bare string in the children (alone or mixed with <Text> spans) must sit inside a <Text> on native */}
+      {Children.toArray(children).some((c) => typeof c === "string" || typeof c === "number") ? <Text style={{ fontFamily: fonts.body, fontSize: 13, lineHeight: 18, color: fg }}>{children}</Text> : children}
     </View>
   );
 }

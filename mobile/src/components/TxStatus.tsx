@@ -1,4 +1,5 @@
-import { Linking, Pressable, Text } from "react-native";
+import { Linking, Pressable } from "react-native";
+import { Text } from "../i18n/Text";
 import { explorerTx } from "../chain";
 import { colors, fonts } from "../theme";
 import type { TxState } from "../wallet/useTx";

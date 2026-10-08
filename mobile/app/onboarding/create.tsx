@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { Text } from "@/i18n/Text";
 import { useRouter } from "expo-router";
 import * as Clipboard from "expo-clipboard";
 import { Button, Card, Eyebrow, H1, Notice, P, Screen } from "@/components/ui";
@@ -43,7 +44,7 @@ export default function Create() {
   if (step === "confirm") {
     return (
       <Screen footer={<View style={{ padding: 20, paddingBottom: 34 }}><Button title="Continue" disabled={!quizOk} onPress={() => setStep("pin")} /><Button title="Back to the phrase" kind="ghost" onPress={() => { setPicked([]); setStep("show"); }} /></View>}>
-        <View style={{ marginTop: 30 }}><Eyebrow>Step 2 of 3</Eyebrow><H1>Confirm your phrase</H1><P style={{ marginTop: 8 }}>Tap word #{quiz[0] + 1}, then #{quiz[1] + 1}, then #{quiz[2] + 1}.</P></View>
+        <View style={{ marginTop: 30 }}><Eyebrow>Step 2 of 3</Eyebrow><H1>Confirm your phrase</H1><P style={{ marginTop: 8 }}>{`Tap word #${quiz[0] + 1}, then #${quiz[1] + 1}, then #${quiz[2] + 1}.`}</P></View>
         <Card>
           <View style={{ flexDirection: "row", gap: 8, minHeight: 44 }}>
             {quiz.map((q, i) => <View key={q} style={{ flex: 1, borderWidth: 1, borderColor: picked[i] ? (picked[i] === words[q] ? colors.aqua : colors.coral) : colors.lineStrong, borderRadius: radius.sm, padding: 10, alignItems: "center" }}><Text style={{ fontFamily: fonts.mono, fontSize: 11, color: colors.faint }}>#{q + 1}</Text><Text style={{ fontFamily: fonts.bodyMedium, color: colors.text, marginTop: 2 }}>{picked[i] ?? " "}</Text></View>)}

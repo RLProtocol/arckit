@@ -3,7 +3,8 @@ const { getDefaultConfig } = require("expo/metro-config");
 const path = require("path");
 
 const config = getDefaultConfig(__dirname);
-config.watchFolders = [path.resolve(__dirname, "..", "deployments")];
+// the shared deployments file and the website's translation dictionaries live one level up in the repo
+config.watchFolders = [path.resolve(__dirname, "..", "deployments"), path.resolve(__dirname, "..", "frontend", "src", "i18n")];
 
 // @noble/hashes maps its crypto import to ./crypto.js through the "browser" field, which its "exports" map does not
 // list, so Metro warns and falls back to the file. Resolve it to that file directly: same module, no warning.

@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { Text } from "../i18n/Text";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

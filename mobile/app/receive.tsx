@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Pressable, Share, Text, View } from "react-native";
+import { Pressable, Share, View } from "react-native";
+import { Text } from "@/i18n/Text";
 import { useRouter } from "expo-router";
 import * as Clipboard from "expo-clipboard";
 import QRCode from "react-native-qrcode-svg";

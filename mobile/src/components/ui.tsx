@@ -1,5 +1,7 @@
 import { Children, type ReactNode } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle } from "react-native";
+import { Text } from "../i18n/Text";
+import { tr, useLang } from "../i18n";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, fonts, radius } from "../theme";
@@ -56,11 +58,12 @@ export function Button({ title, onPress, kind = "primary", disabled, loading, st
 }
 
 export function Field({ label, hint, error, right, ...input }: TextInputProps & { label?: string; hint?: ReactNode; error?: string; right?: ReactNode }) {
+  useLang();
   return (
     <View style={{ marginTop: 14 }}>
       {label ? <Text style={styles.label}>{label}</Text> : null}
       <View style={[styles.inputWrap, error ? { borderColor: colors.coral } : null]}>
-        <TextInput placeholderTextColor={colors.faint} autoCapitalize="none" autoCorrect={false} {...input} style={[styles.input, input.style]} />
+        <TextInput placeholderTextColor={colors.faint} autoCapitalize="none" autoCorrect={false} {...input} placeholder={input.placeholder ? tr(input.placeholder) : undefined} style={[styles.input, input.style]} />
         {right}
       </View>
       {error ? <Text style={styles.error}>{error}</Text> : hint ? <Text style={styles.hint}>{hint}</Text> : null}

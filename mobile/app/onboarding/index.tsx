@@ -1,4 +1,5 @@
-import { Image, Text, View } from "react-native";
+import { Image, View } from "react-native";
+import { Text } from "@/i18n/Text";
 const USDC = require("../../assets/usdc.png");
 import { useRouter } from "expo-router";
 import { Button, Eyebrow, H1, P, Screen } from "@/components/ui";

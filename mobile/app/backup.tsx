@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
+import { Text } from "@/i18n/Text";
 import { useRouter } from "expo-router";
 import { Button, Card, Eyebrow, H1, Notice, P, Screen } from "@/components/ui";
 import { PinPad } from "@/components/PinPad";

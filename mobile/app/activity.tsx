@@ -1,4 +1,5 @@
-import { Linking, Pressable, Text, View } from "react-native";
+import { Linking, Pressable, View } from "react-native";
+import { Text } from "@/i18n/Text";
 import { useRouter } from "expo-router";
 import { useWallet } from "@/wallet/provider";
 import { useActivity } from "@/hooks/useArcKit";

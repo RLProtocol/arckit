@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
-import { ActivityIndicator, Modal, Platform, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Modal, Platform, Pressable, View } from "react-native";
+import { Text } from "@/i18n/Text";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView, type WebViewMessageEvent } from "react-native-webview";

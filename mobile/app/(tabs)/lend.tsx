@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { Text } from "@/i18n/Text";
 import { parseEther } from "viem";
 import { useWallet } from "@/wallet/provider";
 import { useTx } from "@/wallet/useTx";

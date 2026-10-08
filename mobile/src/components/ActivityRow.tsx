@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { Text } from "../i18n/Text";
 import { Ionicons } from "@expo/vector-icons";
 import type { Activity } from "../hooks/useArcKit";
 import { fmtCompact, shortAddr, timeAgo } from "../lib/format";

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { Linking, Platform, Pressable, Switch, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { Linking, Platform, Pressable, Switch, View } from "react-native";
+import { Text } from "@/i18n/Text";
+import { Text as RNText } from "react-native";
 import { useRouter } from "expo-router";
 import * as LocalAuthentication from "expo-local-authentication";
 import * as Clipboard from "expo-clipboard";
@@ -8,6 +11,7 @@ import { setBiometricsEnabled } from "@/wallet/store";
 import { explorerAddress, SITE } from "@/chain";
 import { Card, Eyebrow, H1, Mono, Notice, P, Row, Screen } from "@/components/ui";
 import { Brand } from "@/components/TokenLogo";
+import { LANGS, useLang } from "@/i18n";
 import { shortAddr } from "@/lib/format";
 import { colors, fonts } from "@/theme";
 
@@ -16,6 +20,7 @@ export default function Settings() {
   const router = useRouter();
   const [bioAvailable, setBioAvailable] = useState(false);
   const [confirmErase, setConfirmErase] = useState(false);
+  const { lang, setLang } = useLang();
   useEffect(() => { if (Platform.OS !== "web") void LocalAuthentication.hasHardwareAsync().then(async (h) => setBioAvailable(h && (await LocalAuthentication.isEnrolledAsync()))); }, []);
 
   const toggleBio = async (on: boolean) => {
@@ -34,6 +39,23 @@ export default function Settings() {
           <Link label="Copy" onPress={() => address && void Clipboard.setStringAsync(address)} />
           <Link label="View on Etherscan" onPress={() => address && Linking.openURL(explorerAddress(address))} />
         </Row>
+      </Card>
+      <Card>
+        <Eyebrow color={colors.accent}>Language</Eyebrow>
+        <View style={{ marginTop: 10, gap: 8 }}>
+          {LANGS.map((l) => {
+            const on = l.code === lang;
+            return (
+              <Pressable key={l.code} onPress={() => setLang(l.code)} style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: on ? colors.accentLine : colors.line, backgroundColor: on ? colors.accentSoft : pressed ? colors.navy600 : "transparent" })}>
+                <View>
+                  <RNText style={{ fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.text }}>{l.native}</RNText>
+                  {l.code !== "en" ? <RNText style={{ fontFamily: fonts.body, fontSize: 12, color: colors.faint }}>{l.label}</RNText> : null}
+                </View>
+                {on ? <Ionicons name="checkmark-circle" size={20} color={colors.accent} /> : <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, borderColor: colors.lineStrong }} />}
+              </Pressable>
+            );
+          })}
+        </View>
       </Card>
       <Card>
         <Eyebrow color={colors.accent}>Security</Eyebrow>

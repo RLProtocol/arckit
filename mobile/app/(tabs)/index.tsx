@@ -1,4 +1,5 @@
-import { Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { Text } from "@/i18n/Text";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
@@ -30,7 +31,7 @@ export default function Wallet() {
       <LinearGradient colors={[colors.navy800, colors.navy700, "#0a2a3a"]} locations={[0, 0.55, 1]} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={[StyleSheet.absoluteFill, { pointerEvents: "none" }]} />
       <SafeAreaView style={{ flex: 1, zIndex: 1 }} edges={["top"]}>
         <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} refreshControl={<RefreshControl refreshing={bal.isRefetching} onRefresh={() => { void bal.refetch(); void act.refetch(); }} tintColor={colors.accent} />} showsVerticalScrollIndicator={false}>
-          <Brand subtitle="WALLET · ARC" right={<Row style={{ gap: 8 }}><Pressable onPress={() => router.push("/activity")} hitSlop={8} style={styles.iconBtn}><Ionicons name="time-outline" size={19} color={colors.dim} /></Pressable><Pressable onPress={() => router.push("/settings")} hitSlop={8} style={styles.iconBtn}><Ionicons name="settings-outline" size={19} color={colors.dim} /></Pressable></Row>} />
+          <Brand subtitle="WALLET · ARC" right={<Row style={{ gap: 8 }}><Pressable onPress={() => router.push("/activity")} hitSlop={8} style={styles.iconBtn} aria-label="Activity" accessibilityRole="button"><Ionicons name="time-outline" size={19} color={colors.dim} /></Pressable><Pressable onPress={() => router.push("/settings")} hitSlop={8} style={styles.iconBtn} aria-label="Settings" accessibilityRole="button"><Ionicons name="settings-outline" size={19} color={colors.dim} /></Pressable></Row>} />
 
           {/* hero balance card */}
           <LinearGradient colors={["#123a63", "#0b2240", "#0e3a4a"]} locations={[0, 0.55, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
@@ -94,7 +95,7 @@ function Action({ icon, label, onPress, primary }: { icon: keyof typeof Ionicons
 function TokenRow({ logo, symbol, name, amount, value, price, onPress }: { logo: React.ReactNode; symbol: string; name: string; amount?: string; value?: string; price?: string; onPress?: () => void }) {
   return (
     <Pressable onPress={onPress} disabled={!onPress} style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 12, borderTopWidth: 1, borderTopColor: colors.line, marginTop: 2 }}>
-      <Row>{logo}<View><Text style={{ fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.text }}>{symbol}</Text><Text style={{ fontFamily: fonts.body, fontSize: 12, color: colors.faint }}>{price ? `$${price} · ${name}` : name}</Text></View></Row>
+      <Row>{logo}<View><Text style={{ fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.text }}>{symbol}</Text><Text style={{ fontFamily: fonts.body, fontSize: 12, color: colors.faint }}>{price ? `${price} · ` : ""}{name}</Text></View></Row>
       <View style={{ alignItems: "flex-end" }}>{amount === undefined ? <Skeleton width={70} /> : <Text style={{ fontFamily: fonts.mono, fontSize: 14, color: colors.text }}>{amount}</Text>}{value !== undefined && <Text style={{ fontFamily: fonts.body, fontSize: 12, color: colors.faint }}>{value} USDC</Text>}</View>
     </Pressable>
   );

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Modal, Pressable, ScrollView, TextInput, View } from "react-native";
+import { Text } from "@/i18n/Text";
+import { tr } from "@/i18n";
 import { useLocalSearchParams } from "expo-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
@@ -117,9 +119,9 @@ export default function Trade() {
         {/* amount */}
         <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.dim, marginTop: 16, marginBottom: 8 }}>{side === "buy" ? "You pay" : "You sell"}</Text>
         <View style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: insufficient ? colors.coral : colors.lineStrong, borderRadius: radius.md, backgroundColor: colors.input, paddingRight: 12 }}>
-          <TextInput value={amt} onChangeText={setAmt} placeholder="0.00" placeholderTextColor={colors.faint} keyboardType="decimal-pad" style={{ flex: 1, paddingHorizontal: 14, paddingVertical: 14, fontFamily: fonts.mono, fontSize: 22, color: colors.text }} />
+          <TextInput value={amt} onChangeText={setAmt} placeholder="0.00" placeholderTextColor={colors.faint} keyboardType="decimal-pad" style={{ flex: 1, minWidth: 0, paddingHorizontal: 14, paddingVertical: 14, fontFamily: fonts.mono, fontSize: 22, color: colors.text }} />
           <TokenLogo symbol={side === "buy" ? "USDC" : token.symbol} uri={side === "buy" ? undefined : token.image ?? images[token.address.toLowerCase()]} size={24} />
-          <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.text, marginLeft: 6 }}>{side === "buy" ? "USDC" : token.symbol}</Text>
+          <Text numberOfLines={1} style={{ fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.text, marginLeft: 6, flexShrink: 0, maxWidth: 110 }}>{side === "buy" ? "USDC" : token.symbol}</Text>
         </View>
         <Row between style={{ marginTop: 8 }}>
           <Text style={{ fontFamily: fonts.body, fontSize: 12, color: insufficient ? colors.coral : colors.faint }}>{insufficient ? "Not enough balance (keep a little USDC for gas)." : `Balance: ${side === "buy" ? `${fmtUsd(usdc)} USDC` : `${fmtCompact(held, decimals)} ${token.symbol}`}`}</Text>
@@ -176,7 +178,7 @@ function TokenPicker({ visible, onClose, onPick }: { visible: boolean; onClose: 
         <Row between><Text style={{ fontFamily: fonts.display, fontSize: 20, color: colors.text }}>Choose a token</Text><Pressable onPress={onClose} hitSlop={10}><Ionicons name="close" size={22} color={colors.dim} /></Pressable></Row>
         <View style={{ flexDirection: "row", alignItems: "center", marginTop: 14, borderWidth: 1, borderColor: colors.lineStrong, borderRadius: radius.md, backgroundColor: colors.input, paddingHorizontal: 12 }}>
           <Ionicons name="search" size={16} color={colors.faint} />
-          <TextInput value={q} onChangeText={setQ} placeholder="Name, symbol or 0x address" placeholderTextColor={colors.faint} autoCapitalize="none" autoCorrect={false} style={{ flex: 1, paddingHorizontal: 10, paddingVertical: 12, fontFamily: fonts.body, fontSize: 15, color: colors.text }} />
+          <TextInput value={q} onChangeText={setQ} placeholder={tr("Name, symbol or 0x address")} placeholderTextColor={colors.faint} autoCapitalize="none" autoCorrect={false} style={{ flex: 1, paddingHorizontal: 10, paddingVertical: 12, fontFamily: fonts.body, fontSize: 15, color: colors.text }} />
         </View>
         <ScrollView style={{ marginTop: 10 }} keyboardShouldPersistTaps="handled">
           {(search.isFetching || pasted.isFetching) && <Row style={{ padding: 12 }}><ActivityIndicator color={colors.accent} /><P small>Searching Arc…</P></Row>}

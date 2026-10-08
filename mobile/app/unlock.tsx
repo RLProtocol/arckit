@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { Image, Pressable, View } from "react-native";
+import { Text } from "@/i18n/Text";
 import { useRouter } from "expo-router";
 import { Eyebrow, H1, Notice, P, Screen } from "@/components/ui";
 import { PinPad } from "@/components/PinPad";
@@ -31,7 +32,7 @@ export default function Unlock() {
         <Image source={require("../assets/icon.png")} style={{ width: 64, height: 64, borderRadius: 18, borderWidth: 1, borderColor: colors.lineStrong }} />
         <Eyebrow>{shortAddr(address, 6)}</Eyebrow>
         <H1 style={{ textAlign: "center" }}>Enter your PIN</H1>
-        {fails > 0 && <Notice tone="coral">Wrong PIN{fails > 2 ? `, ${fails} attempts` : ""}.</Notice>}
+        {fails > 0 && <Notice tone="coral">{fails > 2 ? `Wrong PIN, ${fails} attempts` : "Wrong PIN."}</Notice>}
       </View>
       <PinPad value={pin} onChange={onChange} extra={biometrics ? { label: "Face ID", onPress: () => void unlockWithBiometrics().then((ok) => ok && router.replace("/(tabs)")) } : undefined} />
       <Pressable onPress={() => setConfirmReset(!confirmReset)} style={{ alignSelf: "center", marginBottom: 14 }}><Text style={{ fontFamily: fonts.body, fontSize: 12, color: colors.faint }}>Forgot your PIN?</Text></Pressable>

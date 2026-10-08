@@ -7,6 +7,7 @@ import { useFonts, Outfit_300Light, Outfit_500Medium, Outfit_600SemiBold } from 
 import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from "@expo-google-fonts/dm-sans";
 import { IBMPlexMono_400Regular, IBMPlexMono_500Medium } from "@expo-google-fonts/ibm-plex-mono";
 import { WalletProvider, useWallet } from "@/wallet/provider";
+import { LangProvider } from "@/i18n";
 import { colors } from "@/theme";
 
 const qc = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 5_000 } } });
@@ -31,6 +32,7 @@ export default function RootLayout() {
   if (!loaded) return <View style={{ flex: 1, backgroundColor: colors.navy900, alignItems: "center", justifyContent: "center" }}><ActivityIndicator color={colors.accent} /></View>;
   return (
     <QueryClientProvider client={qc}>
+      <LangProvider>
       <WalletProvider>
         <Gate />
         <StatusBar style="light" />
@@ -46,6 +48,7 @@ export default function RootLayout() {
           <Stack.Screen name="backup" />
         </Stack>
       </WalletProvider>
+      </LangProvider>
     </QueryClientProvider>
   );
 }

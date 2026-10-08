@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { Text } from "@/i18n/Text";
 import { useRouter } from "expo-router";
 import { isAddress, type Address } from "viem";
 import { useQueryClient } from "@tanstack/react-query";

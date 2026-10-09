@@ -1,6 +1,16 @@
 // Sentences the app builds with numbers or token symbols filled in. Each renders as one string, so an exact
 // dictionary lookup cannot match it; these regexes do. Captured parts ($1, $2…) are passed through as-is.
 export const PATTERNS_ZH: [RegExp, string][] = [
+  // Launch airdrop
+  [/^(\d+) wallets · (\d+) transactions$/, "$1 个钱包 · $2 笔交易"],
+  [/^(\d+) wallets$/, "$1 个钱包"],
+  [/^Airdrop to (\d+) wallets$/, "空投给 $1 个钱包"],
+  [/^Sending batch (\d+) of (\d+)$/, "正在发送第 $1 批，共 $2 批"],
+  [/^Sent (.+) to (\d+) wallets\.$/, "已将 $1 发送给 $2 个钱包。"],
+  [/^Batch (\d+) failed on chain\. Earlier batches were sent\.$/, "第 $1 批在链上失败。之前的批次已发送。"],
+  [/^Line (.+): needs an address and an amount\.$/, "第 $1 行：需要地址和数量。"],
+  [/^Line (.+): needs an address\.$/, "第 $1 行：需要地址。"],
+  [/^(.+) per wallet$/, "每个钱包的 $1"],
   // Launch tab
   [/^My launches · (\d+)$/, "我的发射 · $1"],
   [/^(.+) is launched$/, "$1 已发射"],
@@ -65,6 +75,16 @@ export const PATTERNS_ZH: [RegExp, string][] = [
 ];
 
 export const PATTERNS_ID: [RegExp, string][] = [
+  // Launch airdrop
+  [/^(\d+) wallets · (\d+) transactions$/, "$1 dompet · $2 transaksi"],
+  [/^(\d+) wallets$/, "$1 dompet"],
+  [/^Airdrop to (\d+) wallets$/, "Airdrop ke $1 dompet"],
+  [/^Sending batch (\d+) of (\d+)$/, "Mengirim batch $1 dari $2"],
+  [/^Sent (.+) to (\d+) wallets\.$/, "Mengirim $1 ke $2 dompet."],
+  [/^Batch (\d+) failed on chain\. Earlier batches were sent\.$/, "Batch $1 gagal di chain. Batch sebelumnya sudah terkirim."],
+  [/^Line (.+): needs an address and an amount\.$/, "Baris $1: perlu alamat dan jumlah."],
+  [/^Line (.+): needs an address\.$/, "Baris $1: perlu alamat."],
+  [/^(.+) per wallet$/, "$1 per dompet"],
   // Launch tab
   [/^My launches · (\d+)$/, "Peluncuran saya · $1"],
   [/^(.+) is launched$/, "$1 telah diluncurkan"],

@@ -357,5 +357,15 @@
   "Could not prepare the launch. Try again.": "Tidak bisa menyiapkan peluncuran. Coba lagi.",
   "The launch address failed its check. Try again.": "Alamat peluncuran gagal diperiksa. Coba lagi.",
   "The USDC approval failed on chain.": "Persetujuan USDC gagal di chain.",
-  "Image is too large. Pick a smaller one.": "Gambar terlalu besar. Pilih yang lebih kecil."
+  "Image is too large. Pick a smaller one.": "Gambar terlalu besar. Pilih yang lebih kecil.",
+  "Same amount": "Jumlah sama",
+  "Amount per wallet": "Jumlah per dompet",
+  "Recipients": "Penerima",
+  "0x… one address per line": "0x… satu alamat per baris",
+  "0x…, 100 one per line": "0x…, 100 satu per baris",
+  "Paste": "Tempel",
+  "Any number of wallets, sent 250 per transaction.": "Berapa pun dompet, dikirim 250 per transaksi.",
+  "Enter an amount per wallet.": "Masukkan jumlah per dompet.",
+  "Fee": "Biaya",
+  "The approval failed on chain.": "Persetujuan gagal di chain."
 }

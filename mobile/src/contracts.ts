@@ -76,3 +76,13 @@ export const stakingAbi = parseAbi([
   "function createFee() view returns (uint256)",
   "function createPool(PoolConfig cfg, uint256 rewardAmount) payable returns (uint256 poolId)",
 ]);
+
+export const airdropAbi = parseAbi([
+  "function fee() view returns (uint256)",
+  "function airdropERC20(address token, address[] recipients, uint256[] amounts) payable returns (uint256 total)",
+  "function airdropERC20Same(address token, address[] recipients, uint256 amount) payable returns (uint256 total)",
+  "error TooMany(uint256 count, uint256 max)",
+  "error WrongFee(uint256 sent, uint256 required)",
+  "error LengthMismatch()",
+  "error EmptyList()",
+]);

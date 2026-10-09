@@ -357,5 +357,15 @@
   "Could not prepare the launch. Try again.": "无法准备发射。请重试。",
   "The launch address failed its check. Try again.": "发射地址校验失败。请重试。",
   "The USDC approval failed on chain.": "USDC 授权在链上失败。",
-  "Image is too large. Pick a smaller one.": "图片太大。请选择较小的图片。"
+  "Image is too large. Pick a smaller one.": "图片太大。请选择较小的图片。",
+  "Same amount": "相同数量",
+  "Amount per wallet": "每个钱包不同数量",
+  "Recipients": "接收者",
+  "0x… one address per line": "0x… 每行一个地址",
+  "0x…, 100 one per line": "0x…, 100 每行一个",
+  "Paste": "粘贴",
+  "Any number of wallets, sent 250 per transaction.": "钱包数量不限，每笔交易发送 250 个。",
+  "Enter an amount per wallet.": "请输入每个钱包的数量。",
+  "Fee": "手续费",
+  "The approval failed on chain.": "授权在链上失败。"
 }

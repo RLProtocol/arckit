@@ -25,6 +25,9 @@
     },
     "api/lend-guard.js": {
       "maxDuration": 60
+    },
+    "api/argus.js": {
+      "maxDuration": 60
     }
   },
   "rewrites": [

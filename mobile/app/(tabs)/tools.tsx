@@ -9,6 +9,7 @@ import { colors, fonts, radius } from "@/theme";
 type Tool = { key: string; name: string; text: string; icon: keyof typeof Ionicons.glyphMap; path?: string; tab?: string; tint: [string, string] };
 const T = { blue: ["rgba(143,179,255,0.22)", "#8fb3ff"], aqua: ["rgba(95,227,201,0.2)", "#5fe3c9"], gold: ["rgba(242,196,100,0.2)", "#f2c464"], coral: ["rgba(255,122,110,0.2)", "#ff7a6e"], violet: ["rgba(186,156,255,0.22)", "#ba9cff"] } as const;
 const TOOLS: Tool[] = [
+  { key: "launch", name: "Launch", text: "Launch a token on Argus, claim its fees.", icon: "rocket-outline", tab: "/launch", tint: [...T.aqua] },
   { key: "lock", name: "ArcLock", text: "Lock tokens or LP with a public certificate.", icon: "lock-closed-outline", path: "/lock/new", tint: [...T.blue] },
   { key: "vest", name: "Vesting", text: "Linear schedules with a cliff.", icon: "hourglass-outline", path: "/vest/new", tint: [...T.violet] },
   { key: "airdrop", name: "Airdrop", text: "Pay up to 500 wallets in one transaction.", icon: "gift-outline", path: "/airdrop", tint: [...T.gold] },
@@ -37,7 +38,7 @@ export default function Tools() {
           </Pressable>
         ))}
       </View>
-      <Notice>Lending and P2P run natively in the app. The other tools load usearckit.online inside the app with your wallet already connected; every transaction still asks for your confirmation.</Notice>
+      <Notice>Launch, Trade, P2P and Lending run natively in the app. The other tools load usearckit.online inside the app with your wallet already connected; every transaction still asks for your confirmation.</Notice>
     </Screen>
   );
 }

@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocalSearchParams } from "expo-router";
 import { Pressable, View } from "react-native";
 import { Text } from "@/i18n/Text";
 import { isAddress, zeroAddress, type Address, type Hex } from "viem";
@@ -19,7 +20,10 @@ import { useQuery } from "@tanstack/react-query";
 const spreadText = (bps: number) => (bps === 0 ? "at market" : bps < 0 ? `${-bps / 100}% below market` : `${bps / 100}% above market`);
 
 export default function P2P() {
-  const [tab, setTab] = useState<"buy" | "sell" | "mine">("buy");
+  // a launch screen opens this tab on Sell with its token filled in
+  const params = useLocalSearchParams<{ token?: string; tab?: string }>();
+  const [tab, setTab] = useState<"buy" | "sell" | "mine">(params.tab === "sell" ? "sell" : "buy");
+  useEffect(() => { if (params.tab === "sell") setTab("sell"); }, [params.tab, params.token]);
   const { address } = useWallet();
   const listings = useListings();
   const [sel, setSel] = useState<number | undefined>();
@@ -50,7 +54,7 @@ export default function P2P() {
         </Card>
       )}
       {tab === "buy" && selected && <BuyPanel l={selected} uri={images[selected.token.toLowerCase()]} onBack={() => setSel(undefined)} />}
-      {tab === "sell" && <SellForm onDone={() => setTab("mine")} />}
+      {tab === "sell" && <SellForm key={params.token ?? ""} initialToken={params.token && isAddress(params.token) ? params.token : ""} onDone={() => setTab("mine")} />}
       {tab === "mine" && <Mine mine={mine} images={images} />}
     </Screen>
   );
@@ -81,9 +85,9 @@ function BuyPanel({ l, uri, onBack }: { l: Listing; uri?: string; onBack: () => 
 
 const SPREADS: [number, string][] = [[-1000, "−10%"], [-500, "−5%"], [-200, "−2%"], [0, "Market"], [200, "+2%"], [500, "+5%"]];
 
-function SellForm({ onDone }: { onDone: () => void }) {
+function SellForm({ onDone, initialToken = "" }: { onDone: () => void; initialToken?: string }) {
   const { address, walletClient } = useWallet();
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(initialToken);
   const [amt, setAmt] = useState("");
   const [mode, setMode] = useState<"market" | "fixed">("market");
   const [spread, setSpread] = useState(0);

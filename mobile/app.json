@@ -49,6 +49,14 @@
         {
           "faceIDPermission": "Unlock your Arc Kit wallet with Face ID."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Arc Kit uses your photos to set a token image when you launch a token.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {

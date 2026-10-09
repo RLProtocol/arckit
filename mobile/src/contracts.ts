@@ -1,4 +1,5 @@
 import { parseAbi } from "viem";
+import { ARGUS_ERRORS } from "./argus";
 
 export const erc20Abi = parseAbi([
   "function symbol() view returns (string)",
@@ -62,4 +63,16 @@ export const ERROR_TEXT: Record<string, string> = {
   InsufficientLiquidity: "Not enough idle USDC in the market right now.",
   OracleNotReady: "The price average is still filling. Try again in a few minutes.",
   PriceDeviation: "Spot price is too far from the average; borrowing is paused for a moment.",
+  ...ARGUS_ERRORS,
 };
+
+export const lockerAbi = parseAbi([
+  "function lockFee() view returns (uint256)",
+  "function lock(address token, uint256 amount, uint256 unlockDate, address withdrawer) payable returns (uint256 lockId)",
+]);
+
+export const stakingAbi = parseAbi([
+  "struct PoolConfig { address stakeToken; address rewardToken; uint64 startTime; uint64 duration; uint16 penaltyBps; uint256 minStake; uint256 maxStakePerWallet; uint256 maxTotalStaked; string name; }",
+  "function createFee() view returns (uint256)",
+  "function createPool(PoolConfig cfg, uint256 rewardAmount) payable returns (uint256 poolId)",
+]);

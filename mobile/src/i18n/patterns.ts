@@ -1,6 +1,26 @@
 // Sentences the app builds with numbers or token symbols filled in. Each renders as one string, so an exact
 // dictionary lookup cannot match it; these regexes do. Captured parts ($1, $2…) are passed through as-is.
 export const PATTERNS_ZH: [RegExp, string][] = [
+  // Launch tab
+  [/^My launches · (\d+)$/, "我的发射 · $1"],
+  [/^(.+) is launched$/, "$1 已发射"],
+  [/^Argus keeps (.+)% of tax revenue\. Your split covers the rest\.$/, "Argus 保留税收的 $1%。其余部分按你的分配。"],
+  [/^Wallet: (.+) USDC · minimum (.+)$/, "钱包：$1 USDC · 最低 $2"],
+  [/^Min (.+)$/, "最低 $1"],
+  [/^≈ (.+)% of supply at the starting price$/, "≈ 按起始价格约占供应量的 $1%"],
+  [/^(.+)% buy · (.+)% sell$/, "买入 $1% · 卖出 $2%"],
+  [/^(.+) to claim$/, "可领取 $1"],
+  [/^(.+) USDC claimed so far$/, "已领取 $1 USDC"],
+  [/^Fees from this launch go to (.+)\. Anyone can trigger the payout; it always lands there\.$/, "此发射的费用支付给 $1。任何人都可以触发支付，资金始终到达该地址。"],
+  [/^This launch sends nothing to the creator: its tax goes to (.+)\.$/, "此发射不向创建者支付：税收流向 $1。"],
+  [/^From the \$(.+) start to Argus's \$(.+) milestone\.$/, "从 $$$1 起始到 Argus 的 $$$2 里程碑。"],
+  [/^(.+) to lock$/, "要锁定的 $1"],
+  [/^You hold (.+) · locking (.+)% of supply$/, "你持有 $1 · 锁定供应量的 $2%"],
+  [/^You hold (.+[^.])$/, "你持有 $1"],
+  [/^Holders stake (.+) and earn (.+)\. You deposit the rewards now; they stream out evenly over the pool's life\.$/, "持有者质押 $1 并赚取 $2。你现在存入奖励，在质押池期间均匀发放。"],
+  [/^(.+) rewards to deposit$/, "要存入的 $1 奖励"],
+  [/^(.+) a day$/, "每天 $1"],
+  [/^(\d+) days$/, "$1 天"],
   [/^(\d+)s ago$/, "$1 秒前"], [/^(\d+)m ago$/, "$1 分钟前"], [/^(\d+)h ago$/, "$1 小时前"], [/^(\d+)d ago$/, "$1 天前"],
   [/^Step (\d) of (\d)$/, "第 $1 步，共 $2 步"],
   [/^Tap word #(\d+), then #(\d+), then #(\d+)\.$/, "依次点击第 $1、第 $2、第 $3 个单词。"],
@@ -45,6 +65,26 @@ export const PATTERNS_ZH: [RegExp, string][] = [
 ];
 
 export const PATTERNS_ID: [RegExp, string][] = [
+  // Launch tab
+  [/^My launches · (\d+)$/, "Peluncuran saya · $1"],
+  [/^(.+) is launched$/, "$1 telah diluncurkan"],
+  [/^Argus keeps (.+)% of tax revenue\. Your split covers the rest\.$/, "Argus menyimpan $1% dari pendapatan pajak. Pembagian Anda mengatur sisanya."],
+  [/^Wallet: (.+) USDC · minimum (.+)$/, "Dompet: $1 USDC · minimum $2"],
+  [/^Min (.+)$/, "Min $1"],
+  [/^≈ (.+)% of supply at the starting price$/, "≈ $1% dari suplai di harga awal"],
+  [/^(.+)% buy · (.+)% sell$/, "beli $1% · jual $2%"],
+  [/^(.+) to claim$/, "$1 bisa diklaim"],
+  [/^(.+) USDC claimed so far$/, "$1 USDC sudah diklaim"],
+  [/^Fees from this launch go to (.+)\. Anyone can trigger the payout; it always lands there\.$/, "Biaya peluncuran ini masuk ke $1. Siapa pun bisa memicu pembayaran; dana selalu masuk ke sana."],
+  [/^This launch sends nothing to the creator: its tax goes to (.+)\.$/, "Peluncuran ini tidak memberi apa pun ke pembuat: pajaknya ke $1."],
+  [/^From the \$(.+) start to Argus's \$(.+) milestone\.$/, "Dari awal $$$1 ke milestone Argus $$$2."],
+  [/^(.+) to lock$/, "$1 yang dikunci"],
+  [/^You hold (.+) · locking (.+)% of supply$/, "Anda punya $1 · mengunci $2% suplai"],
+  [/^You hold (.+[^.])$/, "Anda punya $1"],
+  [/^Holders stake (.+) and earn (.+)\. You deposit the rewards now; they stream out evenly over the pool's life\.$/, "Pemegang staking $1 dan mendapat $2. Anda menyetor hadiah sekarang; hadiah mengalir merata sepanjang umur pool."],
+  [/^(.+) rewards to deposit$/, "Hadiah $1 yang disetor"],
+  [/^(.+) a day$/, "$1 per hari"],
+  [/^(\d+) days$/, "$1 hari"],
   [/^(\d+)s ago$/, "$1 dtk lalu"], [/^(\d+)m ago$/, "$1 mnt lalu"], [/^(\d+)h ago$/, "$1 jam lalu"], [/^(\d+)d ago$/, "$1 hari lalu"],
   [/^Step (\d) of (\d)$/, "Langkah $1 dari $2"],
   [/^Tap word #(\d+), then #(\d+), then #(\d+)\.$/, "Ketuk kata #$1, lalu #$2, lalu #$3."],

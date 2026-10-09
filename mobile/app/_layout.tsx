@@ -46,6 +46,7 @@ export default function RootLayout() {
           <Stack.Screen name="token-add" options={{ presentation: "modal" }} />
           <Stack.Screen name="dapp" />
           <Stack.Screen name="backup" />
+          <Stack.Screen name="launch/[token]" />
         </Stack>
       </WalletProvider>
       </LangProvider>

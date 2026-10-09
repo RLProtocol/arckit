@@ -1,5 +1,6 @@
 import { parseAbi } from "viem";
 import { ARGUS_ERRORS } from "./argus";
+import { STAKING_ERRORS, TOOL_ERRORS } from "./tools/abis";
 
 export const erc20Abi = parseAbi([
   "function symbol() view returns (string)",
@@ -64,6 +65,8 @@ export const ERROR_TEXT: Record<string, string> = {
   OracleNotReady: "The price average is still filling. Try again in a few minutes.",
   PriceDeviation: "Spot price is too far from the average; borrowing is paused for a moment.",
   ...ARGUS_ERRORS,
+  ...TOOL_ERRORS,
+  ...STAKING_ERRORS,
 };
 
 export const lockerAbi = parseAbi([
@@ -79,7 +82,9 @@ export const stakingAbi = parseAbi([
 
 export const airdropAbi = parseAbi([
   "function fee() view returns (uint256)",
+  "function airdropNative(address[] recipients, uint256[] amounts) payable returns (uint256 total)",
   "function airdropERC20(address token, address[] recipients, uint256[] amounts) payable returns (uint256 total)",
+  "error InsufficientValue(uint256 sent, uint256 required)",
   "function airdropERC20Same(address token, address[] recipients, uint256 amount) payable returns (uint256 total)",
   "error TooMany(uint256 count, uint256 max)",
   "error WrongFee(uint256 sent, uint256 required)",

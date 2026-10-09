@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Linking, Pressable, Share, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -6,15 +6,16 @@ import * as Clipboard from "expo-clipboard";
 import { useQuery } from "@tanstack/react-query";
 import { isAddress, type Address } from "viem";
 import { Text } from "@/i18n/Text";
-import { useWallet, waitFor } from "@/wallet/provider";
-import { friendlyError, useTx } from "@/wallet/useTx";
+import { useWallet } from "@/wallet/provider";
+import { useTx } from "@/wallet/useTx";
 import { useArgusTerms, useLaunch, type LaunchStats } from "@/hooks/useArgus";
 import { escrowAbi, imageUrl, LANES } from "@/argus";
 import { ADDR, explorerAddress, publicClient } from "@/chain";
-import { airdropAbi, erc20Abi, lockerAbi, stakingAbi } from "@/contracts";
+import { erc20Abi, lockerAbi, stakingAbi } from "@/contracts";
 import { customTokens, saveCustomTokens } from "@/wallet/store";
 import { Button, Card, Eyebrow, Field, H1, H2, Ledger, Notice, P, Pill, Row, Screen, Skeleton } from "@/components/ui";
 import { TokenLogo } from "@/components/TokenLogo";
+import { AirdropPanel } from "@/components/AirdropPanel";
 import { TxStatus } from "@/components/TxStatus";
 import { ActionTile, BondBar, compactUsd, SplitBar, SplitLegend, Stat } from "@/components/launch";
 import { fmtCompact, fmtPrice, fmtTok, fmtUsd, safeParse, shortAddr } from "@/lib/format";
@@ -101,7 +102,7 @@ export default function LaunchDetail() {
         </View>
         {open === "lock" ? <LockForm l={l} /> : null}
         {open === "stake" ? <StakeForm l={l} /> : null}
-        {open === "airdrop" ? <AirdropForm l={l} /> : null}
+        {open === "airdrop" ? <View style={{ marginTop: 16, paddingTop: 4, borderTopWidth: 1, borderTopColor: colors.line }}><Eyebrow color={colors.gold}>Airdrop</Eyebrow><AirdropPanel token={l.token} /></View> : null}
       </Card>
 
       <Row style={{ justifyContent: "center", gap: 18, marginTop: 18 }}>
@@ -217,98 +218,3 @@ function StakeForm({ l }: { l: LaunchStats }) {
   );
 }
 
-const BATCH = 250; // the contract allows 500; 250 keeps each transaction well under Arc's block gas limit
-
-/** One recipient per line: "0x… 100", "0x…,100", or just "0x…" when everyone gets the same amount. */
-function parseRecipients(text: string, same: boolean): { rows: { to: Address; amount?: string }[]; bad: number[] } {
-  const rows: { to: Address; amount?: string }[] = [];
-  const bad: number[] = [];
-  text.split(/\r?\n/).forEach((line, i) => {
-    const t = line.trim();
-    if (!t) return;
-    const [to, amount] = t.split(/[\s,;]+/);
-    if (!isAddress(to) || (!same && !safeParse(amount ?? "", 18))) bad.push(i + 1);
-    else rows.push({ to: to as Address, amount });
-  });
-  return { rows, bad };
-}
-
-function AirdropForm({ l }: { l: LaunchStats }) {
-  const { address, walletClient } = useWallet();
-  const [same, setSame] = useState(true);
-  const [list, setList] = useState("");
-  const [each, setEach] = useState("");
-  const [progress, setProgress] = useState("");
-  const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
-  const [busy, setBusy] = useState(false);
-  const bal = useTokenFor(l.token, ADDR.airdrop, address);
-  const fee = useQuery({ queryKey: ["airdrop-fee"], queryFn: () => publicClient.readContract({ address: ADDR.airdrop, abi: airdropAbi, functionName: "fee" }) });
-  const parsed = useMemo(() => parseRecipients(list, same), [list, same]);
-  const eachWei = safeParse(each, 18);
-  const amounts = parsed.rows.map((r) => (same ? eachWei ?? 0n : safeParse(r.amount!, 18)!));
-  const total = amounts.reduce((a, b) => a + b, 0n);
-  const batches = Math.ceil(parsed.rows.length / BATCH);
-  const err = parsed.bad.length
-    ? `Line ${parsed.bad.slice(0, 3).join(", ")}${parsed.bad.length > 3 ? "…" : ""}: needs an address${same ? "" : " and an amount"}.`
-    : same && each.trim() && !eachWei ? "Enter an amount per wallet."
-    : bal.data && total > bal.data.balance ? `You hold ${fmtTok(bal.data.balance, 18)} ${l.symbol}.` : "";
-  const ready = parsed.rows.length > 0 && !err && (!same || !!eachWei) && fee.data !== undefined && !!walletClient;
-
-  // approve once for the whole drop, then one transaction per batch of 250
-  const run = async () => {
-    const wc = walletClient!;
-    setBusy(true); setResult(null);
-    try {
-      if ((bal.data?.allowance ?? 0n) < total) {
-        setProgress(`Approve ${l.symbol}`);
-        const rc = await waitFor(await wc.writeContract({ account: wc.account!, chain: wc.chain, address: l.token, abi: erc20Abi, functionName: "approve", args: [ADDR.airdrop, total] }));
-        if (rc.status !== "success") throw new Error("The approval failed on chain.");
-      }
-      for (let b = 0; b < batches; b++) {
-        setProgress(`Sending batch ${b + 1} of ${batches}`);
-        const to = parsed.rows.slice(b * BATCH, (b + 1) * BATCH).map((r) => r.to);
-        const hash = same
-          ? await wc.writeContract({ account: wc.account!, chain: wc.chain, address: ADDR.airdrop, abi: airdropAbi, functionName: "airdropERC20Same", args: [l.token, to, eachWei!], value: fee.data! })
-          : await wc.writeContract({ account: wc.account!, chain: wc.chain, address: ADDR.airdrop, abi: airdropAbi, functionName: "airdropERC20", args: [l.token, to, amounts.slice(b * BATCH, (b + 1) * BATCH)], value: fee.data! });
-        const rc = await waitFor(hash);
-        if (rc.status !== "success") throw new Error(`Batch ${b + 1} failed on chain. Earlier batches were sent.`);
-      }
-      setResult({ ok: true, text: `Sent ${fmtTok(total, 18)} ${l.symbol} to ${parsed.rows.length} wallets.` });
-      setList("");
-      void bal.refetch();
-    } catch (e) {
-      setResult({ ok: false, text: friendlyError(e) });
-    } finally {
-      setBusy(false); setProgress("");
-    }
-  };
-
-  return (
-    <View style={{ marginTop: 16, paddingTop: 4, borderTopWidth: 1, borderTopColor: colors.line }}>
-      <Eyebrow color={colors.gold}>Airdrop</Eyebrow>
-      <View style={{ flexDirection: "row", gap: 6, marginTop: 12 }}>
-        <Pill tone={same ? "accent" : "dim"} onPress={() => setSame(true)}>Same amount</Pill>
-        <Pill tone={!same ? "accent" : "dim"} onPress={() => setSame(false)}>Amount per wallet</Pill>
-      </View>
-      <Field
-        label="Recipients"
-        placeholder={same ? "0x… one address per line" : "0x…, 100 one per line"}
-        value={list}
-        onChangeText={setList}
-        multiline
-        style={{ minHeight: 120, textAlignVertical: "top", fontSize: 13 }}
-        right={<Pressable onPress={() => void Clipboard.getStringAsync().then((t) => t && setList(t))} style={{ paddingHorizontal: 14, alignSelf: "flex-start", paddingTop: 14 }}><Text style={{ fontFamily: fonts.bodyMedium, color: colors.accent }}>Paste</Text></Pressable>}
-        hint={parsed.rows.length ? `${parsed.rows.length} wallets${batches > 1 ? ` · ${batches} transactions` : ""}` : "Any number of wallets, sent 250 per transaction."}
-      />
-      {same ? <Field label={`${l.symbol} per wallet`} placeholder="0" keyboardType="decimal-pad" value={each} onChangeText={setEach} /> : null}
-      {err ? <Notice tone="coral">{err}</Notice> : null}
-      <Ledger rows={[
-        ["Total", total > 0n ? `${fmtTok(total, 18)} ${l.symbol}` : "—"],
-        ["You hold", bal.data ? `${fmtTok(bal.data.balance, 18, 2)} ${l.symbol}` : "…"],
-        ["Fee", fee.data !== undefined ? `${fmtUsd(fee.data * BigInt(Math.max(batches, 1)))} USDC` : "…"],
-      ]} />
-      <Button title={busy ? progress || "Confirming…" : parsed.rows.length ? `Airdrop to ${parsed.rows.length} wallets` : "Airdrop"} disabled={!ready} loading={busy} onPress={() => void run()} />
-      {result ? <Notice tone={result.ok ? "aqua" : "coral"}>{result.text}</Notice> : null}
-    </View>
-  );
-}

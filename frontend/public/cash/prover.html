@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ArcCash prover</title>
+<!--
+  Proving engine for the Arc Kit app. The app's JavaScript engine has no WebAssembly, so it loads this page in an
+  invisible view and asks it for one Groth16 proof. Nothing is shown and nothing leaves the phone: the witness
+  inputs arrive through postMessage, the proving key is fetched from this origin (and cached), and only the proof
+  goes back to the app. The app then sends that proof, never the note, to the relayer.
+-->
+<script src="/cash/snarkjs.min.js"></script>
+</head>
+<body style="background:#050d1a">
+<script>
+(function () {
+  var post = function (m) { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(m)); };
+  var CACHE = "arccash-prover-v1";
+  var mem = {};
+
+  // Downloads once, then serves from Cache Storage so later withdrawals skip the 20 MB proving key.
+  async function load(url, report) {
+    if (mem[url]) return mem[url];
+    var cache = null;
+    try { cache = await caches.open(CACHE); } catch (e) { cache = null; }
+    var hit = cache ? await cache.match(url) : null;
+    if (hit) { mem[url] = new Uint8Array(await hit.arrayBuffer()); return mem[url]; }
+    var res = await fetch(url);
+    if (!res.ok || !res.body) throw new Error("Could not download the prover (" + res.status + ").");
+    var total = Number(res.headers.get("content-length") || 0), got = 0, parts = [], reader = res.body.getReader();
+    for (;;) {
+      var r = await reader.read();
+      if (r.done) break;
+      parts.push(r.value); got += r.value.length;
+      if (report && total) report(got / total);
+    }
+    var out = new Uint8Array(got), o = 0;
+    parts.forEach(function (p) { out.set(p, o); o += p.length; });
+    if (cache) { try { await cache.put(url, new Response(out.slice().buffer)); } catch (e) { /* storage full: just keep it in memory */ } }
+    mem[url] = out;
+    return out;
+  }
+
+  window.arcProve = async function (id, input) {
+    try {
+      post({ id: id, type: "progress", stage: "download", ratio: 0 });
+      var wasm = await load("/cash/withdraw.wasm");
+      var zkey = await load("/cash/withdraw_final.zkey", function (r) { post({ id: id, type: "progress", stage: "download", ratio: r }); });
+      post({ id: id, type: "progress", stage: "prove" });
+      var t0 = Date.now();
+      var out = await snarkjs.groth16.fullProve(input, wasm, zkey);
+      post({ id: id, type: "progress", stage: "verify" });
+      var vkey = await (await fetch("/cash/verification_key.json")).json();
+      var ok = await snarkjs.groth16.verify(vkey, out.publicSignals, out.proof);
+      if (!ok) throw new Error("The proof failed local verification. Nothing was sent.");
+      post({ id: id, type: "done", proof: out.proof, publicSignals: out.publicSignals, ms: Date.now() - t0 });
+    } catch (e) {
+      post({ id: id, type: "error", message: String((e && e.message) || e) });
+    }
+  };
+
+  post({ type: "ready" });
+})();
+</script>
+</body>
+</html>

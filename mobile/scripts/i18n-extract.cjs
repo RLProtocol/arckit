@@ -15,7 +15,7 @@ const files = [];
 const walk = (d) => { for (const f of fs.readdirSync(d)) { const p = path.join(d, f); if (fs.statSync(p).isDirectory()) walk(p); else if (/\.tsx?$/.test(f)) files.push(p); } };
 walk(path.join(root, "app"));
 walk(path.join(root, "src", "components"));
-for (const f of ["src/hooks/useTrade.ts", "src/wallet/useTx.ts", "src/contracts.ts", "src/chain.ts", "src/hooks/useArcKit.ts", "src/argus.ts", "src/hooks/useArgus.ts"]) files.push(path.join(root, f));
+for (const f of ["src/hooks/useTrade.ts", "src/wallet/useTx.ts", "src/contracts.ts", "src/chain.ts", "src/hooks/useArcKit.ts", "src/argus.ts", "src/hooks/useArgus.ts", "src/tools/abis.ts", "src/tools/airdropParse.ts", "src/tools/cash/index.ts"]) files.push(path.join(root, f));
 
 const UI_PROPS = new Set(["label", "title", "hint", "placeholder", "error", "done", "sub", "subtitle", "text", "name"]);
 const looksLikeCopy = (s) => {

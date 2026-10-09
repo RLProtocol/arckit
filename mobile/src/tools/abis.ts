@@ -1,0 +1,85 @@
+import { parseAbi } from "viem";
+
+// Full ABIs for the native tool screens, checked against deployments/*.abi.json.
+
+export const tokenLockerAbi = parseAbi([
+  "struct Lock { uint256 id; address token; address owner; address withdrawer; uint256 amount; uint256 lockDate; uint256 unlockDate; }",
+  "function lockFee() view returns (uint256)",
+  "function nextLockId() view returns (uint256)",
+  "function getLock(uint256 lockId) view returns (Lock)",
+  "function getLocksForUser(address user) view returns (uint256[])",
+  "function getLocksForToken(address token) view returns (uint256[])",
+  "function lock(address token, uint256 amount, uint256 unlockDate, address withdrawer) payable returns (uint256 lockId)",
+  "function withdraw(uint256 lockId, uint256 amount)",
+  "function incrementLock(uint256 lockId, uint256 amount)",
+  "function extendLock(uint256 lockId, uint256 newUnlockDate)",
+  "function splitLock(uint256 lockId, uint256 amount)",
+  "function transferLockOwnership(uint256 lockId, address newOwner, bool transferWithdrawRights)",
+  "function setWithdrawer(uint256 lockId, address newWithdrawer)",
+  "event LockCreated(uint256 indexed lockId, address indexed token, address indexed owner, address withdrawer, uint256 amount, uint256 unlockDate)",
+  "error InsufficientLockBalance()",
+  "error InvalidSplitAmount()",
+  "error LockMatured()",
+  "error MustExtendForward()",
+  "error NotLockOwner()",
+  "error NotWithdrawer()",
+  "error StillLocked()",
+  "error UnlockInPast()",
+  "error WrongFee(uint256 sent, uint256 required)",
+  "error ZeroAmount()",
+  "error ZeroAddress()",
+]);
+
+export const vestingAbi = parseAbi([
+  "struct Vesting { uint256 id; address token; address creator; address beneficiary; uint256 total; uint256 released; uint64 start; uint64 cliff; uint64 end; }",
+  "struct Params { address beneficiary; uint256 amount; uint64 start; uint64 cliff; uint64 end; }",
+  "function fee() view returns (uint256)",
+  "function getVesting(uint256 vestingId) view returns (Vesting)",
+  "function claimable(uint256 vestingId) view returns (uint256)",
+  "function getVestingsForBeneficiary(address who) view returns (uint256[])",
+  "function getVestingsForCreator(address creator) view returns (uint256[])",
+  "function createVesting(address token, Params p) payable",
+  "function claim(uint256 vestingId)",
+  "function setBeneficiary(uint256 vestingId, address newBeneficiary)",
+  "event VestingCreated(uint256 indexed vestingId, address indexed token, address indexed creator, address beneficiary, uint256 total, uint64 start, uint64 cliff, uint64 end)",
+  "error BadSchedule()",
+  "error NotBeneficiary()",
+  "error NothingToClaim()",
+  "error WrongFee(uint256 sent, uint256 required)",
+  "error ZeroAmount()",
+  "error ZeroAddress()",
+]);
+
+/** Plain-language revert reasons for the tool screens (merged into friendly errors by name). */
+export const TOOL_ERRORS: Record<string, string> = {
+  InsufficientLockBalance: "That is more than the lock holds.",
+  InvalidSplitAmount: "Split off less than the full lock.",
+  LockMatured: "This lock has already unlocked; it can no longer be topped up or split.",
+  MustExtendForward: "The new unlock date must be later than the current one.",
+  NotLockOwner: "Only the lock owner can do this.",
+  NotWithdrawer: "Only the withdrawer can do this.",
+  StillLocked: "Still locked. Withdrawals open on the unlock date.",
+  UnlockInPast: "The unlock date must be in the future.",
+  WrongFee: "The fee changed. Try again.",
+  BadSchedule: "That schedule is not valid. Check the cliff and the length.",
+  NotBeneficiary: "Only the beneficiary can do this.",
+  NothingToClaim: "Nothing has vested yet.",
+  ZeroAmount: "Enter an amount above zero.",
+  ZeroAddress: "Enter an address.",
+};
+
+export const STAKING_ERRORS: Record<string, string> = {
+  AboveMaxStake: "That is above this pool's limit per wallet.",
+  BadConfig: "Those pool settings are not valid.",
+  BelowMinStake: "That is below this pool's minimum stake.",
+  Ended: "This pool has ended.",
+  InsufficientStake: "That is more than you have staked.",
+  NotCreator: "Only the pool creator can do this.",
+  NotEnded: "The pool is still running.",
+  NotStarted: "This pool has not started yet.",
+  NothingToReclaim: "There is nothing left to reclaim.",
+  PoolFull: "This pool is full.",
+  PoolNotFound: "That pool does not exist.",
+  PoolPaused: "This pool is paused.",
+  RewardTokenMismatch: "Compounding needs the reward and stake token to be the same.",
+};

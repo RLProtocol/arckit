@@ -559,5 +559,12 @@
   "Compounding needs the reward and stake token to be the same.": "复投要求奖励代币与质押代币相同。",
   "Could not read the pool's deposits. Try again in a minute.": "无法读取资金池的存款。请一分钟后重试。",
   "The prover is still starting. Try again in a few seconds.": "证明器仍在启动。请几秒后重试。",
-  "Could not rebuild the pool's tree.": "无法重建资金池的默克尔树。"
+  "Could not rebuild the pool's tree.": "无法重建资金池的默克尔树。",
+  "Add a name.": "请填写名称。",
+  "Add a ticker.": "请填写代码。",
+  "Ticker: up to 10 letters or numbers, no spaces.": "代码：最多 10 个字母或数字，不含空格。",
+  "Description is at most 500 characters.": "简介最多 500 个字符。",
+  "The fee split must add up to 100%.": "费用分配合计必须为 100%。",
+  "Enter the opening buy.": "请输入首笔买入金额。",
+  "Enter a valid payout address.": "请输入有效的收款地址。"
 }

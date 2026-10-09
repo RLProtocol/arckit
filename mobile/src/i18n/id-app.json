@@ -559,5 +559,12 @@
   "Compounding needs the reward and stake token to be the same.": "Compound memerlukan token hadiah dan stake yang sama.",
   "Could not read the pool's deposits. Try again in a minute.": "Tidak bisa membaca setoran pool. Coba lagi sebentar lagi.",
   "The prover is still starting. Try again in a few seconds.": "Prover masih memulai. Coba lagi beberapa detik lagi.",
-  "Could not rebuild the pool's tree.": "Tidak bisa membangun ulang pohon pool."
+  "Could not rebuild the pool's tree.": "Tidak bisa membangun ulang pohon pool.",
+  "Add a name.": "Tambahkan nama.",
+  "Add a ticker.": "Tambahkan ticker.",
+  "Ticker: up to 10 letters or numbers, no spaces.": "Ticker: maksimal 10 huruf atau angka, tanpa spasi.",
+  "Description is at most 500 characters.": "Deskripsi maksimal 500 karakter.",
+  "The fee split must add up to 100%.": "Pembagian biaya harus berjumlah 100%.",
+  "Enter the opening buy.": "Masukkan pembelian awal.",
+  "Enter a valid payout address.": "Masukkan alamat pembayaran yang valid."
 }

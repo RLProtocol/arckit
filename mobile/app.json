@@ -57,7 +57,8 @@
           "cameraPermission": false,
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-updates"
     ],
     "experiments": {
       "typedRoutes": false
@@ -68,6 +69,14 @@
         "projectId": "3cb9238e-48b9-45af-8cff-eab3162e6b59"
       }
     },
-    "owner": "aayush2306"
+    "owner": "aayush2306",
+    "updates": {
+      "url": "https://u.expo.dev/3cb9238e-48b9-45af-8cff-eab3162e6b59",
+      "fallbackToCacheTimeout": 0,
+      "checkAutomatically": "ON_LOAD"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    }
   }
 }

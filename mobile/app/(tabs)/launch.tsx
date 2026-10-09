@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { isAddress, type Address } from "viem";
@@ -23,17 +23,18 @@ const STAGES: [LaunchStage, string][] = [["image", "Uploading the image"], ["sal
 export default function Launch() {
   const { address } = useWallet();
   const [tab, setTab] = useState<"create" | "mine">("create");
+  const [step, setStep] = useState(0);
   const mine = useMyLaunches(address);
   const count = mine.data?.length ?? 0;
   return (
-    <Screen>
+    <Screen scrollTopKey={`${tab}-${step}`}>
       <Brand subtitle="LAUNCH · ARGUS" />
       <View style={{ marginTop: 22 }}>
         <H1>Launch a token</H1>
         <P small style={{ marginTop: 6 }}>On Argus, Arc's launchpad. Your token gets its own Uniswap v4 pool and a trading tax you choose, paid to you in USDC.</P>
       </View>
       <Seg value={tab} options={[["create", "Create"], ["mine", count ? `My launches · ${count}` : "My launches"]]} onChange={setTab} />
-      {tab === "create" ? <Create onSeeMine={() => setTab("mine")} /> : <Mine launches={mine.data} loading={mine.isLoading} error={mine.error ? String((mine.error as Error).message) : ""} onCreate={() => setTab("create")} />}
+      {tab === "create" ? <Create step={step} setStep={setStep} onSeeMine={() => setTab("mine")} /> : <Mine launches={mine.data} loading={mine.isLoading} error={mine.error ? String((mine.error as Error).message) : ""} onCreate={() => setTab("create")} />}
     </Screen>
   );
 }
@@ -42,14 +43,14 @@ export default function Launch() {
 
 const blank = { name: "", symbol: "", description: "", website: "", twitter: "", telegram: "" };
 
-function Create({ onSeeMine }: { onSeeMine: () => void }) {
+function Create({ step, setStep, onSeeMine }: { step: number; setStep: (n: number) => void; onSeeMine: () => void }) {
   const router = useRouter();
   const { address, walletClient } = useWallet();
   const terms = useArgusTerms();
   const bal = useBalances(address);
   const tx = useTx();
-  const [step, setStep] = useState(0);
   const [f, setF] = useState(blank);
+  const [showProblem, setShowProblem] = useState(false);
   const [image, setImage] = useState<PickedImage | null>(null);
   const [links, setLinks] = useState(false);
   const [buy, setBuy] = useState(300);
@@ -70,13 +71,18 @@ function Create({ onSeeMine }: { onSeeMine: () => void }) {
 
   // step checks: one message per step, shown under its fields
   const nameErr = !f.name.trim() ? "" : f.name.trim().length > 32 ? "Name is at most 32 characters." : "";
-  const symErr = !f.symbol.trim() ? "" : !/^[A-Za-z0-9$]{1,10}$/.test(f.symbol.trim()) ? "Ticker: up to 10 letters or numbers." : "";
+  const symErr = !f.symbol.trim() ? "" : !/^[A-Za-z0-9$]{1,10}$/.test(f.symbol.trim()) ? "Ticker: up to 10 letters or numbers, no spaces." : "";
   const step0ok = !!f.name.trim() && !!f.symbol.trim() && !nameErr && !symErr && f.description.length <= 500;
   const step1ok = total === 10_000;
   const seedErr = !seedText.trim() ? "" : !seed ? "Enter an amount in USDC." : seed < minSeed ? `Minimum ${fmtUsd(minSeed * 10n ** 12n)} USDC.` : seed * 10n ** 12n + 50_000_000_000_000_000n > usdc ? "Not enough USDC for this and gas." : "";
   const payoutErr = payoutOn && payout && !isAddress(payout) ? "Not a valid address." : "";
   const step2ok = !!seed && !seedErr && (!payoutOn || isAddress(payout));
   const stepOk = [step0ok, step1ok, step2ok, true][step];
+  // what blocks Continue, in words: shown when it is tapped instead of a silently disabled button
+  const problem = step === 0
+    ? (!f.name.trim() ? "Add a name." : nameErr || (!f.symbol.trim() ? "Add a ticker." : symErr) || (f.description.length > 500 ? "Description is at most 500 characters." : ""))
+    : step === 1 ? (total !== 10_000 ? "The fee split must add up to 100%." : "")
+    : step === 2 ? (!seedText.trim() ? "Enter the opening buy." : seedErr || (payoutOn && !isAddress(payout) ? "Enter a valid payout address." : "")) : "";
 
   // rough share at the opening price; the real fill is a little lower (the curve moves and fees apply)
   const estTokens = seed && t ? (seed * 10n ** 12n * TOTAL_SUPPLY) / t.startFdv : 0n;
@@ -121,7 +127,7 @@ function Create({ onSeeMine }: { onSeeMine: () => void }) {
           </Row>
           {imgErr ? <Notice tone="coral">{imgErr}</Notice> : null}
           <Field label="Name" placeholder="Arc Cat" value={f.name} onChangeText={set("name")} autoCapitalize="words" error={nameErr || undefined} />
-          <Field label="Ticker" placeholder="ACAT" value={f.symbol} onChangeText={(v) => set("symbol")(v.replace(/\s/g, "").toUpperCase())} autoCapitalize="characters" maxLength={10} error={symErr || undefined} />
+          <Field label="Ticker" placeholder="ACAT" value={f.symbol} onChangeText={set("symbol")} autoCapitalize="characters" keyboardType={Platform.OS === "android" ? "visible-password" : "default"} maxLength={10} error={symErr || undefined} />
           <Field label="Description" placeholder="What is it? Why should people care?" value={f.description} onChangeText={set("description")} multiline maxLength={500} style={{ minHeight: 88, textAlignVertical: "top", fontFamily: fonts.body, fontSize: 15 }} hint={`${f.description.length}/500`} />
           <Pressable onPress={() => setLinks(!links)} style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 16 }}>
             <Ionicons name={links ? "chevron-down" : "chevron-forward"} size={16} color={colors.accent} />
@@ -245,10 +251,11 @@ function Create({ onSeeMine }: { onSeeMine: () => void }) {
         </>
       )}
 
+      {showProblem && problem ? <Notice tone="coral">{problem}</Notice> : null}
       <Row style={{ marginTop: 6 }}>
-        {step > 0 ? <Button kind="ghost" title="Back" style={{ flex: 1 }} disabled={tx.busy} onPress={() => setStep(step - 1)} /> : null}
+        {step > 0 ? <Button kind="ghost" title="Back" style={{ flex: 1 }} disabled={tx.busy} onPress={() => { setShowProblem(false); setStep(step - 1); }} /> : null}
         {step < STEPS.length - 1
-          ? <Button title="Continue" style={{ flex: 2 }} disabled={!stepOk} onPress={() => setStep(step + 1)} />
+          ? <Button title="Continue" style={{ flex: 2 }} onPress={() => { if (stepOk) { setShowProblem(false); setStep(step + 1); } else setShowProblem(true); }} />
           : <Button title={tx.busy ? "Launching…" : "Launch on Argus"} style={{ flex: 2 }} loading={tx.busy} disabled={!t || !walletClient} onPress={launch} />}
       </Row>
     </View>

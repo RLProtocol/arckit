@@ -1,4 +1,4 @@
-import { Children, type ReactNode } from "react";
+import { Children, useEffect, useRef, type ReactNode } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle } from "react-native";
 import { Text } from "../i18n/Text";
 import { tr, useLang } from "../i18n";
@@ -7,8 +7,11 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { colors, fonts, radius } from "../theme";
 
 /** Full-screen Arc backdrop: navy gradient with the teal glow and the signature arcs. */
-export function Screen({ children, scroll = true, padded = true, footer }: { children: ReactNode; scroll?: boolean; padded?: boolean; footer?: ReactNode }) {
+export function Screen({ children, scroll = true, padded = true, footer, scrollTopKey }: { children: ReactNode; scroll?: boolean; padded?: boolean; footer?: ReactNode; scrollTopKey?: string | number }) {
   const insets = useSafeAreaInsets();
+  // a multi-step form passes its step here so each step starts at the top
+  const ref = useRef<ScrollView>(null);
+  useEffect(() => { if (scrollTopKey !== undefined) ref.current?.scrollTo({ y: 0, animated: true }); }, [scrollTopKey]);
   const body = (
     <View style={[{ flex: 1 }, padded && { paddingHorizontal: 20 }]}>{children}</View>
   );
@@ -19,7 +22,7 @@ export function Screen({ children, scroll = true, padded = true, footer }: { chi
       <View style={[styles.arc, { width: 900, height: 900, right: -420, top: -520, borderWidth: 1, pointerEvents: "none" }]} />
       <View style={[styles.glow, { pointerEvents: "none" }]} />
       <SafeAreaView style={{ flex: 1, zIndex: 1 }} edges={["top", "left", "right"]}>
-        {scroll ? <ScrollView contentContainerStyle={{ paddingBottom: 110 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>{body}</ScrollView> : body}
+        {scroll ? <ScrollView ref={ref} contentContainerStyle={{ paddingBottom: 110 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>{body}</ScrollView> : body}
         {footer ? <View style={{ paddingBottom: Math.max(insets.bottom - 20, 0) }}>{footer}</View> : null}
       </SafeAreaView>
     </View>

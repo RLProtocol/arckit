@@ -1547,5 +1547,7 @@
   "Your wallet talks to Arc through its own RPC, and the default one is unreliable right now. Switch it to": "Dompet Anda berkomunikasi dengan Arc melalui RPC-nya sendiri, dan yang default tidak andal saat ini. Alihkan ke",
   "Your wallet's Arc RPC failed before the transaction was sent. Nothing was submitted.": "RPC Arc dompet Anda gagal sebelum transaksi dikirim. Tidak ada yang dikirim.",
   "yours": "milik Anda",
-  "Zero-knowledge proofs": "Bukti zero-knowledge"
+  "Zero-knowledge proofs": "Bukti zero-knowledge",
+  "Android app": "Aplikasi Android",
+  "iPhone app": "Aplikasi iPhone"
 }

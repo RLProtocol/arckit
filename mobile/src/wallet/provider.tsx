@@ -3,7 +3,7 @@ import { AppState, Platform } from "react-native";
 import * as LocalAuthentication from "expo-local-authentication";
 import { createWalletClient, fallback, http, type Address, type Hash, type WalletClient } from "viem";
 import { arc, publicClient, SITE } from "../chain";
-import { biometricsEnabled, deriveAccount, hasWallet, loadAccount, saveWallet, storedAddress, verifyPin, wipeWallet, type WalletAccount } from "./store";
+import { biometricsEnabled, deriveAccount, forgetSecrets, hasWallet, loadAccount, saveWallet, storedAddress, verifyPin, wipeWallet, type WalletAccount } from "./store";
 
 type Status = "loading" | "none" | "locked" | "ready";
 
@@ -45,7 +45,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const sub = AppState.addEventListener("change", (st) => {
       if (st === "background" || st === "inactive") backgroundedAt.current = Date.now();
-      else if (st === "active" && backgroundedAt.current && Date.now() - backgroundedAt.current > AUTO_LOCK_MS) { setAccount(undefined); setStatus((s) => (s === "ready" ? "locked" : s)); }
+      else if (st === "active" && backgroundedAt.current && Date.now() - backgroundedAt.current > AUTO_LOCK_MS) { forgetSecrets(); setAccount(undefined); setStatus((s) => (s === "ready" ? "locked" : s)); }
     });
     return () => sub.remove();
   }, []);
@@ -72,7 +72,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     const r = await LocalAuthentication.authenticateAsync({ promptMessage: "Unlock Arc Kit", cancelLabel: "Use PIN", disableDeviceFallback: true });
     return r.success ? open() : false;
   }, [open]);
-  const lock = useCallback(() => { setAccount(undefined); setStatus("locked"); }, []);
+  const lock = useCallback(() => { forgetSecrets(); setAccount(undefined); setStatus("locked"); }, []);
   const reset = useCallback(async () => { await wipeWallet(); setAccount(undefined); setAddress(undefined); setStatus("none"); }, []);
 
   const walletClient = useMemo(() => (account ? createWalletClient({ account, chain: arc, transport: fallback([http(`${SITE}/api/rpc`, { timeout: 20_000, retryCount: 2, maxResponseBodySize: false }), http("https://5042.rpc.thirdweb.com", { timeout: 20_000, retryCount: 1, maxResponseBodySize: false })]) }) : undefined), [account]);

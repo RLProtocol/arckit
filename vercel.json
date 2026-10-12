@@ -65,6 +65,14 @@
       "destination": "/api/share?type=stake&id=:id"
     },
     {
+      "source": "/pwa",
+      "destination": "/pwa/index.html"
+    },
+    {
+      "source": "/pwa/:path*",
+      "destination": "/pwa/index.html"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
@@ -72,6 +80,41 @@
   "headers": [
     {
       "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/pwa/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/pwa/"
+        }
+      ]
+    },
+    {
+      "source": "/pwa/manifest.webmanifest",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/pwa/_expo/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

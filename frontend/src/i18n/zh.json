@@ -1572,5 +1572,7 @@
   "Your wallet talks to Arc through its own RPC, and the default one is unreliable right now. Switch it to": "你的钱包通过自己的 RPC 连接 Arc，而默认的 RPC 目前不稳定。请切换到",
   "Your wallet's Arc RPC failed before the transaction was sent. Nothing was submitted.": "你钱包的 Arc RPC 在交易发送前失败了。没有提交任何内容。",
   "yours": "你的",
-  "Zero-knowledge proofs": "零知识证明"
+  "Zero-knowledge proofs": "零知识证明",
+  "Android app": "安卓应用",
+  "iPhone app": "iPhone 应用"
 }

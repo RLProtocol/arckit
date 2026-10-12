@@ -38,7 +38,11 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
-      "output": "single"
+      "output": "single",
+      "name": "Arc Kit",
+      "shortName": "Arc Kit",
+      "themeColor": "#071426",
+      "backgroundColor": "#050d1a"
     },
     "plugins": [
       "expo-router",
@@ -61,7 +65,8 @@
       "expo-updates"
     ],
     "experiments": {
-      "typedRoutes": false
+      "typedRoutes": false,
+      "baseUrl": "/pwa"
     },
     "extra": {
       "router": {},

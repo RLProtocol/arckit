@@ -34,6 +34,13 @@ const AndroidIcon = () => (
   </svg>
 );
 
+/** iPhone (and any phone): the same app as a home-screen PWA at /pwa, which explains how to add it. */
+const AppleIcon = () => (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ marginRight: 2 }}>
+    <path d="M16.37 12.73c-.02-2.2 1.8-3.26 1.88-3.31a4.05 4.05 0 0 0-3.18-1.72c-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.86-.76a4.24 4.24 0 0 0-3.58 2.17c-1.53 2.65-.39 6.57 1.1 8.72.73 1.05 1.6 2.23 2.73 2.19 1.1-.05 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13a9.3 9.3 0 0 0 1.2-2.47 3.83 3.83 0 0 1-2.31-3.47zM14.2 6.27a3.8 3.8 0 0 0 .88-2.77 3.9 3.9 0 0 0-2.53 1.31 3.64 3.64 0 0 0-.9 2.67 3.22 3.22 0 0 0 2.55-1.21z" />
+  </svg>
+);
+
 /** Shown in the hero until the first real lock exists: live chain facts, nothing invented. */
 function NetworkCard({ total, fee }: { total?: number; fee?: bigint }) {
   const block = useBlockNumber({ watch: true });
@@ -265,9 +272,13 @@ export function Home() {
               <Link to="/explore" className="btn btn-ghost btn-lg">
                 Browse locks
               </Link>
-              <a href={APK_URL} className="btn btn-ghost btn-lg" download title="Arc Kit Wallet for Android, version 1.0.0">
+              <a href={APK_URL} className="btn btn-ghost btn-lg" download title="Arc Kit Wallet for Android (APK)">
                 <AndroidIcon />
-                Download app
+                Android app
+              </a>
+              <a href="/pwa" className="btn btn-ghost btn-lg" title="Add Arc Kit to your iPhone home screen">
+                <AppleIcon />
+                iPhone app
               </a>
             </div>
             <div className="hero-stats">

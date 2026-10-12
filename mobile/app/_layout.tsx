@@ -9,6 +9,7 @@ import { IBMPlexMono_400Regular, IBMPlexMono_500Medium } from "@expo-google-font
 import { WalletProvider, useWallet } from "@/wallet/provider";
 import { LangProvider } from "@/i18n";
 import { colors } from "@/theme";
+import { gateBypassed, InstallGuide, isStandalone } from "@/components/InstallGuide";
 
 const qc = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 5_000 } } });
 
@@ -30,6 +31,8 @@ function Gate() {
 export default function RootLayout() {
   const [loaded] = useFonts({ Outfit_300Light, Outfit_500Medium, Outfit_600SemiBold, DMSans_400Regular, DMSans_500Medium, DMSans_700Bold, IBMPlexMono_400Regular, IBMPlexMono_500Medium });
   if (!loaded) return <View style={{ flex: 1, backgroundColor: colors.navy900, alignItems: "center", justifyContent: "center" }}><ActivityIndicator color={colors.accent} /></View>;
+  // the PWA runs only from the home screen; a browser tab gets the install guide
+  if (!isStandalone() && !gateBypassed()) return <LangProvider><StatusBar style="light" /><InstallGuide /></LangProvider>;
   return (
     <QueryClientProvider client={qc}>
       <LangProvider>

@@ -15,7 +15,16 @@
 <body style="background:#050d1a">
 <script>
 (function () {
-  var post = function (m) { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(m)); };
+  // replies go to the app: the native WebView bridge, or the parent page when the PWA runs this in an iframe
+  var post = function (m) {
+    if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(m));
+    else if (window.parent !== window) window.parent.postMessage({ arcProver: JSON.stringify(m) }, "*");
+  };
+  // the PWA asks over postMessage; only the proof and progress go back, and the inputs never leave the device
+  window.addEventListener("message", function (e) {
+    var d = e.data;
+    if (d && d.arcProve && typeof d.arcProve.id === "string") window.arcProve(d.arcProve.id, d.arcProve.input);
+  });
   var CACHE = "arccash-prover-v1";
   var mem = {};
 

@@ -1,15 +1,15 @@
 import { useCallback, useRef, useState } from "react";
-import { ActivityIndicator, Modal, Platform, Pressable, View } from "react-native";
+import { ActivityIndicator, Modal, Pressable, View } from "react-native";
 import { Text } from "@/i18n/Text";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { WebView, type WebViewMessageEvent } from "react-native-webview";
 import { Ionicons } from "@expo/vector-icons";
 import { formatEther, hexToString, isHex, toHex, type Address, type Hex } from "viem";
 import { arc, publicClient, SITE } from "@/chain";
 import { useWallet } from "@/wallet/provider";
 import { injectedProvider } from "@/dapp/injected";
-import { Button, Ledger, Mono, P } from "@/components/ui";
+import { Browser, type BrowserHandle } from "@/dapp/Browser";
+import { Button, Ledger, Mono } from "@/components/ui";
 import { fmtUsd, shortAddr } from "@/lib/format";
 import { colors, fonts, radius } from "@/theme";
 
@@ -24,20 +24,22 @@ export default function DApp() {
   const { path = "/", title = "Arc Kit" } = useLocalSearchParams<{ path?: string; title?: string }>();
   const router = useRouter();
   const { address, walletClient } = useWallet();
-  const web = useRef<WebView>(null);
+  const web = useRef<BrowserHandle>(null);
+  // in the installed PWA the site is this same origin, which lets the iframe receive the wallet
+  const base = typeof window !== "undefined" && /usearckit\.online$/.test(window.location?.hostname ?? "") ? window.location.origin : SITE;
   const [ask, setAsk] = useState<Ask | null>(null);
   const [loading, setLoading] = useState(true);
   const chainHex = toHex(arc.id);
 
   const reply = useCallback((id: number, result?: unknown, error?: { code: number; message: string }) => {
-    web.current?.injectJavaScript(`window.__arckitResolve(${JSON.stringify({ id, result, error })}); true;`);
+    web.current?.inject(`window.__arckitResolve(${JSON.stringify({ id, result, error })}); true;`);
   }, []);
 
   const confirm = (req: Req, kind: Ask["kind"], summary: [string, string][]) => new Promise<boolean>((resolve) => setAsk({ req, kind, summary, resolve }));
 
-  const onMessage = useCallback(async (e: WebViewMessageEvent) => {
+  const onMessage = useCallback(async (raw: string) => {
     let msg: { type?: string } & Req;
-    try { msg = JSON.parse(e.nativeEvent.data); } catch { return; }
+    try { msg = JSON.parse(raw); } catch { return; }
     if (msg.type !== "arckit:request" || !walletClient || !address) return;
     const { id, method, params } = msg;
     try {
@@ -75,8 +77,6 @@ export default function DApp() {
     }
   }, [walletClient, address, reply]);
 
-  if (Platform.OS === "web") return <SafeAreaView style={{ flex: 1, backgroundColor: colors.navy900, padding: 20 }}><P>The in-app browser is only available in the iOS and Android builds.</P><Button title="Back" onPress={() => router.back()} /></SafeAreaView>;
-
   return (
     <View style={{ flex: 1, backgroundColor: colors.navy900 }}>
       <SafeAreaView edges={["top"]} style={{ backgroundColor: colors.navy800 }}>
@@ -86,17 +86,7 @@ export default function DApp() {
           {loading ? <ActivityIndicator color={colors.accent} /> : <Pressable onPress={() => web.current?.reload()} hitSlop={10}><Ionicons name="refresh" size={20} color={colors.dim} /></Pressable>}
         </View>
       </SafeAreaView>
-      <WebView
-        ref={web}
-        source={{ uri: `${SITE}${path}` }}
-        injectedJavaScriptBeforeContentLoaded={injectedProvider(address ?? "", chainHex)}
-        onMessage={(e) => void onMessage(e)}
-        onLoadEnd={() => setLoading(false)}
-        originWhitelist={["https://*"]}
-        allowsBackForwardNavigationGestures
-        setSupportMultipleWindows={false}
-        style={{ backgroundColor: colors.navy900 }}
-      />
+      <Browser ref={web} uri={`${base}${path}`} script={injectedProvider(address ?? "", chainHex)} onMessage={(raw) => void onMessage(raw)} onLoadEnd={() => setLoading(false)} />
       <Modal visible={!!ask} transparent animationType="slide" onRequestClose={() => ask?.resolve(false)}>
         <Pressable style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }} onPress={() => { ask?.resolve(false); setAsk(null); }} />
         <View style={{ backgroundColor: colors.navy800, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, padding: 22, paddingBottom: 40, borderTopWidth: 1, borderColor: colors.lineStrong }}>

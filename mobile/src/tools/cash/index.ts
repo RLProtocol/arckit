@@ -1,6 +1,6 @@
 // ArcCash in the app: pools, ABI, the secure note book, leaves from the indexer, and the relayer.
 // Hashing lives in ./crypto (a copy of the website's, checked against circomlibjs); proving runs in ./Prover.
-import * as SecureStore from "expo-secure-store";
+import { secureKV } from "../../wallet/secureKV";
 import { parseAbi, type Address, type Hex } from "viem";
 import { publicClient, SITE } from "../../chain";
 import { createDeposit, parseNote, toBytes32 } from "./crypto";
@@ -37,26 +37,26 @@ const INDEX = "arckit.cash.index";
 const key = (id: string) => `arckit.cash.note.${id}`;
 
 export async function listNotes(): Promise<SavedNote[]> {
-  const ids = JSON.parse((await SecureStore.getItemAsync(INDEX)) ?? "[]") as string[];
-  const notes = await Promise.all(ids.map(async (id) => { const v = await SecureStore.getItemAsync(key(id)); return v ? (JSON.parse(v) as SavedNote) : null; }));
+  const ids = JSON.parse((await secureKV.get(INDEX)) ?? "[]") as string[];
+  const notes = await Promise.all(ids.map(async (id) => { const v = await secureKV.get(key(id)); return v ? (JSON.parse(v) as SavedNote) : null; }));
   return notes.filter((n): n is SavedNote => !!n).sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export async function saveNote(n: SavedNote) {
-  await SecureStore.setItemAsync(key(n.id), JSON.stringify(n));
-  const ids = JSON.parse((await SecureStore.getItemAsync(INDEX)) ?? "[]") as string[];
-  if (!ids.includes(n.id)) await SecureStore.setItemAsync(INDEX, JSON.stringify([...ids, n.id]));
+  await secureKV.set(key(n.id), JSON.stringify(n));
+  const ids = JSON.parse((await secureKV.get(INDEX)) ?? "[]") as string[];
+  if (!ids.includes(n.id)) await secureKV.set(INDEX, JSON.stringify([...ids, n.id]));
 }
 
 export async function updateNote(id: string, patch: Partial<SavedNote>) {
-  const v = await SecureStore.getItemAsync(key(id));
-  if (v) await SecureStore.setItemAsync(key(id), JSON.stringify({ ...(JSON.parse(v) as SavedNote), ...patch }));
+  const v = await secureKV.get(key(id));
+  if (v) await secureKV.set(key(id), JSON.stringify({ ...(JSON.parse(v) as SavedNote), ...patch }));
 }
 
 export async function removeNote(id: string) {
-  await SecureStore.deleteItemAsync(key(id));
-  const ids = JSON.parse((await SecureStore.getItemAsync(INDEX)) ?? "[]") as string[];
-  await SecureStore.setItemAsync(INDEX, JSON.stringify(ids.filter((x) => x !== id)));
+  await secureKV.del(key(id));
+  const ids = JSON.parse((await secureKV.get(INDEX)) ?? "[]") as string[];
+  await secureKV.set(INDEX, JSON.stringify(ids.filter((x) => x !== id)));
 }
 
 // ---------------------------------------------------------------- chain + relayer

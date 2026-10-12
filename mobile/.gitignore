@@ -12,3 +12,4 @@ expo-env.d.ts
 .env*.local
 ios/
 android/
+dist-pwa/

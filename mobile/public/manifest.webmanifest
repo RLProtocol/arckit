@@ -1,0 +1,17 @@
+{
+  "name": "Arc Kit",
+  "short_name": "Arc Kit",
+  "description": "The Arc wallet with every Arc Kit tool built in.",
+  "id": "/pwa/",
+  "start_url": "/pwa/",
+  "scope": "/pwa/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#050d1a",
+  "theme_color": "#071426",
+  "icons": [
+    { "src": "/pwa/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/pwa/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/pwa/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

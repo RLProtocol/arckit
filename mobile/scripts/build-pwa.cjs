@@ -12,6 +12,20 @@ const dest = path.join(root, "..", "frontend", "public", "pwa");
 fs.rmSync(out, { recursive: true, force: true });
 execSync(`npx expo export -p web --output-dir dist-pwa --clear`, { cwd: root, stdio: "inherit" });
 
+// Vercel never serves paths containing "node_modules", and Expo puts fonts under assets/node_modules/: move them
+// and point the bundle at the new folder, or every font 404s into index.html and the app waits on them forever.
+const nm = path.join(out, "assets", "node_modules");
+if (fs.existsSync(nm)) {
+  fs.renameSync(nm, path.join(out, "assets", "nm"));
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
+  for (const file of walk(out).filter((x) => /\.(js|html|json)$/.test(x))) {
+    const src = fs.readFileSync(file, "utf8");
+    if (src.includes("/assets/node_modules/")) fs.writeFileSync(file, src.split("/assets/node_modules/").join("/assets/nm/"));
+  }
+}
+if (fs.readFileSync(path.join(out, "index.html"), "utf8").includes("node_modules") || walkAll(out).some((f) => f.includes("node_modules"))) throw new Error("node_modules paths left in the export");
+function walkAll(d) { return fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walkAll(path.join(d, e.name)) : [path.join(d, e.name)])); }
+
 const indexPath = path.join(out, "index.html");
 let html = fs.readFileSync(indexPath, "utf8");
 const head = [

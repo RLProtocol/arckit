@@ -10,6 +10,7 @@ type Tool = { key: string; name: string; text: string; icon: keyof typeof Ionico
 const T = { blue: ["rgba(143,179,255,0.22)", "#8fb3ff"], aqua: ["rgba(95,227,201,0.2)", "#5fe3c9"], gold: ["rgba(242,196,100,0.2)", "#f2c464"], coral: ["rgba(255,122,110,0.2)", "#ff7a6e"], violet: ["rgba(186,156,255,0.22)", "#ba9cff"] } as const;
 const TOOLS: Tool[] = [
   { key: "launch", name: "Launch", text: "Launch a token on Argus, claim its fees.", icon: "rocket-outline", tab: "/launch", tint: [...T.aqua] },
+  { key: "names", name: ".arc names", text: "Your name on Arc, plus a website.", icon: "at-outline", tab: "/tools/names", tint: [...T.blue] },
   { key: "lock", name: "ArcLock", text: "Lock tokens or LP with a public certificate.", icon: "lock-closed-outline", tab: "/tools/lock", tint: [...T.blue] },
   { key: "vest", name: "Vesting", text: "Linear schedules with a cliff.", icon: "hourglass-outline", tab: "/tools/vest", tint: [...T.violet] },
   { key: "airdrop", name: "Airdrop", text: "Send a token or USDC to many wallets at once.", icon: "gift-outline", tab: "/tools/airdrop", tint: [...T.gold] },

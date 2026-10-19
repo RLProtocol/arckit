@@ -1,6 +1,26 @@
 // Sentences the app builds with numbers or token symbols filled in. Each renders as one string, so an exact
 // dictionary lookup cannot match it; these regexes do. Captured parts ($1, $2…) are passed through as-is.
 export const PATTERNS_ZH: [RegExp, string][] = [
+  // .arc names
+  [/^(.+)\.arc is reserved\.$/, "$1.arc 已被保留。"],
+  [/^(.+)\.arc is yours\.?$/, "$1.arc 归你了"],
+  [/^Register (.+)\.arc$/, "注册 $1.arc"],
+  [/^Renew (.+)\.arc$/, "续费 $1.arc"],
+  [/^Send to (.+)\.arc$/, "发送给 $1.arc"],
+  [/^(.+)\.arc is your primary name\.$/, "$1.arc 已设为你的主名称。"],
+  [/^(.+)\.arc is not registered or points nowhere\.$/, "$1.arc 未注册或未指向任何地址。"],
+  [/^Show (.+)\.arc as your name in Arc Kit\.$/, "在 Arc Kit 中显示 $1.arc 作为你的名字。"],
+  [/^Point (.+)\.arc at this wallet first to use it as your name\.$/, "先将 $1.arc 指向此钱包，才能用作你的名字。"],
+  [/^Payments to (.+)\.arc go to (.+)\. Point it at another wallet, such as a cold wallet or a multisig\.$/, "发给 $1.arc 的付款会进入 $2。可改为指向其他钱包，例如冷钱包或多签。"],
+  [/^Your site opens at (.+)\.usearckit\.online\. Upload a folder from usearckit\.online\/names on a computer, or paste an IPFS link here\.$/, "你的网站在 $1.usearckit.online 打开。可在电脑上通过 usearckit.online/names 上传文件夹，或在此粘贴 IPFS 链接。"],
+  [/^Updated\. (.+)\.usearckit\.online refreshes within a minute\.$/, "已更新。$1.usearckit.online 将在一分钟内刷新。"],
+  [/^Live: (.+)$/, "已上线：$1"],
+  [/^until (.+)$/, "到期 $1"],
+  [/^expired (.+)$/, "已于 $1 过期"],
+  [/^(\d+)d left$/, "剩 $1 天"],
+  [/^\+(\d+) years?$/, "+$1 年"],
+  [/^(\d+) years$/, "$1 年"],
+  [/^(.+)\.arc → (.+)$/, "$1.arc → $2"],
   // Native tools
   [/^Lock #(\d+) is live$/, "锁仓 #$1 已生效"],
   [/^(.+) locked until (.+)\.$/, "$1 已锁定至 $2。"],
@@ -134,6 +154,26 @@ export const PATTERNS_ZH: [RegExp, string][] = [
 ];
 
 export const PATTERNS_ID: [RegExp, string][] = [
+  // .arc names
+  [/^(.+)\.arc is reserved\.$/, "$1.arc dicadangkan."],
+  [/^(.+)\.arc is yours\.?$/, "$1.arc milik Anda"],
+  [/^Register (.+)\.arc$/, "Daftarkan $1.arc"],
+  [/^Renew (.+)\.arc$/, "Perpanjang $1.arc"],
+  [/^Send to (.+)\.arc$/, "Kirim ke $1.arc"],
+  [/^(.+)\.arc is your primary name\.$/, "$1.arc kini nama utama Anda."],
+  [/^(.+)\.arc is not registered or points nowhere\.$/, "$1.arc belum terdaftar atau tidak mengarah ke mana pun."],
+  [/^Show (.+)\.arc as your name in Arc Kit\.$/, "Tampilkan $1.arc sebagai nama Anda di Arc Kit."],
+  [/^Point (.+)\.arc at this wallet first to use it as your name\.$/, "Arahkan $1.arc ke dompet ini dulu untuk memakainya sebagai nama."],
+  [/^Payments to (.+)\.arc go to (.+)\. Point it at another wallet, such as a cold wallet or a multisig\.$/, "Pembayaran ke $1.arc masuk ke $2. Arahkan ke dompet lain, seperti dompet dingin atau multisig."],
+  [/^Your site opens at (.+)\.usearckit\.online\. Upload a folder from usearckit\.online\/names on a computer, or paste an IPFS link here\.$/, "Situs Anda dibuka di $1.usearckit.online. Unggah folder dari usearckit.online/names di komputer, atau tempel tautan IPFS di sini."],
+  [/^Updated\. (.+)\.usearckit\.online refreshes within a minute\.$/, "Diperbarui. $1.usearckit.online diperbarui dalam satu menit."],
+  [/^Live: (.+)$/, "Aktif: $1"],
+  [/^until (.+)$/, "sampai $1"],
+  [/^expired (.+)$/, "kedaluwarsa $1"],
+  [/^(\d+)d left$/, "sisa $1 hari"],
+  [/^\+(\d+) years?$/, "+$1 tahun"],
+  [/^(\d+) years$/, "$1 tahun"],
+  [/^(.+)\.arc → (.+)$/, "$1.arc → $2"],
   // Native tools
   [/^Lock #(\d+) is live$/, "Kunci #$1 aktif"],
   [/^(.+) locked until (.+)\.$/, "$1 terkunci sampai $2."],

@@ -58,11 +58,9 @@ module.exports = async (req, res) => {
     res.setHeader("Allow", "POST");
     return res.end(JSON.stringify({ error: "POST only" }));
   }
-  const upstream = process.env.ARC_RPC_URL;
-  if (!upstream) {
-    res.statusCode = 500;
-    return res.end(JSON.stringify({ error: "ARC_RPC_URL not configured" }));
-  }
+  // the private node first; public thirdweb when it is missing, down, or refusing the key (it returned 403
+  // api_key_blocked on 2026-10-19 and every client fell back to slower public RPCs)
+  const upstreams = [process.env.ARC_RPC_URL, "https://5042.rpc.thirdweb.com"].filter(Boolean);
 
   let raw;
   try {
@@ -86,23 +84,28 @@ module.exports = async (req, res) => {
     return res.end(JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32601, message: `method not allowed via proxy: ${bad || "(none)"}` } }));
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15_000);
-  try {
-    const r = await fetch(upstream, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: raw,
-      signal: controller.signal,
-    });
-    const text = await r.text();
-    res.statusCode = r.status;
-    res.setHeader("Content-Type", "application/json");
-    return res.end(text);
-  } catch (e) {
-    res.statusCode = 502;
-    return res.end(JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32603, message: `upstream unreachable: ${e && e.name === "AbortError" ? "timeout" : "error"}` } }));
-  } finally {
-    clearTimeout(timer);
+  let last = "error";
+  for (const upstream of upstreams) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12_000);
+    try {
+      const r = await fetch(upstream, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: raw,
+        signal: controller.signal,
+      });
+      const text = await r.text();
+      if (!r.ok) { last = `HTTP ${r.status}`; continue; } // blocked key, rate limit, outage: try the next one
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json");
+      return res.end(text);
+    } catch (e) {
+      last = e && e.name === "AbortError" ? "timeout" : "error";
+    } finally {
+      clearTimeout(timer);
+    }
   }
+  res.statusCode = 502;
+  return res.end(JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32603, message: `upstream unreachable: ${last}` } }));
 };

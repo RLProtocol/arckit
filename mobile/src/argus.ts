@@ -92,8 +92,8 @@ export const SPLIT_PRESETS: { key: string; label: string; alloc: [number, number
   { key: "deflation", label: "Deflationary", alloc: [3000, 5000, 0, 0, 2000] },
 ];
 
-/** ipfs:// URIs (what almost every Argus launch uses) through a public gateway; https passes through. */
-export const imageUrl = (uri?: string) => (!uri ? undefined : uri.startsWith("ipfs://") ? `https://ipfs.io/ipfs/${uri.slice(7)}` : uri);
+/** ipfs:// URIs (what almost every Argus launch uses) through a public gateway; https passes through. ipfs.io stopped serving in Oct 2026. */
+export const imageUrl = (uri?: string) => (!uri ? undefined : uri.startsWith("ipfs://") ? `https://ipfs.filebase.io/ipfs/${uri.slice(7)}` : uri);
 
 export const ARGUS_ERRORS: Record<string, string> = {
   SeedBuyTooSmall: "The opening buy is below Argus's minimum. Raise it and try again.",

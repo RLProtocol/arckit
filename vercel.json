@@ -28,9 +28,22 @@
     },
     "api/argus.js": {
       "maxDuration": 60
+    },
+    "api/names.js": {
+      "maxDuration": 60
     }
   },
   "rewrites": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<name>(?!www\\.)[a-z0-9-]+)\\.usearckit\\.online"
+        }
+      ],
+      "destination": "/api/names?op=site&name=:name&path=/:path*"
+    },
     {
       "source": "/lock/:id(\\d+)",
       "has": [

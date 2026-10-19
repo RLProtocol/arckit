@@ -1,3 +1,4 @@
+import { NAME_ERRORS } from "@/hooks/useArcNames";
 import { parseAbi, type Address } from "viem";
 import deployments from "@deployments/arc-5042.json";
 
@@ -501,6 +502,7 @@ export type TokenMeta = {
 
 /** Plain-language messages for every custom error the contract can throw. */
 export const ERROR_TEXT: Record<string, string> = {
+  ...NAME_ERRORS,
   // ArcP2P
   ListingNotFound: "That listing does not exist.",
   NotSeller: "Only the seller can change this listing.",

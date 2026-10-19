@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { Pressable, View } from "react-native";
 import { Text } from "@/i18n/Text";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { isAddress, parseEther, type Address } from "viem";
+import { parseEther, type Address } from "viem";
+import { useRecipient } from "@/tools/names";
 import { useWallet } from "@/wallet/provider";
 import { useTx } from "@/wallet/useTx";
 import { useBalances } from "@/hooks/useBalances";
@@ -16,12 +17,15 @@ import { fmtTok, fmtUsd, safeParse, shortAddr } from "@/lib/format";
 import { colors, fonts } from "@/theme";
 
 export default function Send() {
-  const { token: preset } = useLocalSearchParams<{ token?: string }>();
+  const { token: preset, to: presetTo } = useLocalSearchParams<{ token?: string; to?: string }>();
   const router = useRouter();
   const { address, walletClient } = useWallet();
   const bal = useBalances(address);
   const [token, setToken] = useState<Address | "native">((preset as Address) || "native");
-  const [to, setTo] = useState("");
+  const [to, setTo] = useState(presetTo ?? "");
+  // a 0x address or a .arc name, resolved on chain
+  const rcpt = useRecipient(to);
+  const dest = rcpt.address;
   const [amt, setAmt] = useState("");
   const tx = useTx();
   const [gas, setGas] = useState<bigint | undefined>();
@@ -29,13 +33,13 @@ export default function Send() {
 
   const asset = useMemo(() => (token === "native" ? { symbol: "USDC", decimals: 18, balance: bal.data?.native ?? 0n } : bal.data?.tokens.find((t) => t.address.toLowerCase() === token.toLowerCase()) ?? { symbol: "…", decimals: 18, balance: 0n }), [token, bal.data]);
   const units = safeParse(amt, asset.decimals);
-  const err = !to ? "" : !isAddress(to) ? "That is not a valid Arc address." : !units ? "" : units > asset.balance ? `More than your ${asset.symbol} balance.` : "";
-  const ready = !!units && isAddress(to) && !err;
+  const err = !to ? "" : rcpt.error ? rcpt.error : !dest ? "" : !units ? "" : units > asset.balance ? `More than your ${asset.symbol} balance.` : "";
+  const ready = !!units && !!dest && !err;
 
   const estimate = async () => {
     if (!ready || !address) return;
     try {
-      const g = token === "native" ? await publicClient.estimateGas({ account: address, to: to as Address, value: units }) : await publicClient.estimateContractGas({ account: address, address: token, abi: erc20Abi, functionName: "transfer", args: [to as Address, units!] });
+      const g = token === "native" ? await publicClient.estimateGas({ account: address, to: dest!, value: units }) : await publicClient.estimateContractGas({ account: address, address: token, abi: erc20Abi, functionName: "transfer", args: [dest!, units!] });
       const price = await publicClient.getGasPrice();
       setGas(g * price);
     } catch { setGas(undefined); }
@@ -43,8 +47,8 @@ export default function Send() {
 
   const submit = () => void tx.send(async () => {
     if (!walletClient || !address) throw new Error("Wallet is locked.");
-    if (token === "native") return walletClient.sendTransaction({ account: walletClient.account!, chain: walletClient.chain, to: to as Address, value: units! });
-    return walletClient.writeContract({ account: walletClient.account!, chain: walletClient.chain, address: token, abi: erc20Abi, functionName: "transfer", args: [to as Address, units!] });
+    if (token === "native") return walletClient.sendTransaction({ account: walletClient.account!, chain: walletClient.chain, to: dest!, value: units! });
+    return walletClient.writeContract({ account: walletClient.account!, chain: walletClient.chain, address: token, abi: erc20Abi, functionName: "transfer", args: [dest!, units!] });
   });
 
   return (
@@ -54,11 +58,12 @@ export default function Send() {
         <AssetChip on={token === "native"} symbol="USDC" onPress={() => { setToken("native"); setAmt(""); }} />
         {bal.data?.tokens.filter((t) => t.balance > 0n || t.address.toLowerCase() === token.toLowerCase()).map((t) => <AssetChip key={t.address} on={token.toLowerCase() === t.address.toLowerCase()} symbol={t.symbol} uri={images[t.address.toLowerCase()]} onPress={() => { setToken(t.address); setAmt(""); }} />)}
       </Card>
-      <Field label="To" placeholder="0x…" value={to} onChangeText={(v) => setTo(v.trim())} error={to && !isAddress(to) ? "That is not a valid Arc address." : undefined} hint={isAddress(to) ? `Sending on Arc to ${shortAddr(to, 6)}` : "An Arc / EVM address. Double-check it: transfers cannot be reversed."} />
+      <Field label="To" placeholder="0x… or name.arc" value={to} onChangeText={(v) => setTo(v.trim())} error={rcpt.error || undefined}
+        hint={rcpt.loading ? "Looking up the name…" : dest ? (rcpt.name ? `${rcpt.name}.arc → ${shortAddr(dest, 6)}` : `Sending on Arc to ${shortAddr(dest, 6)}`) : "An Arc address or a .arc name. Double-check it: transfers cannot be reversed."} />
       <Field label={`Amount in ${asset.symbol}`} placeholder="0.00" keyboardType="decimal-pad" value={amt} onChangeText={setAmt} onBlur={estimate} error={err && units ? err : undefined} hint={`Balance: ${token === "native" ? fmtUsd(asset.balance, 4) : fmtTok(asset.balance, asset.decimals)} ${asset.symbol}`}
         right={<Pressable onPress={() => setAmt(token === "native" ? (asset.balance > parseEther("0.01") ? (Number(asset.balance - parseEther("0.01")) / 1e18).toString() : "0") : (Number(asset.balance) / 10 ** asset.decimals).toString())} style={{ paddingHorizontal: 14 }}><Text style={{ fontFamily: fonts.bodyMedium, color: colors.accent }}>Max</Text></Pressable>} />
       {ready && (
-        <Ledger rows={[["You send", `${amt} ${asset.symbol}`], ["To", shortAddr(to, 8)], ["Network fee", gas !== undefined ? `≈ ${fmtUsd(gas, 5)} USDC` : "tap outside the field to estimate"]]} />
+        <Ledger rows={[["You send", `${amt} ${asset.symbol}`], ["To", rcpt.name ? `${rcpt.name}.arc · ${shortAddr(dest, 6)}` : shortAddr(dest, 8)], ["Network fee", gas !== undefined ? `≈ ${fmtUsd(gas, 5)} USDC` : "tap outside the field to estimate"]]} />
       )}
       <TxStatus tx={tx} done={`Sent. ${asset.symbol} is on its way.`} />
       {!ready && !tx.hash && <Notice>Gas on Arc is paid in USDC and usually costs less than a cent.</Notice>}

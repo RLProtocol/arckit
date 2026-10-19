@@ -11,6 +11,7 @@ import { useActivity } from "@/hooks/useArcKit";
 import { useTokenImages } from "@/hooks/useTokenImages";
 import { Card, Eyebrow, Mono, P, Row, Skeleton } from "@/components/ui";
 import { Brand, TokenLogo } from "@/components/TokenLogo";
+import { usePrimaryName } from "@/tools/names";
 import { ActivityRow } from "@/components/ActivityRow";
 import { fmtPrice, fmtTok, fmtUsd, shortAddr, timeAgo } from "@/lib/format";
 import { colors, fonts, radius } from "@/theme";
@@ -19,6 +20,7 @@ const USDC = require("../../assets/usdc.png");
 
 export default function Wallet() {
   const { address } = useWallet();
+  const primary = usePrimaryName(address);
   const router = useRouter();
   const bal = useBalances(address);
   const act = useActivity(address);
@@ -39,7 +41,7 @@ export default function Wallet() {
             <View style={[styles.heroArc, { width: 420, height: 420, right: -170, top: -230, borderWidth: 1 }]} pointerEvents="none" />
             <Row between>
               <Eyebrow color="rgba(238,244,255,0.7)">Total balance</Eyebrow>
-              <Pressable onPress={() => address && void Clipboard.setStringAsync(address)} style={styles.addrChip}><Mono size={11} style={{ color: colors.text }}>{shortAddr(address, 4)}</Mono><Ionicons name="copy-outline" size={12} color={colors.dim} /></Pressable>
+              <Pressable onPress={() => address && void Clipboard.setStringAsync(address)} style={styles.addrChip}><Mono size={11} style={{ color: colors.text }}>{primary.data ? `${primary.data}.arc` : shortAddr(address, 4)}</Mono><Ionicons name="copy-outline" size={12} color={colors.dim} /></Pressable>
             </Row>
             {bal.isLoading ? <View style={{ marginTop: 14 }}><Skeleton width={190} height={46} /></View> : (
               <Row style={{ marginTop: 10, gap: 12 }}>

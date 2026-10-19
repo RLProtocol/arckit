@@ -1,6 +1,7 @@
 import { parseAbi } from "viem";
 import { ARGUS_ERRORS } from "./argus";
 import { STAKING_ERRORS, TOOL_ERRORS } from "./tools/abis";
+import { NAME_ERRORS } from "./tools/names";
 
 export const erc20Abi = parseAbi([
   "function symbol() view returns (string)",
@@ -67,6 +68,7 @@ export const ERROR_TEXT: Record<string, string> = {
   ...ARGUS_ERRORS,
   ...TOOL_ERRORS,
   ...STAKING_ERRORS,
+  ...NAME_ERRORS,
 };
 
 export const lockerAbi = parseAbi([

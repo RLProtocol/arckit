@@ -1628,5 +1628,20 @@
   "Website updated.": "Situs diperbarui.",
   "Lowercase letters, numbers and hyphens · 3 to 32 characters · 5+ chars 5 USDC/yr, 4 chars 20, 3 chars 50": "Huruf kecil, angka dan tanda hubung · 3 sampai 32 karakter · 5+ karakter 5 USDC/thn, 4 karakter 20, 3 karakter 50",
   "You have no .arc names yet. Search above to get one.": "Anda belum punya nama .arc. Cari di atas untuk mendapatkannya.",
-  "Names": "Nama"
+  "Names": "Nama",
+  "Your Arc identity.": "Identitas Arc Anda.",
+  "see your profile": "melihat profil Anda",
+  "Loading your names…": "Memuat nama Anda…",
+  "No .arc name yet": "Belum ada nama .arc",
+  "Get a name to have a profile, a payment address people can remember, and a website.": "Dapatkan nama untuk punya profil, alamat pembayaran yang mudah diingat, dan situs web.",
+  "Public profile": "Profil publik",
+  "Edit profile": "Edit profil",
+  "Payment address": "Alamat pembayaran",
+  "Copy profile link": "Salin tautan profil",
+  "Edit": "Edit",
+  "Copy address": "Salin alamat",
+  "Disconnect": "Putuskan",
+  "Nobody owns this name yet.": "Belum ada yang memiliki nama ini.",
+  "This name has expired or is reserved.": "Nama ini kedaluwarsa atau dicadangkan.",
+  "Point the name at this wallet first (Address tab)": "Arahkan nama ke dompet ini dulu (tab Alamat)"
 }

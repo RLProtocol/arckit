@@ -41,7 +41,11 @@ export default function Wallet() {
             <View style={[styles.heroArc, { width: 420, height: 420, right: -170, top: -230, borderWidth: 1 }]} pointerEvents="none" />
             <Row between>
               <Eyebrow color="rgba(238,244,255,0.7)">Total balance</Eyebrow>
-              <Pressable onPress={() => address && void Clipboard.setStringAsync(address)} style={styles.addrChip}><Mono size={11} style={{ color: colors.text }}>{primary.data ? `${primary.data}.arc` : shortAddr(address, 4)}</Mono><Ionicons name="copy-outline" size={12} color={colors.dim} /></Pressable>
+              {/* with a name: tap opens the profile, long-press copies the address */}
+              <Pressable onPress={() => (primary.data ? router.push({ pathname: "/tools/names/[label]", params: { label: primary.data } }) : address && void Clipboard.setStringAsync(address))} onLongPress={() => address && void Clipboard.setStringAsync(address)} style={styles.addrChip}>
+                <Mono size={11} style={{ color: colors.text }}>{primary.data ? `${primary.data}.arc` : shortAddr(address, 4)}</Mono>
+                <Ionicons name={primary.data ? "person-circle-outline" : "copy-outline"} size={primary.data ? 14 : 12} color={colors.dim} />
+              </Pressable>
             </Row>
             {bal.isLoading ? <View style={{ marginTop: 14 }}><Skeleton width={190} height={46} /></View> : (
               <Row style={{ marginTop: 10, gap: 12 }}>

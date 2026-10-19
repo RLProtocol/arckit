@@ -147,7 +147,7 @@ function MyNames() {
 
 type Panel = "profile" | "website" | "renew" | "address";
 
-function Manage({ label, me, isPrimary }: { label: string; me: Address; isPrimary: boolean }) {
+export function Manage({ label, me, isPrimary }: { label: string; me: Address; isPrimary: boolean }) {
   const [panel, setPanel] = useState<Panel>("profile");
   const info = useNameInfo(label).data as NameInfo | undefined;
   const primaryTx = useTx();
@@ -171,7 +171,7 @@ function Manage({ label, me, isPrimary }: { label: string; me: Address; isPrimar
   );
 }
 
-function Profile({ label }: { label: string }) {
+export function Profile({ label }: { label: string }) {
   const texts = useReadContracts({ contracts: TEXT_KEYS.map(([k]) => ({ address: NAMES_ADDRESS!, abi: arcNamesAbi, functionName: "text", args: [label, k], chainId: arc.id }) as const) });
   const current = useMemo(() => TEXT_KEYS.map((_, i) => (texts.data?.[i]?.result as string | undefined) ?? ""), [texts.data]);
   const [vals, setVals] = useState<string[]>([]);
@@ -209,7 +209,7 @@ async function readFiles(list: FileList): Promise<UploadFile[]> {
   return out;
 }
 
-function Website({ label, current }: { label: string; current: string }) {
+export function Website({ label, current }: { label: string; current: string }) {
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [paste, setPaste] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -258,7 +258,7 @@ function Website({ label, current }: { label: string; current: string }) {
   );
 }
 
-function AddressPanel({ label, current }: { label: string; current?: Address }) {
+export function AddressPanel({ label, current }: { label: string; current?: Address }) {
   const [to, setTo] = useState("");
   const tx = useTx();
   return (
@@ -275,7 +275,7 @@ function AddressPanel({ label, current }: { label: string; current?: Address }) 
   );
 }
 
-function Renew({ label, info }: { label: string; info?: NameInfo }) {
+export function Renew({ label, info }: { label: string; info?: NameInfo }) {
   const [years, setYears] = useState(1);
   const tx = useTx();
   const cost = (info?.yearlyPrice ?? 0n) * BigInt(years);

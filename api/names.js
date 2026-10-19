@@ -57,6 +57,43 @@ async function fetchFile(root, p) {
   throw new Error("IPFS gateways are not answering. Try again in a minute.");
 }
 
+const textAbi = parseAbi(["function text(string label, string key) view returns (string)"]);
+const KEYS = ["avatar", "description", "url", "com.twitter", "org.telegram", "com.github"];
+const gw = (u) => (u.startsWith("ipfs://") ? `https://ipfs.filebase.io/ipfs/${u.slice(7)}` : u);
+const safeUrl = (u) => (/^https:\/\//.test(u) ? u : /^[\w.-]+\.[a-z]{2,}(\/.*)?$/i.test(u) ? `https://${u}` : "");
+const handle = (v) => v.replace(/^@/, "").replace(/^https?:\/\/(www\.)?(x|twitter)\.com\//, "").replace(/^https?:\/\/t\.me\//, "").replace(/\/$/, "");
+
+/** A name with no website still gets a page: its profile card, straight from the contract. */
+async function profilePage(res, label) {
+  const addr = await client.readContract({ address: NAMES, abi, functionName: "resolve", args: [label] });
+  if (!addr || /^0x0{40}$/i.test(addr)) return placeholder(res, label, 404);
+  const vals = await Promise.all(KEYS.map((k) => client.readContract({ address: NAMES, abi: textAbi, functionName: "text", args: [label, k] }).catch(() => "")));
+  const t = Object.fromEntries(KEYS.map((k, i) => [k, String(vals[i] || "")]));
+  const av = t.avatar ? safeUrl(gw(t.avatar)) : "";
+  const links = [];
+  const u = safeUrl(t.url); if (u) links.push([u.replace(/^https:\/\//, ""), u]);
+  if (t["com.twitter"]) links.push([`@${handle(t["com.twitter"])}`, `https://x.com/${encodeURIComponent(handle(t["com.twitter"]))}`]);
+  if (t["org.telegram"]) links.push([`t.me/${handle(t["org.telegram"])}`, `https://t.me/${encodeURIComponent(handle(t["org.telegram"]))}`]);
+  if (t["com.github"]) links.push([`github/${handle(t["com.github"])}`, `https://github.com/${encodeURIComponent(handle(t["com.github"]))}`]);
+  res.statusCode = 200;
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+  res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(label)}.arc</title>
+<meta property="og:title" content="${esc(label)}.arc"><meta property="og:description" content="${esc(t.description || `${label}.arc on Arc`)}">${av ? `<meta property="og:image" content="${esc(av)}">` : ""}
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 80% 0,#0f5c6b,#071426 60%);color:#eef4ff;font:16px/1.5 system-ui,-apple-system,sans-serif;padding:20px;box-sizing:border-box}
+.card{max-width:460px;width:100%;background:rgba(9,24,46,.85);border:1px solid rgba(214,230,255,.18);border-radius:24px;padding:28px;text-align:center}
+.av{width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid rgba(95,227,201,.5);display:block;margin:0 auto 14px;background:#10284a}
+.in{width:96px;height:96px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;background:rgba(143,179,255,.16);color:#8fb3ff;font-size:40px;font-weight:600}
+h1{margin:0;font:600 30px/1.2 ui-monospace,monospace;word-break:break-all}h1 span{color:#5fe3c9}.addr{font:13px ui-monospace,monospace;color:#a9b9d6;margin-top:6px;word-break:break-all}
+p{color:#c9d6ee;margin:16px 0 0}.links{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}.links a{color:#eef4ff;text-decoration:none;border:1px solid rgba(214,230,255,.22);border-radius:999px;padding:7px 14px;font-size:14px}
+.foot{margin-top:22px;font-size:12px;color:#6f83a6}.foot a{color:#5fe3c9}</style></head><body><main class="card">
+${av ? `<img class="av" src="${esc(av)}" alt="">` : `<div class="in">${esc(label[0].toUpperCase())}</div>`}
+<h1>${esc(label)}<span>.arc</span></h1><div class="addr">${esc(addr)}</div>
+${t.description ? `<p>${esc(t.description)}</p>` : ""}
+<div class="links">${links.map(([l, h]) => `<a href="${esc(h)}" rel="noopener nofollow" target="_blank">${esc(l)}</a>`).join("")}<a href="https://arc.etherscan.io/address/${esc(addr)}" target="_blank" rel="noopener">Etherscan</a></div>
+<div class="foot">An Arc name · <a href="https://www.usearckit.online/n/${encodeURIComponent(label)}">usearckit.online</a></div></main></body></html>`);
+}
+
 /** Fetches one path of an IPFS folder, trying page-style fallbacks for clean URLs and single-page apps. */
 async function fromIpfs(root, path) {
   const tries = path.endsWith("/") ? [`${path}index.html`] : ext(path) ? [path] : [path, `${path}.html`, `${path}/index.html`, "/index.html"];
@@ -75,7 +112,7 @@ async function serveSite(req, res) {
   const hash = await siteOf(label);
   // ipfs://CID or ipfs://CID/sub/folder (a zip with one top-level folder)
   const m = /^ipfs:\/\/([a-zA-Z0-9]+)((?:\/[A-Za-z0-9._~-]+)*)\/?$/.exec(hash || "");
-  if (!m) return placeholder(res, label, 404);
+  if (!m) return path === "/" ? profilePage(res, label) : placeholder(res, label, 404);
   const root = m[1] + (m[2] || "");
   const got = await fromIpfs(root, path);
   if (!got) return placeholder(res, label, 404);
@@ -147,3 +184,4 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: String((e && e.message) || e).slice(0, 200) });
   }
 };
+module.exports.profilePage = profilePage; // exposed for tests

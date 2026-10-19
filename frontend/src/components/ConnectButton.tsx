@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { arc } from "@/wagmi";
 import { shortAddr } from "@/lib/format";
@@ -82,10 +83,21 @@ export function ConnectButton() {
     );
   }
 
+  // connected: a small menu (profile, names, disconnect) instead of disconnecting on click
   return (
-    <button className="btn btn-ghost mono" onClick={() => disconnect()} title={`${address}\nClick to disconnect`}>
-      <span style={{ width: 8, height: 8, borderRadius: 4, background: "var(--aqua)" }} />
-      {primary.data ? `${primary.data}.arc` : shortAddr(address)}
-    </button>
+    <div ref={ref} style={{ position: "relative" }}>
+      <button className="btn btn-ghost mono" onClick={() => setOpen(!open)} title={address}>
+        <span style={{ width: 8, height: 8, borderRadius: 4, background: "var(--aqua)" }} />
+        {primary.data ? `${primary.data}.arc` : shortAddr(address)}
+      </button>
+      {open ? (
+        <div className="card" style={{ position: "absolute", right: 0, top: "calc(100% + 6px)", minWidth: 200, padding: 6, zIndex: 50, display: "flex", flexDirection: "column", gap: 2 }}>
+          <Link className="btn btn-ghost btn-sm" style={{ justifyContent: "flex-start", border: 0 }} to="/profile" onClick={() => setOpen(false)}>Profile</Link>
+          <Link className="btn btn-ghost btn-sm" style={{ justifyContent: "flex-start", border: 0 }} to="/names" onClick={() => setOpen(false)}>.arc names</Link>
+          <button className="btn btn-ghost btn-sm" style={{ justifyContent: "flex-start", border: 0 }} onClick={() => { void navigator.clipboard.writeText(address!); setOpen(false); }}>Copy address</button>
+          <button className="btn btn-ghost btn-sm" style={{ justifyContent: "flex-start", border: 0, color: "var(--coral)" }} onClick={() => { disconnect(); setOpen(false); }}>Disconnect</button>
+        </div>
+      ) : null}
+    </div>
   );
 }

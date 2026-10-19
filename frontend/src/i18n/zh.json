@@ -1653,5 +1653,20 @@
   "Website updated.": "网站已更新。",
   "Lowercase letters, numbers and hyphens · 3 to 32 characters · 5+ chars 5 USDC/yr, 4 chars 20, 3 chars 50": "小写字母、数字和连字符 · 3 到 32 个字符 · 5 个字符以上每年 5 USDC，4 个字符 20，3 个字符 50",
   "You have no .arc names yet. Search above to get one.": "你还没有 .arc 名字。在上方搜索获取一个。",
-  "Names": "名字"
+  "Names": "名字",
+  "Your Arc identity.": "你的 Arc 身份。",
+  "see your profile": "查看你的个人资料",
+  "Loading your names…": "正在加载你的名字…",
+  "No .arc name yet": "还没有 .arc 名字",
+  "Get a name to have a profile, a payment address people can remember, and a website.": "获取一个名字，拥有个人资料、易记的收款地址和一个网站。",
+  "Public profile": "公开资料",
+  "Edit profile": "编辑资料",
+  "Payment address": "收款地址",
+  "Copy profile link": "复制资料链接",
+  "Edit": "编辑",
+  "Copy address": "复制地址",
+  "Disconnect": "断开连接",
+  "Nobody owns this name yet.": "此名字尚无人拥有。",
+  "This name has expired or is reserved.": "此名字已过期或被保留。",
+  "Point the name at this wallet first (Address tab)": "请先将名字指向此钱包（地址页）"
 }

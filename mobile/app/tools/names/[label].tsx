@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Linking, Pressable, View } from "react-native";
+import { Image, Linking, Pressable, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { isAddress, type Address } from "viem";
 import { Text } from "@/i18n/Text";
@@ -22,6 +22,10 @@ export default function ManageName() {
   const [panel, setPanel] = useState<Panel>("profile");
   const primaryTx = useTx();
   const i = info.data;
+  const texts = useTexts(label).data;
+  const avatarRaw = texts?.[0] ?? "";
+  const avatar = avatarRaw.startsWith("ipfs://") ? `https://ipfs.filebase.io/ipfs/${avatarRaw.slice(7)}` : avatarRaw.startsWith("https://") ? avatarRaw : "";
+  const bio = texts?.[1] ?? "";
 
   if (!i) return <Screen><BackHeader title=".arc names" /><Card>{[0, 1, 2].map((k) => <View key={k} style={{ paddingVertical: 10 }}><Skeleton /></View>)}</Card></Screen>;
   const mine = !!address && i.owner.toLowerCase() === address.toLowerCase();
@@ -32,8 +36,15 @@ export default function ManageName() {
     <Screen>
       <BackHeader title=".arc names" share={`${label}.arc on Arc${i.contenthash ? `\n${siteUrl(label)}` : ""}`} />
       <View style={{ marginTop: 20, padding: 20, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.accentLine, backgroundColor: colors.card }}>
-        <Eyebrow color={colors.accent}>Arc name</Eyebrow>
-        <Text style={{ fontFamily: fonts.display, fontSize: 30, color: colors.text, marginTop: 6 }} numberOfLines={1} adjustsFontSizeToFit>{`${label}.arc`}</Text>
+        <Row style={{ gap: 14 }}>
+          {avatar ? <Image source={{ uri: avatar }} style={{ width: 60, height: 60, borderRadius: 30, borderWidth: 2, borderColor: "rgba(95,227,201,0.5)" }} />
+            : <View style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: colors.accentSoft, alignItems: "center", justifyContent: "center" }}><Text style={{ fontFamily: fonts.displayBold, fontSize: 26, color: colors.accent }}>{label[0]?.toUpperCase() ?? "?"}</Text></View>}
+          <View style={{ flex: 1 }}>
+            <Eyebrow color={colors.accent}>Arc name</Eyebrow>
+            <Text style={{ fontFamily: fonts.display, fontSize: 28, color: colors.text, marginTop: 4 }} numberOfLines={1} adjustsFontSizeToFit>{`${label}.arc`}</Text>
+          </View>
+        </Row>
+        {bio ? <P small style={{ marginTop: 12, color: colors.text }}>{bio}</P> : null}
         <Row style={{ marginTop: 10, gap: 6, flexWrap: "wrap" }}>
           {primary.data === label ? <Pill tone="aqua">primary</Pill> : null}
           <Pill tone={expired ? "gold" : "dim"}>{expired ? `expired ${fmtDate(Number(i.expires))}` : `until ${fmtDate(Number(i.expires))}`}</Pill>

@@ -19,6 +19,7 @@ import { Docs } from "@/pages/Docs";
 import { Lend } from "@/pages/Lend";
 import { P2P } from "@/pages/P2P";
 import { Names } from "@/pages/Names";
+import { NameProfile, Profile } from "@/pages/Profile";
 import { FlowPosition, FlowLocks } from "@/pages/FlowPosition";
 import { Footer } from "@/components/Footer";
 
@@ -41,6 +42,8 @@ export default function App() {
           <Route path="/lend" element={<Lend />} />
           <Route path="/p2p" element={<P2P />} />
           <Route path="/names" element={<Names />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/n/:label" element={<NameProfile />} />
           <Route path="/docs" element={<Docs />} />
           <Route path="/docs/:slug" element={<Docs />} />
           <Route path="/flow" element={<Flow />} />

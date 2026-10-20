@@ -7,6 +7,7 @@ import { config } from "@/wagmi";
 import App from "@/App";
 import { LangProvider } from "@/i18n";
 import "@/styles.css";
+import "@/names.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {

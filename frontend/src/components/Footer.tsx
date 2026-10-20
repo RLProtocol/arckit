@@ -4,6 +4,7 @@ import { ArcMark } from "@/components/Nav";
 import { shortAddr } from "@/lib/format";
 import { ARCLEND_ADDRESS } from "@/hooks/useArcLend";
 import { ARCP2P_ADDRESS } from "@/hooks/useArcP2P";
+import { NAMES_ADDRESS } from "@/hooks/useArcNames";
 
 export const SOCIALS = {
   x: "https://x.com/usearckit",
@@ -56,6 +57,7 @@ export function Footer() {
           <Link to="/cash">ArcCash: private transfers</Link>
           <Link to="/lend">ArcLend: borrow USDC</Link>
           <Link to="/p2p">ArcP2P: trade peer to peer</Link>
+          <Link to="/names">.arc names: your name on Arc</Link>
           <Link to="/docs">Documentation</Link>
           <Link to="/stake">Staking pools</Link>
           <Link to="/flow">ArcFlow stakes and pools</Link>
@@ -108,6 +110,11 @@ export function Footer() {
           {ARCP2P_ADDRESS && (
             <a href={explorerAddress(ARCP2P_ADDRESS)} target="_blank" rel="noreferrer" className="mono">
               ArcP2P · {shortAddr(ARCP2P_ADDRESS, 6)}
+            </a>
+          )}
+          {NAMES_ADDRESS && (
+            <a href={explorerAddress(NAMES_ADDRESS)} target="_blank" rel="noreferrer" className="mono">
+              ArcNames · {shortAddr(NAMES_ADDRESS, 6)}
             </a>
           )}
           <span className="faint tiny">Chain 5042 · fees in USDC</span>

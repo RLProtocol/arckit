@@ -12,7 +12,7 @@
    .arc names: landing, name page, registration
 ------------------------------------------------------------------- */
 .an-hero { text-align: center; padding: clamp(36px, 8vw, 88px) 0 28px; position: relative; }
-.an-hero::before { content: ""; position: absolute; inset: -40px -20% auto; height: 420px; background: radial-gradient(520px 260px at 50% 30%, rgba(95, 227, 201, 0.12), transparent 70%); pointer-events: none; }
+.an-hero::before { content: ""; position: absolute; inset: -40px 0 auto; height: 420px; background: radial-gradient(520px 260px at 50% 30%, rgba(95, 227, 201, 0.12), transparent 70%); pointer-events: none; }
 .an-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: rgba(16, 40, 74, 0.6); font: 500 12px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); position: relative; }
 .an-badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--aqua); box-shadow: 0 0 0 4px var(--aqua-soft); }
 .an-title { font-family: var(--font-display); font-weight: 500; font-size: clamp(44px, 8vw, 88px); line-height: 0.98; letter-spacing: -0.035em; margin: 22px 0 14px; position: relative; }

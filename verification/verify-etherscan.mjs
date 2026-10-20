@@ -12,6 +12,8 @@ const jobs = [
   ["ArcFlowPositions", "0x16c40157fF4b49b3328Db3AE352E9eA699b8f759", "src/arcflow/v2/ArcFlowPositions.sol", V26, PM + USDC + ZERO],
   ["ArcFlowVaultV2", "0xC30D55758d12ac9FD80459b002085E8528f38748", "src/arcflow/v2/ArcFlowVaultV2.sol", V26, PM + USDC + ZERO],
   ["ArcFlowFeeHook", "0x4FC207E35226df90c57DBc3CAcD60E6974c05080", "src/arcflow/v2/ArcFlowFeeHook.sol", V26, PM],
+  // ArcNames(owner, feeReceiver, [50, 20, 5] USDC per year), verified 2026-10-20
+  ["ArcNames", "0x4C643E7133c20816dF778Cb4FcEF004201852F08", "src/ArcNames.sol", V26, "00000000000000000000000023d128f066820dca6e8809f947766b45d3c6ae3500000000000000000000000023d128f066820dca6e8809f947766b45d3c6ae350000000000000000000000000000000000000000000000002b5e3af16b1880000000000000000000000000000000000000000000000000001158e460913d000000000000000000000000000000000000000000000000000004563918244f40000"],
 ];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const post = async (body) => (await fetch(API, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ apikey: KEY, module: "contract", ...body }) })).json();
